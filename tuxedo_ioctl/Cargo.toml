@@ -1,0 +1,14 @@
+[package]
+name = "tuxedo_ioctl"
+version = "0.1.0"
+license = "GPLv2+"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nix = { version = "0.24.1", features = ["ioctl"] }
+thiserror = "1"
+
+[dev-dependencies]
+sudo = "0.6"
