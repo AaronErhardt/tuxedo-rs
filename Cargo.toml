@@ -1,4 +1,5 @@
 [workspace]
 members = [
-    "tuxedo_ioctl"
+    "tuxedo_ioctl",
+    "tuxedo_sysfs",
 ]
