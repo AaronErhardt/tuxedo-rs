@@ -1,0 +1,11 @@
+[Unit]
+Description=Tux Tailor hardware control service
+
+[Service]
+Type=dbus
+BusName=com.tux.Tailor
+ExecStart=@BIN@
+Environment="RUST_BACKTRACE=1"
+
+[Install]
+WantedBy=multi-user.target
