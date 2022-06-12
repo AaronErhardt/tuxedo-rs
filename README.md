@@ -1,6 +1,10 @@
-# Tuxedo-rs
+# Tuxedo-rs 🐧+🦀=❤️
 
 **Rust libraries for interacting with hardware from [TUXEDO Computers](https://www.tuxedocomputers.com).**
+
+> This is a community project. It is not developed or supported by TUXEDO Computers.
+
+> Although this is tailored towards TUXEDO hardware for now, other vendors are free to contribute their own bindings.
 
 ## Motivation
 
@@ -20,8 +24,8 @@ Also, we keep the hardware abstractions and other utilities in individual crates
 ## Roadmap
 
 - [x] Ioctl abstraction for tuxedo_io
-- [ ] Additional hardware abstractions
-- [ ] Deamon with DBus interface for user space application
+- [x] Additional hardware abstractions (just limited features)
+- [x] Deamon with DBus interface for user space application (just limited features)
 - [ ] CLI that interacts with the deamon
 - [ ] Native GUI that interacts with the deamon
 - [ ] OPTIONAL: Rewrite various tuxedo kernel modules in Rust
