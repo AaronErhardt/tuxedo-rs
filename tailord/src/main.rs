@@ -1,7 +1,7 @@
 pub mod keyboard;
 mod suspend;
 
-use std::time::Duration;
+use std::{future::pending, time::Duration};
 
 use tailor_api::keyboard::ColorProfile;
 use tokio::sync::{broadcast, mpsc};
@@ -90,5 +90,5 @@ async fn start_dbus() {
         }
     }
 
-    tokio::time::sleep(Duration::from_secs(u64::MAX)).await;
+    pending().await
 }

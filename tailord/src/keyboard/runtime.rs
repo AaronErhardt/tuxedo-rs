@@ -1,10 +1,10 @@
-use std::time::Duration;
+use std::{future::pending, time::Duration};
 
 use tailor_api::keyboard::{Color, ColorPoint, ColorProfile, ColorTransition};
 use tokio::sync::{broadcast, mpsc};
 use tuxedo_sysfs::keyboard::KeyboardController;
 
-use super::{dbus, NeverFuture};
+use super::dbus;
 
 pub struct KeyboardRuntime {
     interface: KeyboardController,
@@ -63,10 +63,10 @@ impl KeyboardRuntime {
         suspend_receiver: &mut broadcast::Receiver<bool>,
     ) {
         match colors {
-            ColorProfile::None => NeverFuture().await,
+            ColorProfile::None => pending().await,
             ColorProfile::Single(color) => {
                 interface.set_color_all(color).await.unwrap();
-                NeverFuture().await;
+                pending().await
             }
             ColorProfile::Multiple(colors) => {
                 let color_steps = calculate_color_animation_steps(colors);
