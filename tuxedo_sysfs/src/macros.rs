@@ -2,12 +2,13 @@
 macro_rules! sys_fs_impls {
     (RW, $name:ident) => {
         impl $name {
-            fn new() -> Result<Self, ::std::io::Error> {
+            async fn new() -> Result<Self, ::std::io::Error> {
                 Ok(Self {
-                    file: ::std::fs::OpenOptions::new()
+                    file: crate::fs::OpenOptions::new()
                         .read(true)
                         .write(true)
-                        .open(<Self as crate::SysFsType>::PATH)?,
+                        .open(<Self as crate::SysFsType>::PATH)
+                        .await?,
                 })
             }
         }
@@ -17,12 +18,13 @@ macro_rules! sys_fs_impls {
     };
     (RO, $name:ident) => {
         impl $name {
-            fn new() -> Result<Self, ::std::io::Error> {
+            async fn new() -> Result<Self, ::std::io::Error> {
                 Ok(Self {
-                    file: ::std::fs::OpenOptions::new()
+                    file: crate::fs::OpenOptions::new()
                         .read(true)
                         .write(false)
-                        .open(<Self as crate::SysFsType>::PATH)?,
+                        .open(<Self as crate::SysFsType>::PATH)
+                        .await?,
                 })
             }
         }
@@ -31,12 +33,13 @@ macro_rules! sys_fs_impls {
     };
     (WO, $name:ident) => {
         impl $name {
-            fn new() -> Result<Self, ::std::io::Error> {
+            async fn new() -> Result<Self, ::std::io::Error> {
                 Ok(Self {
-                    file: ::std::fs::OpenOptions::new()
+                    file: crate::fs::OpenOptions::new()
                         .read(false)
                         .write(true)
-                        .open(<Self as crate::SysFsType>::PATH)?,
+                        .open(<Self as crate::SysFsType>::PATH)
+                        .await?,
                 })
             }
         }
@@ -49,19 +52,15 @@ macro_rules! sys_fs_impls {
 macro_rules! sys_fs_type {
     ($path:literal, $permission:ident, $ty:ty, $name:ident, $subpath:literal) => {
         struct $name {
-            file: ::std::fs::File,
+            file: crate::fs::File,
         }
 
         impl crate::SysFsType for $name {
             type Type = $ty;
             const PATH: &'static str = concat!($path, $subpath);
 
-            fn open_file() -> Result<Self, ::std::io::Error> {
-                Self::new()
-            }
-
-            fn get_mut_file(&mut self) -> &mut ::std::fs::File {
-                &mut self.file
+            fn get_file(&self) -> &crate::fs::File {
+                &self.file
             }
         }
 
