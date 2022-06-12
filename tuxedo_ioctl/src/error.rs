@@ -9,5 +9,5 @@ pub enum IoctlError {
     #[error(transparent)]
     Read(#[from] Errno),
     #[error("Device not available")]
-    DevNotAvailable
+    DevNotAvailable,
 }

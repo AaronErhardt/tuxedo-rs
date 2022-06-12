@@ -27,7 +27,7 @@ pub enum PerformanceProfile {
     Quiet,
     Powersave,
     Entertainment,
-    Performance, 
+    Performance,
 }
 
 impl Default for PerformanceProfile {
@@ -95,7 +95,7 @@ impl IoInterface {
 
     fn read_fanspeed_raw(&self, fan: Fan) -> Result<u8, IoctlError> {
         self.read_faninfo_raw(fan)
-        .map(|value| (value & 0xFF).try_into().unwrap())
+            .map(|value| (value & 0xFF).try_into().unwrap())
     }
 
     fn read_faninfo_raw(&self, fan: Fan) -> Result<u32, IoctlError> {
@@ -116,11 +116,7 @@ impl IoInterface {
     }
 
     pub fn set_web_cam_enabled(&self, status: bool) -> Result<(), IoctlError> {
-        write::cl_webcam_sw(&self.file, if status {
-            1
-        } else {
-            0
-        })
+        write::cl_webcam_sw(&self.file, if status { 1 } else { 0 })
     }
 
     pub fn get_web_cam_enabled(&self) -> Result<bool, IoctlError> {
@@ -139,7 +135,7 @@ impl IoInterface {
         let fan_temp_2: u8 = ((fan_info_raw >> 0x10) & 0xff).try_into().unwrap();
 
         // If a fan is not available a low value is read out
-        if fan_temp_2 <= 1 { 
+        if fan_temp_2 <= 1 {
             Err(IoctlError::DevNotAvailable)
         } else {
             Ok(fan_temp_2)
@@ -165,11 +161,15 @@ mod test {
         assert_eq!(io.get_web_cam_enabled().unwrap(), true);
 
         // Set performance profile
-        io.set_performance_profile(PerformanceProfile::Quiet).unwrap();
+        io.set_performance_profile(PerformanceProfile::Quiet)
+            .unwrap();
 
         // Get temperatures
         assert!(20 < io.get_fan_temperature(Fan::Fan1).unwrap());
-        assert_eq!(io.get_fan_temperature(Fan::Fan2).unwrap_err(), IoctlError::DevNotAvailable);
+        assert_eq!(
+            io.get_fan_temperature(Fan::Fan2).unwrap_err(),
+            IoctlError::DevNotAvailable
+        );
 
         // Check fans
         io.set_fan_speed_percent(Fan::Fan1, 100).unwrap();
