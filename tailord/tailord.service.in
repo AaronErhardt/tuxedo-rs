@@ -1,5 +1,6 @@
 [Unit]
 Description=Tux Tailor hardware control service
+After=systemd-logind.service
 
 [Service]
 Type=dbus
@@ -9,4 +10,3 @@ Environment="RUST_BACKTRACE=1"
 
 [Install]
 WantedBy=multi-user.target
-After=systemd-logind.service
