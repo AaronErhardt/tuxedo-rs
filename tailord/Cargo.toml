@@ -7,5 +7,12 @@ edition = "2021"
 
 [dependencies]
 zbus = { version = "2", default-features = false, features = ["tokio"] }
-tokio = { version = "1", features = ["time"] }
+
+serde_json = "1"
+
+tokio = { version = "1", features = ["time", "fs", "sync", "macros"] }
 tokio-uring = "0.3"
+futures-lite = "1"
+
+tuxedo_sysfs = { path = "../tuxedo_sysfs" }
+tailor_api = { path = "../tailor_api", features = ["serialize", "deserialize"] }

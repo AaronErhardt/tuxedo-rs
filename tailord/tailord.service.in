@@ -9,3 +9,4 @@ Environment="RUST_BACKTRACE=1"
 
 [Install]
 WantedBy=multi-user.target
+After=systemd-logind.service
