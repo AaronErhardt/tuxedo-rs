@@ -14,5 +14,8 @@ tokio = { version = "1", features = ["time", "fs", "sync", "macros"] }
 tokio-uring = "0.3"
 futures-lite = "1"
 
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
 tuxedo_sysfs = { path = "../tuxedo_sysfs" }
 tailor_api = { path = "../tailor_api", features = ["serialize", "deserialize"] }

@@ -1,5 +1,6 @@
 use futures_lite::StreamExt;
 use tokio::sync::broadcast;
+use tracing::info;
 use zbus::{dbus_proxy, Connection};
 
 #[dbus_proxy(
@@ -18,7 +19,15 @@ pub async fn wait_for_suspend(sender: broadcast::Sender<bool>) -> Result<(), zbu
     let mut receiver = proxy.receive_prepare_for_sleep().await?;
 
     while let Some(msg) = receiver.next().await {
-        let _ = sender.send(*msg.args()?.arg1());
+        let value = *msg.args()?.arg1();
+
+        if value {
+            info!("Suspended, sleeping until wake up.");
+        } else {
+            info!("Woken up, continue service.");
+        };
+
+        let _ = sender.send(value);
     }
 
     Ok(())

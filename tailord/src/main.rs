@@ -46,6 +46,16 @@ impl Tailor {
 }
 
 fn main() {
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var("RUST_LOG", "info");
+    }
+
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .with_writer(std::io::stderr)
+        .without_time()
+        .init();
+
     keyboard::dbus::init_keyboard_directory();
 
     tokio_uring::start(async {
