@@ -4,4 +4,5 @@ members = [
     "tuxedo_sysfs",
     "tailord",
     "tailor_api",
+    "tailor_client",
 ]
