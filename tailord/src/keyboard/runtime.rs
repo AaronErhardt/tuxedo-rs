@@ -4,7 +4,7 @@ use tailor_api::keyboard::{Color, ColorPoint, ColorProfile, ColorTransition};
 use tokio::sync::{broadcast, mpsc};
 use tuxedo_sysfs::keyboard::KeyboardController;
 
-use super::dbus;
+use super::{dbus, NeverFuture};
 
 pub struct KeyboardRuntime {
     interface: KeyboardController,
@@ -63,10 +63,10 @@ impl KeyboardRuntime {
         suspend_receiver: &mut broadcast::Receiver<bool>,
     ) {
         match colors {
-            ColorProfile::None => tokio::time::sleep(Duration::from_secs(u64::MAX)).await,
+            ColorProfile::None => NeverFuture().await,
             ColorProfile::Single(color) => {
                 interface.set_color_all(color).await.unwrap();
-                tokio::time::sleep(Duration::from_secs(u64::MAX)).await;
+                NeverFuture().await;
             }
             ColorProfile::Multiple(colors) => {
                 let color_steps = calculate_color_animation_steps(colors);
@@ -140,6 +140,10 @@ fn linear_color_transition(
         let g_diff = color.g as f64 - prev_color.g as f64;
         let b_diff = color.b as f64 - prev_color.b as f64;
 
+        let decent_steps = decent_linear_steps(transition_time, &[r_diff, g_diff, b_diff]);
+        // Use lower step size if possible
+        let steps = steps.min(decent_steps);
+
         let step_time = transition_time / steps;
 
         for idx in 0..steps {
@@ -157,4 +161,46 @@ fn linear_color_transition(
 
 fn f64_to_u8(float: f64) -> u8 {
     float.clamp(0.0, 255.0).round() as u8
+}
+
+fn decent_linear_steps(transition_time: u32, diffs: &[f64]) -> u32 {
+    let diff_square_sum: f64 = diffs.iter().map(|diff| diff.powi(2)).sum();
+    let diff_rms = diff_square_sum.sqrt();
+
+    if diff_rms <= f64::EPSILON {
+        1
+    } else {
+        // A delta of 15 as rgb value per second should be barely
+        // visible to the human eye.
+        let imperceivable_steps = diff_rms / 15.0;
+
+        // As time becomes larger, make smaller steps because they
+        // might become identifiable as individual steps again.
+        let time_factor = (transition_time as f64 / 1000.0).sqrt().clamp(0.4, 5.0);
+
+        ((imperceivable_steps * time_factor).round() as u32).max(1)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::keyboard::runtime::decent_linear_steps;
+
+    #[test]
+    fn decent_linear_step() {
+        let decent_steps = decent_linear_steps(1000, &[0.0]);
+        assert_eq!(decent_steps, 1);
+
+        let decent_steps = decent_linear_steps(1000, &[150.0]);
+        assert_eq!(decent_steps, 10);
+
+        let decent_steps = decent_linear_steps(3000, &[150.0]);
+        assert_eq!(decent_steps, 17);
+
+        let decent_steps = decent_linear_steps(1000, &[75.0]);
+        assert_eq!(decent_steps, 5);
+
+        let decent_steps = decent_linear_steps(100, &[75.0]);
+        assert_eq!(decent_steps, 2);
+    }
 }
