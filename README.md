@@ -35,11 +35,11 @@ The software is in **development** state (not even alpha). It is suited **for te
 2. Edit `config.toml` to adjust it to your needs.
 3. `cargo run --release` and just leave it alone.
 
-There are no instructions to run it in background with a systemd service yet (please contribute).
+There are no instructions to run it in background with a systemd service yet (feel free to contribute).
 
 ### The algorithm
 
-I suck at math, so I did not use any standard / existing math algorithm to control fans. I reinvented the wheel again. Just read the code.
+I suck at math, so I did not use any standard / existing math algorithm to control fans. I reinvented the wheel again. Just [read the code](https://git.42l.fr/neil/tuxedo-fancontrol/src/branch/main/tuxedo_fancontrol/src/fan.rs#L116).
 
 If you’re willing to implement some trusty fan control algorithm, here are some hints:
 - https://en.wikipedia.org/wiki/Hysteresis
