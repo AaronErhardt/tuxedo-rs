@@ -32,7 +32,7 @@ The software is in **development** state (not even alpha). It is suited **for te
 ### How to use
 
 1. `cd tuxedo_fancontrol`
-2. Edit `config.toml` to adjust it to your needs.
+2. Edit `config.toml` to adjust it to your needs. Don’t edit if you don’t know what you are doing.
 3. `cargo run --release` and just leave it alone.
 
 There are no instructions to run it in background with a systemd service yet (feel free to contribute).
