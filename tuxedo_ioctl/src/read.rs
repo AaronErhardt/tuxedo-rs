@@ -5,7 +5,7 @@ use nix::{
     libc::{c_ulong, ioctl},
 };
 
-use crate::{error::IoctlError, IOCTL_MAGIC, MAGIC_READ_CL, MAGIC_READ_UW};
+use crate::{error::IoctlError, config::IOCTL_MAGIC, config::MAGIC_READ_CL, config::MAGIC_READ_UW};
 
 fn read_string(file: &File, request_code: c_ulong) -> Result<String, IoctlError> {
     let fd = file.as_raw_fd();

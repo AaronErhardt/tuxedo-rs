@@ -1,8 +1,8 @@
 use std::fs::File;
 
-use crate::{error::IoctlError, open_device_file, read, write};
+use crate::{error::IoctlError, config::open_device_file, read, write};
 
-const MAX_FAN_SPEED: u8 = 0xff;
+pub const MAX_FAN_SPEED: u8 = 0xff;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Fan {
