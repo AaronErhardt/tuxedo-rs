@@ -16,7 +16,7 @@ temp_profile = [
     { temp = 30, fan = 10 },
     { temp = 40, fan = 22 },
     { temp = 50, fan = 35 },
-    { temp = 60, fan = 50 },
+    { temp = 60, fan = 45 },
     { temp = 70, fan = 62 },
     { temp = 80, fan = 72 },
     { temp = 90, fan = 85 },
