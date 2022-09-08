@@ -1,10 +1,10 @@
 use serde_derive::Deserialize;
-use std::collections::VecDeque;
 use std::fs::File;
 use std::io::Read;
+use std::{cmp::Ordering, collections::VecDeque};
 use tuxedo_ioctl::high_level::{Fan, IoInterface};
 
-const CONFIG_FILE: &'static str = "./config.toml";
+const CONFIG_FILE: &str = "./config.toml";
 const CONFIG_VERSION: u8 = 1;
 const MINIMAL_HISTORY_STORE: u32 = 30;
 const MINIMAL_HISTORY_ENTRIES: u32 = 30;
@@ -43,7 +43,7 @@ pub struct FanData {
     pub fan_speed: u8,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum FanEvolution {
     Increasing,
     Decreasing,
@@ -117,17 +117,24 @@ impl Config {
                 eprintln!("One of the fan speeds in your profile is higher than 100 percents. Please fix it.");
                 panic!();
             }
-            if temp_minimal < temp_entry.temp {
-                temp_minimal = temp_entry.temp;
-            } else if temp_minimal > temp_entry.temp {
-                eprintln!("Your temperature profile is not consistent: temperature must increase gradually at each new entry, which is not the case for at least one of your entries. Please fix it.");
-                panic!();
+
+            match temp_minimal.cmp(&temp_entry.temp) {
+                Ordering::Less => {
+                    temp_minimal = temp_entry.temp;
+                }
+                Ordering::Equal | Ordering::Greater => {
+                    eprintln!("Your temperature profile is not consistent: temperature must increase gradually at each new entry, which is not the case for at least one of your entries. Please fix it.");
+                    panic!();
+                }
             }
-            if fan_minimal < temp_entry.fan {
-                fan_minimal = temp_entry.fan;
-            } else if fan_minimal > temp_entry.fan {
-                eprintln!("Your temperature profile is not consistent: the fan speed is reduced while temperature is going up. This is probably not intended, please fix it.");
-                panic!();
+            match fan_minimal.cmp(&temp_entry.fan) {
+                Ordering::Less => {
+                    fan_minimal = temp_entry.fan;
+                }
+                Ordering::Equal | Ordering::Greater => {
+                    eprintln!("Your temperature profile is not consistent: the fan speed is reduced while temperature is going up. This is probably not intended, please fix it.");
+                    panic!();
+                }
             }
         }
     }

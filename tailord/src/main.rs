@@ -1,7 +1,7 @@
 pub mod keyboard;
 mod suspend;
 
-use std::{future::pending, time::Duration};
+use std::future::pending;
 
 use tailor_api::keyboard::ColorProfile;
 use tokio::sync::{broadcast, mpsc};

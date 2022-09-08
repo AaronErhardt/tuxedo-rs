@@ -16,5 +16,3 @@ pub fn open_device_file() -> Result<std::fs::File, std::io::Error> {
         .write(true)
         .open(TUXEDO_IO_DEVICE_FILE)
 }
-
-fn main() {}
