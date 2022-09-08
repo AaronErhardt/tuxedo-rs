@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-zbus = { version = "2", default-features = false, features = ["tokio"] }
+zbus = { version = "3", default-features = false, features = ["tokio"] }
 serde_json = "1"
 
 tailor_api = { path = "../tailor_api", features = ["serialize", "deserialize"] }
