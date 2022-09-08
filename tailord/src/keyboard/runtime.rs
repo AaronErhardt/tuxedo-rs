@@ -129,8 +129,7 @@ fn linear_color_transition(
     transition_time: u32,
 ) {
     // Max step size 80 ms (12.5 fps).
-    // More would be rather CPU intensive for a background
-    // job (> 0.5%).
+    // More would be rather CPU intensive for a background job.
     let steps = transition_time / 80;
 
     if steps == 0 {
@@ -141,7 +140,10 @@ fn linear_color_transition(
         let b_diff = color.b as f64 - prev_color.b as f64;
 
         let decent_steps = decent_linear_steps(transition_time, &[r_diff, g_diff, b_diff]);
-        // Use lower step size if possible
+
+        // Use a lower step size if the animation is slow.
+        // The human eye won't notice the lower fps but
+        // the CPU usage will drop significantly.
         let steps = steps.min(decent_steps);
 
         let step_time = transition_time / steps;
