@@ -99,7 +99,7 @@ ioctl_read_int!(uw_mode_enable, MAGIC_READ_UW, 0x15);
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::open_device_file;
+    use crate::config::open_device_file;
 
     #[test]
     fn test_cl_read() {
