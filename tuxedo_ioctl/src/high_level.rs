@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use crate::{error::IoctlError, config::open_device_file, read, write};
+use crate::{config::open_device_file, error::IoctlError, read, write};
 
 pub const MAX_FAN_SPEED: u8 = 0xff;
 

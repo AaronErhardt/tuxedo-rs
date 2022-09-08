@@ -1,5 +1,5 @@
-use crate::Instance;
 use crate::config::{FanData, FanEvolution, TempProfile};
+use crate::Instance;
 
 use std::collections::VecDeque;
 use std::{thread, time::Duration};
@@ -23,20 +23,20 @@ pub struct TempLoad {
 pub fn fan_control_loop(i: &mut Instance) {
     // add the current temperature to history
     i.add_temp();
-    
+
     let temp_load = calc_temp_load(&i.temp_history);
 
-    println!("Average temperature [{} {} {} {} {}]",
-             temp_load.l1, temp_load.l5, temp_load.l15,
-             temp_load.l30, temp_load.lall
+    println!(
+        "Average temperature [{} {} {} {} {}]",
+        temp_load.l1, temp_load.l5, temp_load.l15, temp_load.l30, temp_load.lall
     );
 
-    let target_fan_speed = calc_temp_segment(i.temp_history.back().unwrap(), &i.config.temp_profile);
+    let target_fan_speed =
+        calc_temp_segment(i.temp_history.back().unwrap(), &i.config.temp_profile);
 
     if target_fan_speed == i.fan_data.fan_speed {
         i.fan_data.last_update_loop = 0;
-    }
-    else {
+    } else {
         let new_fan_speed = calc_new_speed(target_fan_speed, &i.fan_data, &temp_load);
         i.fan_data.last_update_loop += 1;
 
@@ -160,36 +160,33 @@ fn calc_temp_segment(current_temp: &u8, temp_profile: &Vec<TempProfile>) -> u8 {
 //
 // 4. The coefficients are applied to the target fan speed.
 fn calc_new_speed(target_fan_speed: u8, fan_data: &FanData, temp_load: &TempLoad) -> Option<u8> {
-    
     let evolution_coeff;
     let variation_coeff;
 
     // STEP 1
     if fan_data.last_update_loop <= 3 {
         return None;
-    }
-    else if fan_data.last_update_loop <= 15
-        && target_fan_speed.abs_diff(fan_data.fan_speed) <= 5 {
-            return None;
-    }
-    else if fan_data.last_update_loop <= 30
-        && target_fan_speed.abs_diff(fan_data.fan_speed) <= 2 {
-            return None;
+    } else if fan_data.last_update_loop <= 15 && target_fan_speed.abs_diff(fan_data.fan_speed) <= 5
+    {
+        return None;
+    } else if fan_data.last_update_loop <= 30 && target_fan_speed.abs_diff(fan_data.fan_speed) <= 2
+    {
+        return None;
     }
 
     // STEP 2
     if target_fan_speed < fan_data.fan_speed
-        && fan_data.last_fan_evolution == FanEvolution::Increasing {
+        && fan_data.last_fan_evolution == FanEvolution::Increasing
+    {
         evolution_coeff = 0.5;
-    }
-    else if target_fan_speed > fan_data.fan_speed
-        && fan_data.last_fan_evolution == FanEvolution::Decreasing {
+    } else if target_fan_speed > fan_data.fan_speed
+        && fan_data.last_fan_evolution == FanEvolution::Decreasing
+    {
         evolution_coeff = 0.5;
-    }
-    else {
+    } else {
         evolution_coeff = 1.0;
     }
-    
+
     // STEP 3
     let d5 = temp_load.l1.abs_diff(temp_load.l5);
     let d15 = temp_load.l1.abs_diff(temp_load.l15);
@@ -200,7 +197,7 @@ fn calc_new_speed(target_fan_speed: u8, fan_data: &FanData, temp_load: &TempLoad
         let f5 = cap(dall.abs_diff(d5) as f32 / dall as f32);
         let f15 = cap(dall.abs_diff(d15) as f32 / dall as f32);
         let f30 = cap(dall.abs_diff(d30) as f32 / dall as f32);
-        
+
         variation_coeff = (f5 * 0.75 + f15 * 1.5 + f30 * 1.25) / 3.5;
     } else {
         variation_coeff = 0.5;
@@ -212,7 +209,6 @@ fn calc_new_speed(target_fan_speed: u8, fan_data: &FanData, temp_load: &TempLoad
         let adjusted_target = target_var * evolution_coeff * variation_coeff;
         let final_target = (fan_data.fan_speed as f32 + adjusted_target) as u8;
         Some(final_target)
-
     } else {
         Some(0)
     }

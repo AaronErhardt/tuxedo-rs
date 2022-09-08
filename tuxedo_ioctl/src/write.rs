@@ -5,7 +5,7 @@ use nix::{
     libc::{c_ulong, ioctl},
 };
 
-use crate::{error::IoctlError, config::MAGIC_WRITE_CL, config::MAGIC_WRITE_UW};
+use crate::{config::MAGIC_WRITE_CL, config::MAGIC_WRITE_UW, error::IoctlError};
 
 fn write_int(file: &File, data: u32, request_code: c_ulong) -> Result<(), IoctlError> {
     let fd = file.as_raw_fd();

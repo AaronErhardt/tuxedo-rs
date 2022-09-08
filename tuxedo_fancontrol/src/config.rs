@@ -1,7 +1,7 @@
+use serde_derive::Deserialize;
+use std::collections::VecDeque;
 use std::fs::File;
 use std::io::Read;
-use std::collections::VecDeque;
-use serde_derive::Deserialize;
 use tuxedo_ioctl::high_level::{Fan, IoInterface};
 
 const CONFIG_FILE: &'static str = "./config.toml";
@@ -45,7 +45,8 @@ pub struct FanData {
 
 #[derive(Debug, PartialEq)]
 pub enum FanEvolution {
-    Increasing, Decreasing
+    Increasing,
+    Decreasing,
 }
 
 #[derive(Deserialize, Debug)]
@@ -64,7 +65,6 @@ impl Config {
         toml::from_str(&confstr).unwrap()
     }
     pub fn check(&self) {
-
         // check config version
         if self.version != CONFIG_VERSION {
             eprintln!("Your configuration file is obsolete ({}). Please edit it and update its version to {}.", self.version, CONFIG_VERSION);
@@ -76,13 +76,16 @@ impl Config {
             eprintln!("Your history store is defined to {}, it is too low compared to your check_delay {}. Please raise history_store or diminish check_delay.", self.history_store, self.check_delay);
             panic!();
         }
-        
+
         // check if history_store is high enough
         if self.history_store < MINIMAL_HISTORY_STORE {
-            eprintln!("Your history store is defined to {}. You must set it at least above {}.", self.history_store, MINIMAL_HISTORY_STORE);
+            eprintln!(
+                "Your history store is defined to {}. You must set it at least above {}.",
+                self.history_store, MINIMAL_HISTORY_STORE
+            );
             panic!();
         }
-        
+
         if self.history_store < MINIMAL_HISTORY_STORE * 2 {
             // issue a non-blocking warning
             eprintln!("Your history store is defined to {}. It’s quite low, you may want to set it above {}.", self.history_store, MINIMAL_HISTORY_STORE * 2);
@@ -93,7 +96,7 @@ impl Config {
             eprintln!("Your check delay ({}) is too low! Checking the fan temperature this often is pointless. Raise it at least to {}.", self.check_delay, MINIMAL_CHECK_DELAY);
             panic!();
         }
-        
+
         if self.check_delay > MAXIMAL_CHECK_DELAY {
             eprintln!("Your check delay ({}) is too high! You need to check the fan temperature more often. Reduce it at least to {}.", self.check_delay, MAXIMAL_CHECK_DELAY);
             panic!();
@@ -116,15 +119,13 @@ impl Config {
             }
             if temp_minimal < temp_entry.temp {
                 temp_minimal = temp_entry.temp;
-            }
-            else if temp_minimal > temp_entry.temp {
+            } else if temp_minimal > temp_entry.temp {
                 eprintln!("Your temperature profile is not consistent: temperature must increase gradually at each new entry, which is not the case for at least one of your entries. Please fix it.");
                 panic!();
             }
             if fan_minimal < temp_entry.fan {
                 fan_minimal = temp_entry.fan;
-            }
-            else if fan_minimal > temp_entry.fan {
+            } else if fan_minimal > temp_entry.fan {
                 eprintln!("Your temperature profile is not consistent: the fan speed is reduced while temperature is going up. This is probably not intended, please fix it.");
                 panic!();
             }
@@ -167,7 +168,6 @@ impl Instance {
     }
 
     pub fn set_speed(&mut self, new_speed: u8) {
-        
         if self.fan_data.fan_speed < new_speed {
             self.fan_data.last_fan_evolution = FanEvolution::Increasing;
         } else {
