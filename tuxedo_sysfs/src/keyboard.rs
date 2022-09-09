@@ -89,6 +89,8 @@ sys_fs_type!(KB, RW, u8, Brightness, "brightness");
 sys_fs_type!(KB, RW, NumBool, Mode, "mode");
 sys_fs_type!(KB, RW, KeyboardState, State, "state");
 
+/// A type that manages all sysfs files related to
+/// keyboard color management.
 pub struct KeyboardController {
     color_left: ColorLeft,
     color_right: ColorRight,
