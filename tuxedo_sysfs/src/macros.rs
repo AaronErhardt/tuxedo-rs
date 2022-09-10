@@ -44,7 +44,7 @@ macro_rules! sys_fs_impls {
             }
         }
 
-        impl crate::SysFsWrite for $name {}
+        impl $crate::SysFsWrite for $name {}
     };
 }
 

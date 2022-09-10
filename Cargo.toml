@@ -5,5 +5,4 @@ members = [
     "tailord",
     "tailor_api",
     "tailor_client",
-    "tuxedo_fancontrol",
 ]

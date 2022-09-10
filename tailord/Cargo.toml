@@ -18,4 +18,11 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 tuxedo_sysfs = { path = "../tuxedo_sysfs" }
+tuxedo_ioctl = { path = "../tuxedo_ioctl" }
 tailor_api = { path = "../tailor_api", features = ["serialize", "deserialize"] }
+
+signal-hook-tokio = { version = "0.3", features = ["futures-v0_3"] }
+signal-hook = "0.3"
+serde = "1.0"
+serde_derive = "1.0"
+futures = "0.3.24"
