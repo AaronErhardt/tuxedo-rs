@@ -9,7 +9,7 @@ edition = "2021"
 zbus = { version = "3", default-features = false, features = ["tokio"] }
 serde_json = "1"
 
-tailor_api = { path = "../tailor_api", features = ["serialize", "deserialize"] }
+tailor_api = { path = "../tailor_api" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros"] }
