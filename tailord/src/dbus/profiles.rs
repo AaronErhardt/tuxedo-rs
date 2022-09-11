@@ -1,12 +1,12 @@
 use std::path::Component;
 
-use tailor_api::keyboard::ColorProfile;
+use tailor_api::{keyboard::ColorProfile, profile::ProfileInfo};
 use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 
 use crate::{
     fancontrol::profile::FanProfile,
-    profiles::{Profile, ProfileInfo, PROFILE_DIR},
+    profiles::{Profile, PROFILE_DIR},
     util,
 };
 

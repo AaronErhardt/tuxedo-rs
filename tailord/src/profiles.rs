@@ -1,5 +1,5 @@
 use crate::fancontrol::profile::FanProfile;
-use tailor_api::keyboard::ColorProfile;
+use tailor_api::{keyboard::ColorProfile, profile::ProfileInfo};
 use zbus::fdo;
 
 use super::util;
@@ -17,46 +17,29 @@ fn init_paths() {
         })
 }
 
+fn keyboard_path(info: &ProfileInfo) -> fdo::Result<String> {
+    util::normalize_json_path(KEYBOARD_DIR, &info.keyboard)
+}
+
+fn fan_path(info: &ProfileInfo) -> fdo::Result<String> {
+    util::normalize_json_path(FAN_DIR, &info.fan)
+}
+
+fn load_keyboard_profile(info: &ProfileInfo) -> fdo::Result<ColorProfile> {
+    let color_profile_data =
+        std::fs::read(keyboard_path(info)?).map_err(|err| fdo::Error::IOError(err.to_string()))?;
+    serde_json::from_slice(&color_profile_data)
+        .map_err(|err| fdo::Error::InvalidFileContent(err.to_string()))
+}
+
+fn load_fan_profile(info: &ProfileInfo) -> fdo::Result<FanProfile> {
+    FanProfile::load_config(&fan_path(info)?)
+}
+
 #[derive(Debug, Default)]
 pub struct Profile {
     pub fan: FanProfile,
     pub keyboard: ColorProfile,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct ProfileInfo {
-    fan: String,
-    keyboard: String,
-}
-
-impl Default for ProfileInfo {
-    fn default() -> Self {
-        Self {
-            fan: "default".to_string(),
-            keyboard: "default".to_string(),
-        }
-    }
-}
-
-impl ProfileInfo {
-    fn keyboard_path(&self) -> fdo::Result<String> {
-        util::normalize_json_path(KEYBOARD_DIR, &self.keyboard)
-    }
-
-    fn fan_path(&self) -> fdo::Result<String> {
-        util::normalize_json_path(FAN_DIR, &self.fan)
-    }
-
-    fn load_keyboard_profile(&self) -> fdo::Result<ColorProfile> {
-        let color_profile_data = std::fs::read(&self.keyboard_path()?)
-            .map_err(|err| fdo::Error::IOError(err.to_string()))?;
-        serde_json::from_slice(&color_profile_data)
-            .map_err(|err| fdo::Error::InvalidFileContent(err.to_string()))
-    }
-
-    fn load_fan_profile(&self) -> fdo::Result<FanProfile> {
-        FanProfile::load_config(&self.fan_path()?)
-    }
 }
 
 impl Profile {
@@ -73,7 +56,7 @@ impl Profile {
             ProfileInfo::default()
         };
 
-        let keyboard = match profile_info.load_keyboard_profile() {
+        let keyboard = match load_keyboard_profile(&profile_info) {
             Ok(keyboard) => keyboard,
             Err(err) => {
                 tracing::error!(
@@ -85,7 +68,7 @@ impl Profile {
             }
         };
 
-        let fan = match profile_info.load_fan_profile() {
+        let fan = match load_fan_profile(&profile_info) {
             Ok(fan) => fan,
             Err(err) => {
                 tracing::error!(
@@ -105,8 +88,8 @@ impl Profile {
         let profile_info: ProfileInfo = serde_json::from_slice(&profile_info_data)
             .map_err(|err| fdo::Error::InvalidFileContent(err.to_string()))?;
 
-        let keyboard = profile_info.load_keyboard_profile()?;
-        let fan = profile_info.load_fan_profile()?;
+        let keyboard = load_keyboard_profile(&profile_info)?;
+        let fan = load_fan_profile(&profile_info)?;
 
         Ok(Self { fan, keyboard })
     }
