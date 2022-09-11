@@ -1,13 +1,17 @@
-use std::{rc::Rc, cell::RefCell};
+use std::{cell::RefCell, rc::Rc};
 
 use relm4::{
     actions::{ActionGroupName, RelmAction, RelmActionGroup},
-    gtk::{self, traits::{OrientableExt, BoxExt}}, main_application, Component, ComponentController, ComponentParts, ComponentSender,
-    Controller, adw,
+    adw,
+    gtk::{
+        self,
+        traits::{BoxExt, OrientableExt},
+    },
+    main_application, Component, ComponentController, ComponentParts, ComponentSender, Controller,
 };
 
 use gtk::prelude::{
-    ApplicationExt, ApplicationWindowExt, Cast, GtkWindowExt, SettingsExt, WidgetExt, ObjectExt,
+    ApplicationExt, ApplicationWindowExt, GtkWindowExt, ObjectExt, SettingsExt, WidgetExt,
 };
 use gtk::{gio, glib};
 use tailor_client::TailorConnection;
@@ -22,7 +26,7 @@ pub(super) struct App<'a> {
 
 #[derive(Debug)]
 pub(super) enum Command<'a> {
-    UpdateConnection(Option<TailorConnection<'a>>)
+    UpdateConnection(Option<TailorConnection<'a>>),
 }
 
 #[derive(Debug)]
@@ -171,14 +175,22 @@ impl Component for App<'static> {
         root: &Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let about_dialog = AboutDialog::builder().launch(root.upcast_ref::<gtk::Widget>().clone())
+        let about_dialog = AboutDialog::builder()
+            .transient_for(root)
+            .launch(())
             .detach();
 
-        let model = Self { about_dialog, connection: Rc::new(RefCell::new(None)) };
+        let model = Self {
+            about_dialog,
+            connection: Rc::new(RefCell::new(None)),
+        };
 
         let widgets = view_output!();
 
-        widgets.view_title.bind_property("title-visible", &widgets.view_bar, "reveal").build();
+        widgets
+            .view_title
+            .bind_property("title-visible", &widgets.view_bar, "reveal")
+            .build();
 
         let actions = RelmActionGroup::<WindowActionGroup>::new();
 

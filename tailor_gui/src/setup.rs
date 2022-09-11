@@ -3,7 +3,7 @@ use relm4::gtk;
 use gettextrs::{gettext, LocaleCategory};
 use gtk::{gdk, gio, glib};
 
-use crate::config::{APP_ID, GETTEXT_PACKAGE, LOCALEDIR, RESOURCES_FILE, ICON_RESOURCES_FILE};
+use crate::config::{APP_ID, GETTEXT_PACKAGE, ICON_RESOURCES_FILE, LOCALEDIR, RESOURCES_FILE};
 
 pub fn setup() {
     // Initialize GTK
