@@ -10,6 +10,7 @@ zbus = { version = "3", default-features = false, features = ["tokio"] }
 serde_json = "1"
 
 tailor_api = { path = "../tailor_api" }
+thiserror = "1.0.34"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros"] }

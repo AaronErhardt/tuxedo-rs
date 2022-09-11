@@ -1,56 +1,118 @@
-use tailor_api::keyboard::ColorProfile;
-use zbus::{dbus_proxy, fdo, Connection};
+mod dbus;
+mod error;
 
-#[dbus_proxy(
-    interface = "com.tux.Tailor",
-    default_service = "com.tux.Tailor",
-    default_path = "/com/tux/Tailor"
-)]
-trait Tailor {
-    async fn add_color_profile(&self, name: &str, value: &str) -> fdo::Result<()>;
+use error::ClientError;
+use tailor_api::{Color, ColorProfile, FanProfilePoint, ProfileInfo};
+use zbus::Connection;
 
-    async fn get_color_profile(&self, name: &str) -> fdo::Result<String>;
-
-    async fn activate_color_profile(&self, name: &str) -> fdo::Result<()>;
-
-    async fn list_color_profiles(&self) -> fdo::Result<Vec<String>>;
-}
+type ClientResult<T> = Result<T, ClientError>;
 
 pub struct TailorConnection<'a> {
-    proxy: TailorProxy<'a>,
+    profiles: dbus::ProfilesProxy<'a>,
+    keyboard: dbus::KeyboardProxy<'a>,
+    fan: dbus::FanProxy<'a>,
 }
 
 impl<'a> TailorConnection<'a> {
     pub async fn new() -> Result<TailorConnection<'a>, zbus::Error> {
         let connection = Connection::system().await?;
-        let proxy = TailorProxy::new(&connection).await?;
-        Ok(Self { proxy })
+
+        let profiles = dbus::ProfilesProxy::new(&connection).await?;
+        let keyboard = dbus::KeyboardProxy::new(&connection).await?;
+        let fan = dbus::FanProxy::new(&connection).await?;
+
+        Ok(Self {
+            profiles,
+            keyboard,
+            fan,
+        })
+    }
+}
+
+impl<'a> TailorConnection<'a> {
+    pub async fn add_keyboard_profile(
+        &self,
+        name: &str,
+        profile: &ColorProfile,
+    ) -> ClientResult<()> {
+        let value = serde_json::to_string(profile)?;
+        Ok(self.keyboard.add_profile(name, &value).await?)
     }
 
-    pub async fn add_color_profile(&self, name: &str, colors: &ColorProfile) -> fdo::Result<()> {
-        let value = serde_json::to_string(colors).unwrap();
-        self.proxy.add_color_profile(name, &value).await
+    pub async fn get_keyboard_profile(&self, name: &str) -> ClientResult<ColorProfile> {
+        let profile_data = self.keyboard.get_profile(name).await?;
+        Ok(serde_json::from_str(&profile_data)?)
     }
 
-    pub async fn get_color_profile(&self, name: &str) -> fdo::Result<ColorProfile> {
-        self.proxy
-            .get_color_profile(name)
-            .await
-            .map(|string| serde_json::from_str(&string).unwrap())
+    pub async fn list_keyboard_profiles(&self) -> ClientResult<Vec<String>> {
+        Ok(self.keyboard.list_profiles().await?)
     }
 
-    pub async fn activate_color_profile(&self, name: &str) -> fdo::Result<()> {
-        self.proxy.activate_color_profile(name).await
+    pub async fn remove_keyboard_profile(&self, name: &str) -> ClientResult<()> {
+        Ok(self.keyboard.remove_profile(name).await?)
     }
 
-    pub async fn list_color_profiles(&self) -> fdo::Result<Vec<String>> {
-        self.proxy.list_color_profiles().await
+    pub async fn override_keyboard_color(&self, color: &Color) -> ClientResult<()> {
+        let value = serde_json::to_string(color)?;
+        Ok(self.keyboard.override_color(&value).await?)
+    }
+}
+
+impl<'a> TailorConnection<'a> {
+    pub async fn add_fan_profile(
+        &self,
+        name: &str,
+        profile: &Vec<FanProfilePoint>,
+    ) -> ClientResult<()> {
+        let value = serde_json::to_string(profile)?;
+        Ok(self.fan.add_profile(name, &value).await?)
+    }
+
+    pub async fn get_fan_profile(&self, name: &str) -> ClientResult<Vec<FanProfilePoint>> {
+        let profile_data = self.fan.get_profile(name).await?;
+        Ok(serde_json::from_str(&profile_data)?)
+    }
+
+    pub async fn list_fan_profiles(&self) -> ClientResult<Vec<String>> {
+        Ok(self.fan.list_profiles().await?)
+    }
+
+    pub async fn remove_fan_profile(&self, name: &str) -> ClientResult<()> {
+        Ok(self.fan.remove_profile(name).await?)
+    }
+
+    pub async fn override_fan_speed(&self, speed: u8) -> ClientResult<()> {
+        Ok(self.fan.override_speed(speed).await?)
+    }
+}
+
+impl<'a> TailorConnection<'a> {
+    pub async fn add_global_profile(&self, name: &str, profile: &ProfileInfo) -> ClientResult<()> {
+        let value = serde_json::to_string(profile)?;
+        Ok(self.profiles.add_profile(name, &value).await?)
+    }
+
+    pub async fn get_global_profile(&self, name: &str) -> ClientResult<ProfileInfo> {
+        let profile_data = self.profiles.get_profile(name).await?;
+        Ok(serde_json::from_str(&profile_data)?)
+    }
+
+    pub async fn list_global_profiles(&self) -> ClientResult<Vec<String>> {
+        Ok(self.profiles.list_profiles().await?)
+    }
+
+    pub async fn remove_global_profile(&self, name: &str) -> ClientResult<()> {
+        Ok(self.profiles.remove_profile(name).await?)
+    }
+
+    pub async fn reload(&self) -> ClientResult<()> {
+        Ok(self.profiles.reload().await?)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use tailor_api::keyboard::{Color, ColorPoint, ColorProfile, ColorTransition};
+    use tailor_api::{Color, ColorPoint, ColorProfile, ColorTransition};
 
     use crate::TailorConnection;
 
@@ -75,18 +137,25 @@ mod test {
             },
         ]);
 
+        let profile_name = "__test";
         connection
-            .add_color_profile("test", &profile)
+            .add_keyboard_profile(profile_name, &profile)
             .await
             .unwrap();
-        assert_eq!(connection.get_color_profile("test").await.unwrap(), profile);
+        assert_eq!(
+            connection.get_keyboard_profile(profile_name).await.unwrap(),
+            profile
+        );
         connection
-            .list_color_profiles()
+            .list_keyboard_profiles()
             .await
             .unwrap()
             .iter()
-            .find(|s| s.as_str() == "test")
+            .find(|s| s.as_str() == profile_name)
             .unwrap();
-        connection.activate_color_profile("test").await.unwrap();
+        connection
+            .remove_keyboard_profile(profile_name)
+            .await
+            .unwrap();
     }
 }
