@@ -2,9 +2,7 @@ use crate::fancontrol::profile::FanProfile;
 use tailor_api::keyboard::ColorProfile;
 use zbus::fdo;
 
-use self::util::normalize_json_path;
-
-pub mod util;
+use super::util;
 
 pub const PROFILE_DIR: &str = "/etc/tailord/profiles/";
 pub const KEYBOARD_DIR: &str = "/etc/tailord/keyboard/";
@@ -42,11 +40,11 @@ impl Default for ProfileInfo {
 
 impl ProfileInfo {
     fn keyboard_path(&self) -> fdo::Result<String> {
-        normalize_json_path(KEYBOARD_DIR, &self.keyboard)
+        util::normalize_json_path(KEYBOARD_DIR, &self.keyboard)
     }
 
     fn fan_path(&self) -> fdo::Result<String> {
-        normalize_json_path(FAN_DIR, &self.fan)
+        util::normalize_json_path(FAN_DIR, &self.fan)
     }
 
     fn load_keyboard_profile(&self) -> fdo::Result<ColorProfile> {
