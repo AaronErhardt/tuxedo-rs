@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/github/aaronerhardt/Tailor/icons/16x16/actions/">
+    <file preprocess="xml-stripblanks" alias="profile-settings-symbolic.svg">icons/settings-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="keyboard-color-symbolic.svg">icons/keyboard-brightness-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="fan-speed-symbolic.svg">icons/speedometer-symbolic.svg</file>
+  </gresource>
+</gresources>
