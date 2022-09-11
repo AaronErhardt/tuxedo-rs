@@ -1,7 +1,7 @@
 use zbus::{dbus_proxy, fdo};
 
 #[dbus_proxy(
-    interface = "com.tux.Tailor.Profiles",
+    interface = "com.tux.Tailor.Keyboard",
     default_service = "com.tux.Tailor",
     default_path = "/com/tux/Tailor"
 )]
