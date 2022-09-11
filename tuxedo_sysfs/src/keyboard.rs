@@ -189,7 +189,7 @@ impl KeyboardController {
 mod test {
     use std::time::Duration;
 
-    use tailor_api::keyboard::Color;
+    use tailor_api::Color;
 
     use super::KeyboardController;
 

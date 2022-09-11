@@ -6,3 +6,7 @@ members = [
     "tailor_api",
     "tailor_client",
 ]
+
+exclude = [
+    "tailor_gui"
+]
