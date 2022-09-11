@@ -7,6 +7,7 @@ use zbus::Connection;
 
 type ClientResult<T> = Result<T, ClientError>;
 
+#[derive(Debug, Clone)]
 pub struct TailorConnection<'a> {
     profiles: dbus::ProfilesProxy<'a>,
     keyboard: dbus::KeyboardProxy<'a>,
