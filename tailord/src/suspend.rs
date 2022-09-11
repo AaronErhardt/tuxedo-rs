@@ -1,6 +1,5 @@
 use futures_lite::StreamExt;
 use tokio::sync::broadcast;
-use tracing::info;
 use zbus::{dbus_proxy, Connection};
 
 #[dbus_proxy(
@@ -22,13 +21,49 @@ pub async fn wait_for_suspend(sender: broadcast::Sender<bool>) -> Result<(), zbu
         let value = *msg.args()?.arg1();
 
         if value {
-            info!("Suspended, sleeping until wake up.");
+            tracing::info!("Suspended, sleeping until wake up.");
         } else {
-            info!("Woken up, continue service.");
+            tracing::info!("Woken up, continue service.");
         };
 
-        let _ = sender.send(value);
+        if let Err(err) = sender.send(value) {
+            tracing::warn!("Error sending shutdown signal: `{err}`");
+        }
     }
 
     Ok(())
+}
+
+pub async fn process_suspend(receiver: &mut broadcast::Receiver<bool>) {
+    match receiver.recv().await {
+        Ok(msg) => {
+            // Suspended!
+            if msg {
+                wait_for_wake_up(receiver).await
+            } else {
+                tracing::warn!("Wake up message without suspend.");
+            }
+        }
+        Err(err) => {
+            tracing::error!("Filed receiving suspend message: `{err}`");
+        }
+    }
+}
+
+async fn wait_for_wake_up(receiver: &mut broadcast::Receiver<bool>) {
+    // Wait until wake up (suspend msg == false).
+    loop {
+        match receiver.recv().await {
+            Ok(msg) => {
+                if msg {
+                    tracing::warn!("Wake up message without suspend.");
+                } else {
+                    return;
+                }
+            }
+            Err(err) => {
+                tracing::error!("Filed receiving suspend message: `{err}`");
+            }
+        }
+    }
 }

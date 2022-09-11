@@ -1,8 +1,8 @@
 use std::fs::File;
 
-use crate::{error::IoctlError, open_device_file, read, write};
+use crate::{config::open_device_file, error::IoctlError, read, write};
 
-const MAX_FAN_SPEED: u8 = 0xff;
+pub const MAX_FAN_SPEED: u8 = 0xff;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Fan {
@@ -63,6 +63,8 @@ impl IoInterface {
         }
     }
 
+    /// Set the fan speed in percent from 0 to 100.
+    /// Values above 100 will be clamped to 100.
     pub fn set_fan_speed_percent(
         &mut self,
         fan: Fan,
@@ -130,7 +132,7 @@ impl IoInterface {
     pub fn get_fan_temperature(&self, fan: Fan) -> Result<u8, IoctlError> {
         let fan_info_raw = self.read_faninfo_raw(fan)?;
 
-        // Explicitly use temp2 since more consistently implemented
+        // Explicitly use temp2 since it's more consistently implemented
         //int fanTemp1 = (int8_t) ((fanInfo >> 0x08) & 0xff);
         let fan_temp_2: u8 = ((fan_info_raw >> 0x10) & 0xff).try_into().unwrap();
 
@@ -180,5 +182,8 @@ mod test {
 
         io.set_fan_speed_percent(Fan::Fan1, 10).unwrap();
         assert_eq!(io.get_fan_speed_percent(Fan::Fan1).unwrap(), 10);
+
+        io.set_fan_speed_percent(Fan::Fan1, 100).unwrap();
+        assert_eq!(io.get_fan_speed_percent(Fan::Fan1).unwrap(), 100);
     }
 }

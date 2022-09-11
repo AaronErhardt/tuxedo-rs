@@ -1,49 +1,24 @@
+mod dbus;
+mod fancontrol;
 pub mod keyboard;
+mod profiles;
 mod suspend;
+pub mod util;
 
-use std::{future::pending, time::Duration};
+use std::future::pending;
 
-use tailor_api::keyboard::ColorProfile;
+use dbus::{FanInterface, KeyboardInterface, ProfileInterface};
+use fancontrol::FanRuntime;
+use futures::StreamExt;
+use profiles::Profile;
+use signal_hook::consts::{SIGINT, SIGQUIT, SIGTERM};
+use signal_hook_tokio::Signals;
 use tokio::sync::{broadcast, mpsc};
-use zbus::{dbus_interface, fdo, Connection};
+use zbus::ConnectionBuilder;
 
 use crate::keyboard::runtime::KeyboardRuntime;
 
-struct Tailor {
-    color_sender: mpsc::Sender<ColorProfile>,
-}
-
-#[dbus_interface(name = "com.tux.Tailor")]
-impl Tailor {
-    async fn add_color_profile(&self, name: &str, value: &str) -> fdo::Result<()> {
-        // Verify correctness of the file.
-        let value: ColorProfile =
-            serde_json::from_str(value).map_err(|err| fdo::Error::InvalidArgs(err.to_string()))?;
-
-        // Deserialization should work after data has been validated.
-        let data = serde_json::to_vec_pretty(&value).unwrap();
-
-        keyboard::dbus::write_keyboard_file(name, &data).await
-    }
-
-    async fn get_color_profile(&self, name: &str) -> fdo::Result<String> {
-        let colors = keyboard::dbus::load_keyboard_colors(name).await?;
-
-        // Serialization should work after data has been validated.
-        Ok(serde_json::to_string(&colors).unwrap())
-    }
-
-    async fn activate_color_profile(&self, name: &str) -> fdo::Result<()> {
-        let colors = keyboard::dbus::load_keyboard_colors(name).await?;
-        keyboard::dbus::write_active_profile_file(name).await?;
-        self.color_sender.send(colors).await.unwrap();
-        Ok(())
-    }
-
-    async fn list_color_profiles(&self) -> fdo::Result<Vec<String>> {
-        keyboard::dbus::get_color_profiles().await
-    }
-}
+const DBUS_PATH: &str = "/com/tux/Tailor";
 
 fn main() {
     if std::env::var_os("RUST_LOG").is_none() {
@@ -56,39 +31,74 @@ fn main() {
         .without_time()
         .init();
 
-    keyboard::dbus::init_keyboard_directory();
-
-    tokio_uring::start(async {
-        start_dbus().await;
-    });
+    tokio_uring::start(start_runtime());
 }
 
-async fn start_dbus() {
+async fn start_runtime() {
     let (suspend_sender, suspend_receiver) = broadcast::channel(1);
+    let (shutdown_sender, mut shutdown_receiver) = broadcast::channel(1);
+
+    let (keyboard_sender, keyboard_receiver) = mpsc::channel(1);
+    let (fan_sender, fan_receiver) = mpsc::channel(1);
+
     let (color_sender, color_receiver) = mpsc::channel(1);
+    let (fan_speed_sender, fan_speed_receiver) = mpsc::channel(1);
 
-    let tailor = Tailor { color_sender };
+    let signals = Signals::new(&[SIGTERM, SIGINT, SIGQUIT]).unwrap();
+    tokio_uring::spawn(handle_signals(signals, shutdown_sender));
 
-    let connection = Connection::system().await.unwrap();
+    let keyboard_interface = KeyboardInterface { color_sender };
 
-    // setup the server
-    connection
-        .object_server()
-        .at("/com/tux/Tailor", tailor)
+    let fan_interface = FanInterface { fan_speed_sender };
+
+    let profile_interface = ProfileInterface {
+        keyboard_sender,
+        fan_sender,
+    };
+
+    let _ = ConnectionBuilder::system()
+        .unwrap()
+        .name("com.tux.Tailor")
+        .unwrap()
+        .serve_at(DBUS_PATH, keyboard_interface)
+        .unwrap()
+        .serve_at(DBUS_PATH, fan_interface)
+        .unwrap()
+        .serve_at(DBUS_PATH, profile_interface)
+        .unwrap()
+        .build()
         .await
         .unwrap();
 
-    connection.request_name("com.tux.Tailor").await.unwrap();
+    let Profile { fan, keyboard } = Profile::load();
 
-    let mut keyboard_rt = KeyboardRuntime::new(suspend_receiver, color_receiver).await;
+    let keyboard_rt = KeyboardRuntime::new(keyboard, suspend_receiver).await;
+    let fan_rt = FanRuntime::new(fan, suspend_sender.subscribe());
+
+    tokio_uring::spawn(suspend::wait_for_suspend(suspend_sender));
+    tokio_uring::spawn(keyboard_rt.run(keyboard_receiver, color_receiver));
+    tokio_uring::spawn(fan_rt.run(fan_receiver, fan_speed_receiver));
 
     tokio::select! {
-        res = suspend::wait_for_suspend(suspend_sender) => {
-            res.unwrap();
-        }
-        _ = keyboard_rt.run() => {
+        _ = pending() => {}
+        _ = shutdown_receiver.recv() => {
+            tracing::info!("Shutting down, bye!");
+            std::process::abort()
         }
     }
+}
 
-    pending().await
+async fn handle_signals(mut signals: Signals, shutdown_sender: broadcast::Sender<()>) {
+    while let Some(signal) = signals.next().await {
+        match signal {
+            SIGTERM | SIGINT | SIGQUIT => {
+                // It's ok to panic here if a send error occurs.
+                // The application is terminated anyway and
+                // an error at this point can't be recovered.
+                tracing::info!("Received a shutdown signal");
+                shutdown_sender.send(()).unwrap();
+            }
+            _ => unreachable!(),
+        }
+    }
 }

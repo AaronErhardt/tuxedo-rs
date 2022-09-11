@@ -1,0 +1,31 @@
+{
+    "Multiple": [
+      {
+        "color": {
+          "r": 255,
+          "g": 0,
+          "b": 0
+        },
+        "transition": "Linear",
+        "transition_time": 6000
+      },
+      {
+        "color": {
+          "r": 0,
+          "g": 255,
+          "b": 0
+        },
+        "transition": "Linear",
+        "transition_time": 6000
+      },
+      {
+        "color": {
+          "r": 0,
+          "g": 0,
+          "b": 255
+        },
+        "transition": "Linear",
+        "transition_time": 6000
+      }
+    ]
+  }

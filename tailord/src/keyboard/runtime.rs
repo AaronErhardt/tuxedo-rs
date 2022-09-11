@@ -4,94 +4,83 @@ use tailor_api::keyboard::{Color, ColorPoint, ColorProfile, ColorTransition};
 use tokio::sync::{broadcast, mpsc};
 use tuxedo_sysfs::keyboard::KeyboardController;
 
-use super::dbus;
+use crate::suspend::process_suspend;
 
 pub struct KeyboardRuntime {
-    interface: KeyboardController,
-    colors: ColorProfile,
+    io: KeyboardController,
+    profile: ColorProfile,
     suspend_receiver: broadcast::Receiver<bool>,
-    color_receiver: mpsc::Receiver<ColorProfile>,
 }
 
 impl KeyboardRuntime {
-    pub async fn new(
-        suspend_receiver: broadcast::Receiver<bool>,
-        color_receiver: mpsc::Receiver<ColorProfile>,
-    ) -> Self {
-        // Load color profile if available
-        let colors = if let Ok(profile_name) = dbus::read_active_profile_file().await {
-            if let Ok(colors) = dbus::load_keyboard_colors(&profile_name).await {
-                colors
-            } else {
-                ColorProfile::default()
-            }
-        } else {
-            ColorProfile::default()
-        };
-
+    pub async fn new(profile: ColorProfile, suspend_receiver: broadcast::Receiver<bool>) -> Self {
         Self {
-            interface: KeyboardController::new().await.unwrap(),
-            colors,
+            io: KeyboardController::new().await.unwrap(),
+            profile,
             suspend_receiver,
-            color_receiver,
         }
     }
 
-    pub async fn run(&mut self) {
+    pub async fn run(
+        mut self,
+        mut keyboard_receiver: mpsc::Receiver<ColorProfile>,
+        mut color_receiver: mpsc::Receiver<Color>,
+    ) {
         loop {
-            let KeyboardRuntime {
-                interface,
-                colors,
-                suspend_receiver,
-                color_receiver,
-            } = self;
-
             tokio::select! {
-                new_colors = color_receiver.recv() => {
-                    *colors = new_colors.unwrap();
+                new_colors = keyboard_receiver.recv() => {
+                    if let Some(colors) = new_colors {
+                        self.profile = colors;
+                    }
                 }
-                _ = Self::update_colors(colors, interface, suspend_receiver) => {
-
+                override_color = color_receiver.recv() => {
+                    if let Some(mut color) = override_color {
+                        loop {
+                            if let Err(err) = self.io.set_color_left(&color).await {
+                                tracing::error!("Failed to update keyboard color: `{}`", err.to_string());
+                                break;
+                            }
+                            tokio::select! {
+                                override_color = color_receiver.recv() => {
+                                    if let Some(new_color) = override_color {
+                                        color = new_color
+                                    }
+                                }
+                                _ = tokio::time::sleep(Duration::from_millis(500)) => break,
+                            }
+                        }
+                    }
                 }
+                _ = self.update_colors() => {}
             }
         }
     }
 
-    pub async fn update_colors(
-        colors: &ColorProfile,
-        interface: &KeyboardController,
-        suspend_receiver: &mut broadcast::Receiver<bool>,
-    ) {
-        match colors {
+    pub async fn update_colors(&mut self) {
+        match &self.profile {
             ColorProfile::None => pending().await,
             ColorProfile::Single(color) => {
-                interface.set_color_all(color).await.unwrap();
+                self.io.set_color_all(color).await.unwrap();
                 pending().await
             }
             ColorProfile::Multiple(colors) => {
                 let color_steps = calculate_color_animation_steps(colors);
-                run_color_animation(interface, suspend_receiver, &color_steps).await;
+                self.run_color_animation(&color_steps).await;
             }
         }
     }
-}
 
-async fn run_color_animation(
-    interface: &KeyboardController,
-    suspend_receiver: &mut broadcast::Receiver<bool>,
-    color_steps: &[(Color, u32)],
-) {
-    for step in color_steps.iter().cycle() {
-        interface.set_color_left(&step.0).await.unwrap();
+    /// Infinitely run a color animation and
+    /// stop the animation while suspended.
+    async fn run_color_animation(&mut self, color_steps: &[(Color, u32)]) {
+        for step in color_steps.iter().cycle() {
+            if let Err(err) = self.io.set_color_left(&step.0).await {
+                tracing::error!("Failed setting keyboard colors: `{err}`")
+            }
 
-        tokio::select! {
-            _ = tokio::time::sleep(Duration::from_millis(step.1 as u64)) => {}
-            msg = suspend_receiver.recv() => {
-                // Suspended!
-                if msg.unwrap() {
-                    // Wait until wake up (suspend msg == false).
-                    while suspend_receiver.recv().await.unwrap() {}
-                }
+            tokio::select! {
+                _ = tokio::time::sleep(Duration::from_millis(step.1 as u64)) => {}
+                _ = process_suspend(&mut self.suspend_receiver) => {}
             }
         }
     }
@@ -129,8 +118,7 @@ fn linear_color_transition(
     transition_time: u32,
 ) {
     // Max step size 80 ms (12.5 fps).
-    // More would be rather CPU intensive for a background
-    // job (> 0.5%).
+    // More would be rather CPU intensive for a background job.
     let steps = transition_time / 80;
 
     if steps == 0 {
@@ -141,7 +129,10 @@ fn linear_color_transition(
         let b_diff = color.b as f64 - prev_color.b as f64;
 
         let decent_steps = decent_linear_steps(transition_time, &[r_diff, g_diff, b_diff]);
-        // Use lower step size if possible
+
+        // Use a lower step size if the animation is slow.
+        // The human eye won't notice the lower fps but
+        // the CPU usage will drop significantly.
         let steps = steps.min(decent_steps);
 
         let step_time = transition_time / steps;

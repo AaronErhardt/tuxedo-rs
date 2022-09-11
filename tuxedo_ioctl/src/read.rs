@@ -5,7 +5,7 @@ use nix::{
     libc::{c_ulong, ioctl},
 };
 
-use crate::{error::IoctlError, IOCTL_MAGIC, MAGIC_READ_CL, MAGIC_READ_UW};
+use crate::{config::IOCTL_MAGIC, config::MAGIC_READ_CL, config::MAGIC_READ_UW, error::IoctlError};
 
 fn read_string(file: &File, request_code: c_ulong) -> Result<String, IoctlError> {
     let fd = file.as_raw_fd();
@@ -99,7 +99,7 @@ ioctl_read_int!(uw_mode_enable, MAGIC_READ_UW, 0x15);
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::open_device_file;
+    use crate::config::open_device_file;
 
     #[test]
     fn test_cl_read() {
