@@ -78,6 +78,18 @@ impl Tailor {
         profiles::util::get_profiles(PROFILE_DIR).await
     }
 
+    async fn remove_keyboard_profile(&self, name: &str) -> fdo::Result<()> {
+        profiles::util::remove_file(KEYBOARD_DIR, name).await
+    }
+
+    async fn remove_fan_profile(&self, name: &str) -> fdo::Result<()> {
+        profiles::util::remove_file(FAN_DIR, name).await
+    }
+
+    async fn remove_global_profile(&self, name: &str) -> fdo::Result<()> {
+        profiles::util::remove_file(PROFILE_DIR, name).await
+    }
+
     async fn set_active_global_profile_name(&self, name: &str) -> fdo::Result<()> {
         std::fs::metadata(normalize_json_path(PROFILE_DIR, name)?)
             .map_err(|_| fdo::Error::FileNotFound(format!("Couldn't find profile `{name}`")))?;

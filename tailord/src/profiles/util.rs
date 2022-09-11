@@ -41,6 +41,12 @@ pub async fn read_file(base_path: &str, name: &str) -> Result<String, fdo::Error
         .map_err(|err| fdo::Error::IOError(err.to_string()))
 }
 
+pub async fn remove_file(base_path: &str, name: &str) -> Result<(), fdo::Error> {
+    tokio::fs::remove_file(normalize_json_path(base_path, name)?)
+        .await
+        .map_err(|err| fdo::Error::IOError(err.to_string()))
+}
+
 pub async fn get_profiles(base_path: &str) -> fdo::Result<Vec<String>> {
     let mut dir_entries = tokio::fs::read_dir(base_path)
         .await
