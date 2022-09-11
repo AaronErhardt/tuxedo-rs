@@ -1,6 +1,6 @@
 use std::path::Component;
 
-use tailor_api::{keyboard::ColorProfile, profile::ProfileInfo};
+use tailor_api::{ColorProfile, ProfileInfo};
 use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 

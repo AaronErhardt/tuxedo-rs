@@ -1,6 +1,6 @@
 use std::{fmt::Display, io, str::FromStr};
 
-use tailor_api::keyboard::Color;
+use tailor_api::Color;
 
 use crate::{sys_fs_read, sys_fs_write};
 

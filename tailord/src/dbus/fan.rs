@@ -1,4 +1,4 @@
-use tailor_api::fan::FanProfilePoint;
+use tailor_api::FanProfilePoint;
 use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 

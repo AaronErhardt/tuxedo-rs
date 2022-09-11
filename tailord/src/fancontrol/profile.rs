@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use tailor_api::fan::FanProfilePoint;
+use tailor_api::FanProfilePoint;
 use zbus::fdo;
 
 #[derive(Debug)]

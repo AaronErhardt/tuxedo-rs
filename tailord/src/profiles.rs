@@ -1,5 +1,5 @@
 use crate::fancontrol::profile::FanProfile;
-use tailor_api::{keyboard::ColorProfile, profile::ProfileInfo};
+use tailor_api::{ColorProfile, ProfileInfo};
 use zbus::fdo;
 
 use super::util;

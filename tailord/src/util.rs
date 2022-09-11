@@ -19,13 +19,11 @@ pub fn normalize_json_path(base_path: &str, name: &str) -> fdo::Result<String> {
         Err(fdo::Error::InvalidArgs(format!(
             "Can't convert `{name}` to OS string: `{err}`"
         )))
+    } else if base_path.is_empty() {
+        Ok(format!("{name}.json"))
     } else {
-        if base_path.is_empty() {
-            Ok(format!("{name}.json"))
-        } else {
-            let base_path = base_path.trim().trim_end_matches('/');
-            Ok(format!("{base_path}/{name}.json"))
-        }
+        let base_path = base_path.trim().trim_end_matches('/');
+        Ok(format!("{base_path}/{name}.json"))
     }
 }
 

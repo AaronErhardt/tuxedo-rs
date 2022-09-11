@@ -1,6 +1,6 @@
 use std::{future::pending, time::Duration};
 
-use tailor_api::keyboard::{Color, ColorPoint, ColorProfile, ColorTransition};
+use tailor_api::{Color, ColorPoint, ColorProfile, ColorTransition};
 use tokio::sync::{broadcast, mpsc};
 use tuxedo_sysfs::keyboard::KeyboardController;
 

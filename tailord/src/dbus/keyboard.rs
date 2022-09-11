@@ -1,4 +1,4 @@
-use tailor_api::keyboard::{Color, ColorProfile};
+use tailor_api::{Color, ColorProfile};
 use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 
