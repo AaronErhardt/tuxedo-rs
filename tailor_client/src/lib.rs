@@ -108,6 +108,14 @@ impl<'a> TailorConnection<'a> {
         Ok(self.profiles.remove_profile(name).await?)
     }
 
+    pub async fn get_active_global_profile_name(&self) -> ClientResult<String> {
+        Ok(self.profiles.get_active_profile_name().await?)
+    }
+
+    pub async fn set_active_global_profile_name(&self, name: &str) -> ClientResult<()> {
+        Ok(self.profiles.set_active_profile_name(name).await?)
+    }
+
     pub async fn reload(&self) -> ClientResult<()> {
         Ok(self.profiles.reload().await?)
     }
