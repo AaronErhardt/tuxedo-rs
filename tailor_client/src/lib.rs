@@ -1,11 +1,13 @@
+#![deny(unreachable_pub, rust_2018_idioms)]
+
 mod dbus;
 mod error;
 
-use error::ClientError;
+pub use error::ClientError;
 use tailor_api::{Color, ColorProfile, FanProfilePoint, ProfileInfo};
 use zbus::Connection;
 
-type ClientResult<T> = Result<T, ClientError>;
+pub type ClientResult<T> = Result<T, ClientError>;
 
 #[derive(Debug, Clone)]
 pub struct TailorConnection<'a> {

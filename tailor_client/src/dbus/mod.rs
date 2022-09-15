@@ -2,6 +2,6 @@ mod fan;
 mod keyboard;
 mod profiles;
 
-pub use fan::FanProxy;
-pub use keyboard::KeyboardProxy;
-pub use profiles::ProfilesProxy;
+pub(crate) use fan::FanProxy;
+pub(crate) use keyboard::KeyboardProxy;
+pub(crate) use profiles::ProfilesProxy;
