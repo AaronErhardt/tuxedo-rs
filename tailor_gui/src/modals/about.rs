@@ -2,7 +2,7 @@ use gtk::prelude::GtkWindowExt;
 use relm4::gtk;
 use relm4::{ComponentParts, ComponentSender, SimpleComponent};
 
-use gettextrs::gettext;
+// use gettextrs::gettext;
 
 use crate::config::{APP_ID, VERSION};
 
@@ -10,22 +10,20 @@ pub struct AboutDialog {}
 
 impl SimpleComponent for AboutDialog {
     type Init = ();
-    type Widgets = gtk::AboutDialog;
+    type Widgets = adw::AboutWindow;
     type Input = ();
     type Output = ();
-    type Root = gtk::AboutDialog;
+    type Root = adw::AboutWindow;
 
     fn init_root() -> Self::Root {
-        gtk::AboutDialog::builder()
-            .logo_icon_name(APP_ID)
-            // Insert your license of choice here
+        adw::AboutWindow::builder()
+            .application_icon(APP_ID)
             .license_type(gtk::License::Gpl20)
-            // Insert your website here
-            // .website("https://gitlab.gnome.org/bilelmoussaoui/tailor_gui/")
+            .website("https://github.com/AaronErhardt/tuxedo-rs/")
             .version(VERSION)
-            .translator_credits(&gettext("translator-credits"))
+            //.translator_credits(&gettext("translator-credits"))
             .modal(true)
-            .authors(vec!["Aaron Erhardt".into()])
+            .developers(vec!["Aaron Erhardt".into()])
             .artists(vec!["Aaron Erhardt".into()])
             .build()
     }
