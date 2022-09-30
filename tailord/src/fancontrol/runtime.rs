@@ -16,7 +16,10 @@ impl FanRuntime {
             let fan_diff = self.fan_speed.abs_diff(target_fan_speed);
 
             // Make small steps to decrease or increase fan speed.
-            let fan_increment = fan_diff / 3 + 1;
+            // If the target fan speed is below 50%, don't increase the speed at all
+            // unless the difference is higher than 3% to avoid frequent speed changes 
+            // at low temperatures.
+            let fan_increment = fan_diff / 4 + (target_fan_speed / 50);
 
             // Update fan speed
             self.set_speed(if target_fan_speed > self.fan_speed {
