@@ -1,7 +1,7 @@
 {
     "id": "com.github.aaronerhardt.Tailor.Devel",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "42",
+    "runtime-version": "43",
     "sdk": "org.gnome.Sdk",
     "sdk-extensions": [
         "org.freedesktop.Sdk.Extension.rust-stable"
@@ -10,7 +10,7 @@
     "finish-args": [
         "--socket=fallback-x11",
         "--socket=wayland",
-        "--socket=system-bus",
+        "--system-talk-name=com.tux.Tailor",
         "--device=dri",
         "--env=RUST_LOG=tailor_gui=debug",
         "--env=G_MESSAGES_DEBUG=none",
