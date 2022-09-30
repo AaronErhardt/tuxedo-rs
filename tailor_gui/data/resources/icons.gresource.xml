@@ -4,5 +4,6 @@
     <file preprocess="xml-stripblanks" alias="profile-settings-symbolic.svg">icons/settings-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="keyboard-color-symbolic.svg">icons/keyboard-brightness-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="fan-speed-symbolic.svg">icons/speedometer-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="plus-symbolic.svg">icons/plus-symbolic.svg</file>
   </gresource>
 </gresources>
