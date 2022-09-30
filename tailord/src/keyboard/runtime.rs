@@ -33,6 +33,7 @@ impl KeyboardRuntime {
                         self.profile = colors;
                     }
                 }
+                // Override the current color value for 1s
                 override_color = color_receiver.recv() => {
                     if let Some(mut color) = override_color {
                         loop {
@@ -46,7 +47,7 @@ impl KeyboardRuntime {
                                         color = new_color
                                     }
                                 }
-                                _ = tokio::time::sleep(Duration::from_millis(500)) => break,
+                                _ = tokio::time::sleep(Duration::from_millis(1000)) => break,
                             }
                         }
                     }

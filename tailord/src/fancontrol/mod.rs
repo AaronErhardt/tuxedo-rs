@@ -54,6 +54,7 @@ impl FanRuntime {
                         self.profile = config;
                     }
                 },
+                // Override the fan speed for 1s
                 override_speed = fan_speed_receiver.recv() => {
                     if let Some(mut speed) = override_speed {
                         loop {
@@ -67,7 +68,7 @@ impl FanRuntime {
                                         speed = new_speed
                                     }
                                 }
-                                _ = tokio::time::sleep(Duration::from_millis(500)) => break,
+                                _ = tokio::time::sleep(Duration::from_millis(1000)) => break,
                             }
                         }
                     }

@@ -17,7 +17,7 @@ impl FanRuntime {
 
             // Make small steps to decrease or increase fan speed.
             // If the target fan speed is below 50%, don't increase the speed at all
-            // unless the difference is higher than 3% to avoid frequent speed changes 
+            // unless the difference is higher than 3% to avoid frequent speed changes
             // at low temperatures.
             let fan_increment = fan_diff / 4 + (target_fan_speed / 50);
 
