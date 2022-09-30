@@ -5,25 +5,6 @@ mod modals;
 mod setup;
 pub mod tailor_state;
 
-macro_rules! global_widget {
-    ($name:ident, $ty:ty) => {
-        mod __private {
-            use super::*;
-            use $ty as __Type;
-            thread_local!(static GLOBAL_WIDGET: __Type = __Type::default());
-
-            pub fn $name() -> $ty {
-                relm4::gtk::init().unwrap();
-                GLOBAL_WIDGET.with(|w| w.clone())
-            }
-        }
-
-        pub use __private::$name;
-    }
-}
-
-global_widget!(my_box, gtk::Box);
-
 use gtk::prelude::ApplicationExt;
 use relm4::{
     actions::{AccelsPlus, RelmAction, RelmActionGroup},
@@ -39,8 +20,6 @@ relm4::new_action_group!(AppActionGroup, "app");
 relm4::new_stateless_action!(QuitAction, AppActionGroup, "quit");
 
 fn main() {
-    let my_box = my_box();
-
     // Enable logging
     tracing_subscriber::fmt()
         .with_span_events(tracing_subscriber::fmt::format::FmtSpan::FULL)

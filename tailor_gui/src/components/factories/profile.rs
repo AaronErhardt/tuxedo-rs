@@ -1,5 +1,6 @@
 use adw::traits::{ExpanderRowExt, PreferencesRowExt};
-use gtk::prelude::{WidgetExt, CheckButtonExt};
+use gtk::prelude::{WidgetExt, CheckButtonExt, ButtonExt, ObjectExt};
+use once_cell::unsync::Lazy;
 use relm4::{
     adw, factory,
     factory::{DynamicIndex, FactoryComponent, FactoryComponentSender, FactoryView},
@@ -12,6 +13,8 @@ use crate::{
     components::profiles::ProfilesInput,
     tailor_state::{FAN_PROFILES, KEYBOARD_PROFILES, TAILOR_STATE},
 };
+
+const RADIO_GROUP: Lazy<gtk::CheckButton> = Lazy::new(gtk::CheckButton::default);
 
 #[derive(Debug)]
 pub struct Profile {
@@ -35,8 +38,6 @@ pub enum ProfileInput {
     UpdateProfile,
 }
 
-//relm4::new_stateful_action!()
-
 #[factory(pub)]
 impl FactoryComponent for Profile {
     type ParentWidget = adw::PreferencesGroup;
@@ -50,12 +51,17 @@ impl FactoryComponent for Profile {
     view! {
         adw::ExpanderRow {
             set_title: &self.name,
+            #[chain(build())]
+            bind_property: ("expanded", &delete_button, "visible"),
 
             add_prefix = &gtk::Box {
                 set_valign: gtk::Align::Center,
+
                 gtk::CheckButton {
                     #[watch]
                     set_active: self.active,
+
+                    set_group: Some(&*RADIO_GROUP),
 
                     connect_toggled[index] => move |btn| {
                         if btn.is_active() {
@@ -63,6 +69,17 @@ impl FactoryComponent for Profile {
                             sender.output(ProfilesInput::Enabled(index.clone()));
                         }
                     }
+                },
+            },
+
+            add_action = &gtk::Box {
+                set_valign: gtk::Align::Center,
+                set_margin_end: 2,
+
+                #[name = "delete_button"]
+                gtk::Button {
+                    set_icon_name: "remove-symbolic",
+                    set_visible: false,
                 }
             },
 
