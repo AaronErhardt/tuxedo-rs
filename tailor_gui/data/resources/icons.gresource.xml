@@ -6,5 +6,9 @@
     <file preprocess="xml-stripblanks" alias="fan-speed-symbolic.svg">icons/speedometer-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="plus-symbolic.svg">icons/plus-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="remove-symbolic.svg">icons/remove-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="go-up-symbolic.svg">icons/go-up-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="go-down-symbolic.svg">icons/go-down-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="go-next-symbolic.svg">icons/go-next-symbolic.svg</file>
+    <file preprocess="xml-stripblanks" alias="edit-symbolic.svg">icons/edit-symbolic.svg</file>
   </gresource>
 </gresources>
