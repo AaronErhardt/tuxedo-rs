@@ -1,6 +1,6 @@
 use crate::{app::FullProfileInfo, tailor_state::TAILOR_STATE};
 use adw::traits::PreferencesGroupExt;
-use gtk::prelude::{WidgetExt, ButtonExt};
+use gtk::prelude::{ButtonExt, WidgetExt};
 use relm4::{
     adw, component, factory::FactoryVecDeque, gtk, prelude::DynamicIndex, Component,
     ComponentParts, ComponentSender,
@@ -47,7 +47,6 @@ impl Component for Profiles {
         root: &Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        //let profile_box = gtk::Box::default();
         let profile_box = adw::PreferencesGroup::default();
         let profiles = FactoryVecDeque::new(profile_box.clone(), sender.input_sender());
 

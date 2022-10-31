@@ -1,9 +1,10 @@
-mod config;
 mod app;
 pub mod components;
+mod config;
 mod modals;
 mod setup;
 pub mod tailor_state;
+pub mod util;
 
 use gtk::prelude::ApplicationExt;
 use relm4::{
@@ -40,7 +41,7 @@ fn main() {
             app.quit();
         })
     };
-    actions.add_action(quit_action);
+    actions.add_action(&quit_action);
 
     app.set_accelerators_for_action::<QuitAction>(&["<Control>q"]);
 

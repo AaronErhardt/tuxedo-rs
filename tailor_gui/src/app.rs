@@ -15,7 +15,7 @@ use gtk::{gio, glib};
 use tailor_api::ProfileInfo;
 
 use crate::{
-    components::profiles::Profiles,
+    components::{fan_list::FanList, keyboard_edit::KeyboardEdit, profiles::Profiles},
     config::{APP_ID, PROFILE},
 };
 use crate::{
@@ -143,17 +143,13 @@ impl Component for App {
                                 } -> {
                                     set_icon_name: Some("profile-settings"),
                                 },
-                                add_titled[Some("keyboard"), "Keyboard"] = &gtk::Box {
-                                    gtk::Label {
-                                        set_label: "Keyboard",
-                                    }
+                                #[local]
+                                add_titled[Some("keyboard"), "Keyboard"] = &keyboard_edit_widget -> adw::Clamp {
                                 } -> {
                                     set_icon_name: Some("keyboard-color"),
                                 },
-                                add_titled[Some("fan"), "Fan control"] = &gtk::Box {
-                                    gtk::Label {
-                                        set_label: "Fan",
-                                    }
+                                #[local_ref]
+                                add_titled[Some("fan"), "Fan control"] = fan_list -> adw::Clamp {
                                 } -> {
                                     set_icon_name: Some("fan-speed"),
                                 },
@@ -221,6 +217,14 @@ impl Component for App {
             .launch(())
             .detach();
 
+        let keyboard_edit = KeyboardEdit::builder().launch(()).detach();
+        let keyboard_edit_widget = keyboard_edit.widget();
+
+        let keyboard_edit_widget = adw::Clamp::default();
+
+        let fan_list = FanList::builder().launch(()).detach();
+        let fan_list = fan_list.widget();
+
         let profiles = Profiles::builder().launch(()).detach();
         let profile_widget = profiles.widget();
 
@@ -252,8 +256,8 @@ impl Component for App {
             })
         };
 
-        actions.add_action(shortcuts_action);
-        actions.add_action(about_action);
+        actions.add_action(&shortcuts_action);
+        actions.add_action(&about_action);
 
         widgets
             .main_window

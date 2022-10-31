@@ -1,10 +1,10 @@
 use adw::traits::{ExpanderRowExt, PreferencesRowExt};
-use gtk::prelude::{WidgetExt, CheckButtonExt, ButtonExt, ObjectExt};
+use gtk::prelude::{ButtonExt, CheckButtonExt, ListBoxRowExt, ObjectExt, WidgetExt};
 use once_cell::unsync::Lazy;
 use relm4::{
     adw, factory,
     factory::{DynamicIndex, FactoryComponent, FactoryComponentSender, FactoryView},
-    gtk, Component, ComponentController, Controller, WidgetPlus,
+    gtk, Component, ComponentController, Controller, RelmWidgetExt,
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
 use tailor_api::ProfileInfo;
@@ -51,6 +51,7 @@ impl FactoryComponent for Profile {
     view! {
         adw::ExpanderRow {
             set_title: &self.name,
+
             #[chain(build())]
             bind_property: ("expanded", &delete_button, "visible"),
 
@@ -83,32 +84,40 @@ impl FactoryComponent for Profile {
                 }
             },
 
-            add_row = &gtk::Box {
-                set_margin_all: 5,
+            add_row = &gtk::ListBoxRow {
+                set_activatable: false,
 
-                #[name = "keyboard_label"]
-                gtk::Label {
-                    set_label: "Keyboard profile",
-                },
                 gtk::Box {
-                    set_hexpand: true,
-                },
-                #[local_ref]
-                keyboard_box -> gtk::ComboBoxText {},
+                    set_margin_all: 5,
+
+                    #[name = "keyboard_label"]
+                    gtk::Label {
+                        set_label: "Keyboard profile",
+                    },
+                    gtk::Box {
+                        set_hexpand: true,
+                    },
+                    #[local_ref]
+                    keyboard_box -> gtk::ComboBoxText {},
+                }
             },
 
-            add_row = &gtk::Box {
-                set_margin_all: 5,
+            add_row = &gtk::ListBoxRow {
+                set_activatable: false,
 
-                #[name = "fan_label"]
-                gtk::Label {
-                    set_label: "Fan profile"
-                },
                 gtk::Box {
-                    set_hexpand: true,
-                },
-                #[local_ref]
-                fan_box -> gtk::ComboBoxText {},
+                    set_margin_all: 5,
+
+                    #[name = "fan_label"]
+                    gtk::Label {
+                        set_label: "Fan profile"
+                    },
+                    gtk::Box {
+                        set_hexpand: true,
+                    },
+                    #[local_ref]
+                    fan_box -> gtk::ComboBoxText {},
+                }
             }
         }
     }

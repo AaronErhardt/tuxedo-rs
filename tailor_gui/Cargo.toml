@@ -9,9 +9,10 @@ publish = false
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
-relm4 = { git = "https://github.com/Relm4/Relm4", branch = "shared-state-update", features = ["macros", "libadwaita"] }
-relm4-components = { git = "https://github.com/Relm4/Relm4", branch = "shared-state-update"}
-adw = { package = "libadwaita", git = "https://gitlab.gnome.org/World/Rust/libadwaita-rs", features = ["v1_2"] }
+relm4 = { features = ["libadwaita"], version = "0.5.0-beta.4" }
+relm4-components = "0.5.0-beta.4" 
+adw = { package = "libadwaita", version = "0.2", features = ["v1_2"] }
+gtk = { package = "gtk4", version = "0.5", features = ["v4_8"] }
 
 tailor_client = "0.1.2"
 tailor_api = "0.1"

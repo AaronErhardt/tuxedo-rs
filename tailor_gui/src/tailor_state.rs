@@ -14,6 +14,10 @@ pub static FAN_PROFILES: SharedState<Vec<String>> = SharedState::new();
 
 pub static TAILOR_STATE: SharedState<Option<TailorState>> = SharedState::new();
 
+pub fn tailor_connection() -> TailorConnection<'static> {
+    TAILOR_STATE.read().as_ref().unwrap().connection.clone()
+}
+
 pub async fn initialize_tailor_state() -> Result<(), String> {
     let connection = TailorConnection::new().await.map_err(|e| e.to_string())?;
 
@@ -49,14 +53,18 @@ pub async fn initialize_tailor_state() -> Result<(), String> {
     .await
     .map_err(|e| e.to_string())?;
 
+    // Make sure that the profiles lists are updated first.
+    // Many components wait on TAILOR_STATE for updates and
+    // by the time it is loaded, the other variables should
+    // be available as well.
+    *KEYBOARD_PROFILES.write() = keyboard_profiles;
+    *FAN_PROFILES.write() = fan_profiles;
+
     *TAILOR_STATE.write() = Some(TailorState {
         connection,
         active_profile_name,
         profiles,
     });
-
-    *KEYBOARD_PROFILES.write() = keyboard_profiles;
-    *FAN_PROFILES.write() = fan_profiles;
 
     Ok(())
 }
