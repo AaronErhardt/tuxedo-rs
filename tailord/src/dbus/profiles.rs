@@ -1,5 +1,3 @@
-use std::path::Component;
-
 use tailor_api::{ColorProfile, ProfileInfo};
 use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
@@ -37,31 +35,27 @@ impl ProfileInterface {
         util::remove_file(PROFILE_DIR, name).await
     }
 
-    async fn set_active_profile_name(&self, name: &str) -> fdo::Result<()> {
-        std::fs::metadata(util::normalize_json_path(PROFILE_DIR, name)?)
-            .map_err(|_| fdo::Error::FileNotFound(format!("Couldn't find profile `{name}`")))?;
+    async fn rename_profile(&mut self, old_name: &str, new_name: &str) -> fdo::Result<Vec<String>> {
+        if self.list_profiles().await?.contains(&new_name.to_string()) {
+            Err(fdo::Error::InvalidArgs(format!("File `{old_name}` already exists")))
+        } else {
+            util::move_file(PROFILE_DIR, new_name, old_name).await?;
 
-        let link_path = format!("{PROFILE_DIR}active_profile.json");
-        drop(std::fs::remove_file(&link_path));
-        std::os::unix::fs::symlink(util::normalize_json_path("", name)?, &link_path)
-            .map_err(|err| fdo::Error::IOError(err.to_string()))
+            if self.get_active_profile_name().await? == old_name {
+                self.set_active_profile_name(new_name).await?;
+                self.reload().await?;
+            }
+
+            self.list_profiles().await
+        }
+    }
+
+    async fn set_active_profile_name(&self, name: &str) -> fdo::Result<()> {
+        Profile::set_active_profile_name(name).await
     }
 
     async fn get_active_profile_name(&self) -> fdo::Result<String> {
-        let link = std::fs::read_link(&format!("{PROFILE_DIR}active_profile.json"))
-            .map_err(|err| fdo::Error::IOError(err.to_string()))?;
-        let components: Vec<Component> = link.components().collect();
-        if components.len() == 1 {
-            if let Component::Normal(name) = components.first().unwrap() {
-                if let Some(name) = name.to_str() {
-                    return Ok(name.trim_end_matches(".json").to_string());
-                }
-            }
-        }
-
-        Err(fdo::Error::InvalidFileContent(
-            "File `active_profile.json` isn't a valid link".to_string(),
-        ))
+        Profile::get_active_profile_name().await
     }
 
     async fn reload(&mut self) -> fdo::Result<()> {

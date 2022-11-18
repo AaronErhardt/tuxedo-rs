@@ -1,8 +1,8 @@
-use tailor_api::FanProfilePoint;
+use tailor_api::{FanProfilePoint, ProfileInfo};
 use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 
-use crate::{profiles::FAN_DIR, util};
+use crate::{profiles::{FAN_DIR, PROFILE_DIR}, util};
 
 pub struct FanInterface {
     pub fan_speed_sender: mpsc::Sender<u8>,
@@ -25,8 +25,28 @@ impl FanInterface {
         util::get_profiles(FAN_DIR).await
     }
 
-    async fn remove_fan_profile(&self, name: &str) -> fdo::Result<()> {
+    async fn remove_profile(&self, name: &str) -> fdo::Result<()> {
         util::remove_file(FAN_DIR, name).await
+    }
+
+    async fn rename_profile(&self, old_name: &str, new_name: &str) -> fdo::Result<Vec<String>> {
+        if self.list_profiles().await?.contains(&new_name.to_string()) {
+            Err(fdo::Error::InvalidArgs(format!("File `{old_name}` already exists")))
+        } else {
+            let profiles = util::get_profiles(PROFILE_DIR).await?;
+
+            for profile in profiles {
+                let mut data = util::read_json::<ProfileInfo>(&PROFILE_DIR, &profile).await?;
+                if data.fan == old_name {
+                    data.fan = new_name.to_string();
+                    util::write_json(&PROFILE_DIR, &profile, &data).await?;
+                }
+            }
+
+            util::move_file(FAN_DIR, new_name, old_name).await?;
+
+            self.list_profiles().await
+        }
     }
 
     async fn override_speed(&mut self, speed: u8) -> fdo::Result<()> {

@@ -1,13 +1,10 @@
 use std::ffi::OsString;
+use serde::{de::DeserializeOwned, Serialize};
 use zbus::fdo;
 
 pub fn normalize_json_path(base_path: &str, name: &str) -> fdo::Result<String> {
     // Make sure the name doesn't contain any illegal characters.
-    if name == "active_profile" {
-        Err(fdo::Error::InvalidArgs(
-            "Can't use name `active_profile`".to_string(),
-        ))
-    } else if name.contains('/') {
+    if name.contains('/') {
         Err(fdo::Error::InvalidArgs(format!(
             "Can't use '/' in profile names: `{name}`"
         )))
@@ -33,14 +30,30 @@ pub async fn write_file(base_path: &str, name: &str, data: &[u8]) -> Result<(), 
         .map_err(|err| fdo::Error::IOError(err.to_string()))
 }
 
+pub async fn write_json<T: Serialize>(base_path: &str, name: &str, data: &T) -> Result<(), fdo::Error> {
+    let data = serde_json::to_string_pretty(data).map_err(|err| fdo::Error::Failed(err.to_string()))?;
+    write_file(base_path, name, data.as_bytes()).await
+}
+
 pub async fn read_file(base_path: &str, name: &str) -> Result<String, fdo::Error> {
     tokio::fs::read_to_string(normalize_json_path(base_path, name)?)
         .await
         .map_err(|err| fdo::Error::IOError(err.to_string()))
 }
 
+pub async fn read_json<T: DeserializeOwned>(base_path: &str, name: &str) -> Result<T, fdo::Error> {
+    let data = read_file(base_path, name).await?;
+    serde_json::from_str(&data).map_err(|err| fdo::Error::Failed(err.to_string()))
+}
+
 pub async fn remove_file(base_path: &str, name: &str) -> Result<(), fdo::Error> {
     tokio::fs::remove_file(normalize_json_path(base_path, name)?)
+        .await
+        .map_err(|err| fdo::Error::IOError(err.to_string()))
+}
+
+pub async fn move_file(base_path: &str, old_name: &str, new_name: &str) -> Result<(), fdo::Error> {
+    tokio::fs::rename(normalize_json_path(base_path, old_name)?, normalize_json_path(base_path, new_name)?)
         .await
         .map_err(|err| fdo::Error::IOError(err.to_string()))
 }
@@ -61,7 +74,9 @@ pub async fn get_profiles(base_path: &str) -> fdo::Result<Vec<String>> {
             match entry.file_name().into_string() {
                 Ok(file_name) => {
                     if file_name.contains(".json") {
-                        entries.push(file_name.replace(".json", ""))
+                        if !file_name.contains("active_profile") {
+                            entries.push(file_name.replace(".json", ""))
+                        }
                     } else {
                         tracing::warn!("Unknown file type (expected JSON): `{:?}`", entry.path());
                     }
