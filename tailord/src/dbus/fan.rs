@@ -41,10 +41,10 @@ impl FanInterface {
             let profiles = util::get_profiles(PROFILE_DIR).await?;
 
             for profile in profiles {
-                let mut data = util::read_json::<ProfileInfo>(&PROFILE_DIR, &profile).await?;
+                let mut data = util::read_json::<ProfileInfo>(PROFILE_DIR, &profile).await?;
                 if data.fan == old_name {
                     data.fan = new_name.to_string();
-                    util::write_json(&PROFILE_DIR, &profile, &data).await?;
+                    util::write_json(PROFILE_DIR, &profile, &data).await?;
                 }
             }
 

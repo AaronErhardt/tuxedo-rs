@@ -44,7 +44,7 @@ async fn start_runtime() {
     let (color_sender, color_receiver) = mpsc::channel(1);
     let (fan_speed_sender, fan_speed_receiver) = mpsc::channel(1);
 
-    let signals = Signals::new(&[SIGTERM, SIGINT, SIGQUIT]).unwrap();
+    let signals = Signals::new([SIGTERM, SIGINT, SIGQUIT]).unwrap();
     tokio_uring::spawn(handle_signals(signals, shutdown_sender));
 
     let keyboard_interface = KeyboardInterface { color_sender };

@@ -89,17 +89,17 @@ impl Profile {
         std::fs::metadata(util::normalize_json_path(PROFILE_DIR, name)?)
             .map_err(|_| fdo::Error::FileNotFound(format!("Couldn't find profile `{name}`")))?;
 
-        std::fs::remove_file(&ACTIVE_PROFILE_PATH)
+        std::fs::remove_file(ACTIVE_PROFILE_PATH)
             .map_err(|err| fdo::Error::IOError(err.to_string()))?;
         std::os::unix::fs::symlink(
             util::normalize_json_path("profiles", name)?,
-            &ACTIVE_PROFILE_PATH,
+            ACTIVE_PROFILE_PATH,
         )
         .map_err(|err| fdo::Error::IOError(err.to_string()))
     }
 
     pub async fn get_active_profile_name() -> fdo::Result<String> {
-        let link = std::fs::read_link(&ACTIVE_PROFILE_PATH)
+        let link = std::fs::read_link(ACTIVE_PROFILE_PATH)
             .map_err(|err| fdo::Error::IOError(err.to_string()))?;
         let components: Vec<Component> = link.components().collect();
         if components.len() == 2 {

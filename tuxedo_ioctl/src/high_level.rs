@@ -118,7 +118,7 @@ impl IoInterface {
     }
 
     pub fn set_web_cam_enabled(&self, status: bool) -> Result<(), IoctlError> {
-        write::cl_webcam_sw(&self.file, if status { 1 } else { 0 })
+        write::cl_webcam_sw(&self.file, u32::from(status))
     }
 
     pub fn get_web_cam_enabled(&self) -> Result<bool, IoctlError> {

@@ -62,7 +62,7 @@ struct NumBool(bool);
 
 impl Display for NumBool {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", if self.0 { 1 } else { 0 })
+        write!(f, "{}", u8::from(self.0))
     }
 }
 

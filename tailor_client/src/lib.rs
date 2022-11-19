@@ -52,8 +52,8 @@ impl<'a> TailorConnection<'a> {
     }
 
     pub async fn copy_keyboard_profiles(&self, from: &str, to: &str) -> ClientResult<()> {
-        let profile = self.get_keyboard_profile(&from).await?;
-        self.add_keyboard_profile(&to, &profile).await
+        let profile = self.get_keyboard_profile(from).await?;
+        self.add_keyboard_profile(to, &profile).await
     }
 
     pub async fn rename_keyboard_profile(
@@ -94,8 +94,8 @@ impl<'a> TailorConnection<'a> {
     }
 
     pub async fn copy_fan_profiles(&self, from: &str, to: &str) -> ClientResult<()> {
-        let profile = self.get_fan_profile(&from).await?;
-        self.add_fan_profile(&to, &profile).await
+        let profile = self.get_fan_profile(from).await?;
+        self.add_fan_profile(to, &profile).await
     }
 
     pub async fn rename_fan_profile(
@@ -131,8 +131,8 @@ impl<'a> TailorConnection<'a> {
     }
 
     pub async fn copy_global_profile(&self, from: &str, to: &str) -> ClientResult<()> {
-        let profile = self.get_global_profile(&from).await?;
-        self.add_global_profile(&to, &profile).await
+        let profile = self.get_global_profile(from).await?;
+        self.add_global_profile(to, &profile).await
     }
 
     pub async fn rename_global_profile(
