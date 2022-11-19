@@ -1,5 +1,5 @@
-use std::ffi::OsString;
 use serde::{de::DeserializeOwned, Serialize};
+use std::ffi::OsString;
 use zbus::fdo;
 
 pub fn normalize_json_path(base_path: &str, name: &str) -> fdo::Result<String> {
@@ -30,8 +30,13 @@ pub async fn write_file(base_path: &str, name: &str, data: &[u8]) -> Result<(), 
         .map_err(|err| fdo::Error::IOError(err.to_string()))
 }
 
-pub async fn write_json<T: Serialize>(base_path: &str, name: &str, data: &T) -> Result<(), fdo::Error> {
-    let data = serde_json::to_string_pretty(data).map_err(|err| fdo::Error::Failed(err.to_string()))?;
+pub async fn write_json<T: Serialize>(
+    base_path: &str,
+    name: &str,
+    data: &T,
+) -> Result<(), fdo::Error> {
+    let data =
+        serde_json::to_string_pretty(data).map_err(|err| fdo::Error::Failed(err.to_string()))?;
     write_file(base_path, name, data.as_bytes()).await
 }
 
@@ -53,9 +58,12 @@ pub async fn remove_file(base_path: &str, name: &str) -> Result<(), fdo::Error> 
 }
 
 pub async fn move_file(base_path: &str, old_name: &str, new_name: &str) -> Result<(), fdo::Error> {
-    tokio::fs::rename(normalize_json_path(base_path, old_name)?, normalize_json_path(base_path, new_name)?)
-        .await
-        .map_err(|err| fdo::Error::IOError(err.to_string()))
+    tokio::fs::rename(
+        normalize_json_path(base_path, old_name)?,
+        normalize_json_path(base_path, new_name)?,
+    )
+    .await
+    .map_err(|err| fdo::Error::IOError(err.to_string()))
 }
 
 pub async fn get_profiles(base_path: &str) -> fdo::Result<Vec<String>> {

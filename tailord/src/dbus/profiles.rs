@@ -37,7 +37,9 @@ impl ProfileInterface {
 
     async fn rename_profile(&mut self, old_name: &str, new_name: &str) -> fdo::Result<Vec<String>> {
         if self.list_profiles().await?.contains(&new_name.to_string()) {
-            Err(fdo::Error::InvalidArgs(format!("File `{old_name}` already exists")))
+            Err(fdo::Error::InvalidArgs(format!(
+                "File `{old_name}` already exists"
+            )))
         } else {
             util::move_file(PROFILE_DIR, new_name, old_name).await?;
 

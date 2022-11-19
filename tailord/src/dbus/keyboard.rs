@@ -2,7 +2,10 @@ use tailor_api::{Color, ColorProfile, ProfileInfo};
 use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 
-use crate::{profiles::{KEYBOARD_DIR, PROFILE_DIR}, util};
+use crate::{
+    profiles::{KEYBOARD_DIR, PROFILE_DIR},
+    util,
+};
 
 pub struct KeyboardInterface {
     pub color_sender: mpsc::Sender<Color>,
@@ -31,7 +34,9 @@ impl KeyboardInterface {
 
     async fn rename_profile(&self, old_name: &str, new_name: &str) -> fdo::Result<Vec<String>> {
         if self.list_profiles().await?.contains(&new_name.to_string()) {
-            Err(fdo::Error::InvalidArgs(format!("File `{old_name}` already exists")))
+            Err(fdo::Error::InvalidArgs(format!(
+                "File `{old_name}` already exists"
+            )))
         } else {
             let profiles = util::get_profiles(PROFILE_DIR).await?;
 
