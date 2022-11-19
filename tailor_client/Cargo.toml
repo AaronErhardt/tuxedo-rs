@@ -14,8 +14,7 @@ repository = "https://github.com/AaronErhardt/tuxedo-rs"
 zbus = { version = "3", default-features = false, features = ["tokio"] }
 serde_json = "1"
 
-#tailor_api = "0.1"
-tailor_api = { path = "../tailor_api" }
+tailor_api = { version = "0.1", path = "../tailor_api" }
 thiserror = "1.0.34"
 
 [dev-dependencies]
