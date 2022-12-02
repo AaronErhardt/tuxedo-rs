@@ -3,7 +3,7 @@ use std::time::Duration;
 use relm4::tokio::sync::OnceCell;
 use relm4::{Reducer, Reducible};
 use tailor_api::{Color, ColorProfile, FanProfilePoint, ProfileInfo};
-use tailor_client::TailorConnection;
+use tailor_client::{ClientError, TailorConnection};
 
 use crate::app::FullProfileInfo;
 
@@ -53,6 +53,7 @@ pub struct TailorStateInner {
     pub profiles: Vec<FullProfileInfo>,
     pub keyboard_profiles: Vec<String>,
     pub fan_profiles: Vec<String>,
+    pub error: Option<String>,
 }
 
 #[derive(Debug)]
@@ -72,6 +73,7 @@ pub enum TailorStateMsg {
     DeleteKeyboardProfile(String),
     OverwriteColor(Color),
     OverwriteFanSpeed(u8),
+    Error(String),
 }
 
 impl Reducible for TailorState {
@@ -93,8 +95,8 @@ impl Reducible for TailorState {
                         let name = name.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
-                            connection.set_active_global_profile_name(&name).await.ok();
-                            connection.reload().await.ok();
+                            handle_result(connection.set_active_global_profile_name(&name).await);
+                            handle_result(connection.reload().await);
                         });
                     }
                     *state.get_mut_active_profile_name() = name;
@@ -107,12 +109,12 @@ impl Reducible for TailorState {
                         let profile = profile.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
-                            connection.add_global_profile(&name, &profile).await.ok();
-                            if let Ok(active_name) =
-                                connection.get_active_global_profile_name().await
+                            handle_result(connection.add_global_profile(&name, &profile).await);
+                            if let Some(active_name) =
+                                handle_result(connection.get_active_global_profile_name().await)
                             {
                                 if active_name == name {
-                                    connection.reload().await.ok();
+                                    handle_result(connection.reload().await);
                                 }
                             }
                         });
@@ -135,10 +137,14 @@ impl Reducible for TailorState {
                         let profile = profile.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
-                            connection.add_fan_profile(&name, &profile).await.ok();
+                            handle_result(connection.add_fan_profile(&name, &profile).await);
                         });
                     }
-                    state.get_mut_fan_profiles().push(name);
+                    if state.fan_profiles.iter().any(|profile| profile == &name) {
+                        return false;
+                    } else {
+                        state.get_mut_fan_profiles().push(name);
+                    }
                 }
             }
             TailorStateMsg::AddKeyboardProfile(name, profile) => {
@@ -148,10 +154,18 @@ impl Reducible for TailorState {
                         let profile = profile.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
-                            connection.add_keyboard_profile(&name, &profile).await.ok();
+                            handle_result(connection.add_keyboard_profile(&name, &profile).await);
                         });
                     }
-                    state.get_mut_keyboard_profiles().push(name);
+                    if state
+                        .keyboard_profiles
+                        .iter()
+                        .any(|profile| profile == &name)
+                    {
+                        return false;
+                    } else {
+                        state.get_mut_keyboard_profiles().push(name);
+                    }
                 }
             }
             TailorStateMsg::CopyFanProfile(other_name, new_name) => {
@@ -160,10 +174,9 @@ impl Reducible for TailorState {
                         let new_name = new_name.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
-                            connection
-                                .copy_fan_profiles(&new_name, &other_name)
-                                .await
-                                .ok();
+                            handle_result(
+                                connection.copy_fan_profiles(&new_name, &other_name).await,
+                            );
                         });
                     }
                     state.get_mut_fan_profiles().push(new_name);
@@ -175,10 +188,11 @@ impl Reducible for TailorState {
                         let new_name = new_name.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
-                            connection
-                                .copy_keyboard_profiles(&new_name, &other_name)
-                                .await
-                                .ok();
+                            handle_result(
+                                connection
+                                    .copy_keyboard_profiles(&new_name, &other_name)
+                                    .await,
+                            );
                         });
                     }
                     state.get_mut_keyboard_profiles().push(new_name);
@@ -192,10 +206,9 @@ impl Reducible for TailorState {
                         {
                             let new_name = new_name.clone();
                             relm4::spawn(async move {
-                                connection
-                                    .rename_global_profile(&old_name, &new_name)
-                                    .await
-                                    .ok();
+                                handle_result(
+                                    connection.rename_global_profile(&old_name, &new_name).await,
+                                );
                             });
                         }
                         profile.name = new_name;
@@ -210,10 +223,9 @@ impl Reducible for TailorState {
                         {
                             let new_name = new_name.clone();
                             relm4::spawn(async move {
-                                connection
-                                    .rename_fan_profile(&old_name, &new_name)
-                                    .await
-                                    .ok();
+                                handle_result(
+                                    connection.rename_fan_profile(&old_name, &new_name).await,
+                                );
                             });
                         }
                         *profile = new_name;
@@ -228,10 +240,11 @@ impl Reducible for TailorState {
                         {
                             let new_name = new_name.clone();
                             relm4::spawn(async move {
-                                connection
-                                    .rename_keyboard_profile(&old_name, &new_name)
-                                    .await
-                                    .ok();
+                                handle_result(
+                                    connection
+                                        .rename_keyboard_profile(&old_name, &new_name)
+                                        .await,
+                                );
                             });
                         }
                         *profile = new_name;
@@ -246,7 +259,7 @@ impl Reducible for TailorState {
                         {
                             let name = name.clone();
                             relm4::spawn(async move {
-                                connection.remove_global_profile(&name).await.ok();
+                                handle_result(connection.remove_global_profile(&name).await);
                             });
                         }
                         profiles.remove(pos);
@@ -261,7 +274,7 @@ impl Reducible for TailorState {
                         {
                             let name = name.clone();
                             relm4::spawn(async move {
-                                connection.remove_fan_profile(&name).await.ok();
+                                handle_result(connection.remove_fan_profile(&name).await);
                             });
                         }
                         profiles.remove(pos);
@@ -276,7 +289,7 @@ impl Reducible for TailorState {
                         {
                             let name = name.clone();
                             relm4::spawn(async move {
-                                connection.remove_keyboard_profile(&name).await.ok();
+                                handle_result(connection.remove_keyboard_profile(&name).await);
                             });
                         }
                         profiles.remove(pos);
@@ -287,7 +300,7 @@ impl Reducible for TailorState {
                 if let Some(state) = self.get() {
                     let connection = state.connection.clone();
                     relm4::spawn(async move {
-                        connection.override_keyboard_color(&color).await.ok();
+                        handle_result(connection.override_keyboard_color(&color).await);
                     });
                 }
             }
@@ -295,8 +308,13 @@ impl Reducible for TailorState {
                 if let Some(state) = self.get() {
                     let connection = state.connection.clone();
                     relm4::spawn(async move {
-                        connection.override_fan_speed(speed).await.ok();
+                        handle_result(connection.override_fan_speed(speed).await);
                     });
+                }
+            }
+            TailorStateMsg::Error(error) => {
+                if let Some(state) = self.get_mut() {
+                    state.set_error(Some(error));
                 }
             }
         }
@@ -349,6 +367,7 @@ pub async fn initialize_tailor_state() -> Result<(), String> {
         keyboard_profiles,
         fan_profiles,
         tracker: 0,
+        error: None,
     };
 
     tokio::time::sleep(Duration::from_millis(100)).await;
@@ -356,4 +375,14 @@ pub async fn initialize_tailor_state() -> Result<(), String> {
     STATE.emit(TailorStateMsg::Load(state));
 
     Ok(())
+}
+
+fn handle_result<T>(result: Result<T, ClientError>) -> Option<T> {
+    match result {
+        Ok(value) => Some(value),
+        Err(error) => {
+            STATE.emit(TailorStateMsg::Error(error.to_string()));
+            None
+        }
+    }
 }

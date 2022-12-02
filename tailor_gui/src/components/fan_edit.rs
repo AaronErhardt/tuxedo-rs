@@ -65,7 +65,7 @@ pub enum FanEditInput {
 
 #[component(pub)]
 impl Component for FanEdit {
-    type CommandOutput = Vec<FanProfilePoint>;
+    type CommandOutput = Option<Vec<FanProfilePoint>>;
     type Init = ();
     type Input = FanEditInput;
     type Output = ();
@@ -192,7 +192,7 @@ impl Component for FanEdit {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, input: Self::Input, sender: ComponentSender<Self>, root: &Self::Root) {
+    fn update(&mut self, input: Self::Input, sender: ComponentSender<Self>, _root: &Self::Root) {
         match input {
             FanEditInput::Load(name) => {
                 self.profile_name = Some(name.clone());
@@ -200,9 +200,10 @@ impl Component for FanEdit {
                 let connection = tailor_connection().unwrap();
                 sender.oneshot_command(async move {
                     if let Ok(profile_points) = connection.get_fan_profile(&name).await {
-                        profile_points
+                        Some(profile_points)
                     } else {
-                        todo!()
+                        tracing::error!("Couldn't load fan profile");
+                        None
                     }
                 });
             }
@@ -251,9 +252,9 @@ impl Component for FanEdit {
         &mut self,
         profile: Self::CommandOutput,
         _sender: ComponentSender<Self>,
-        root: &Self::Root,
+        _root: &Self::Root,
     ) {
-        self.profile = profile;
+        self.profile = profile.unwrap_or_default();
         self.visible = true;
 
         self.update_drawn_points();

@@ -114,7 +114,7 @@ impl Component for KeyboardEdit {
         }
     }
 
-    fn update(&mut self, input: Self::Input, _sender: ComponentSender<Self>, root: &Self::Root) {
+    fn update(&mut self, input: Self::Input, _sender: ComponentSender<Self>, _root: &Self::Root) {
         match input {}
     }
 }

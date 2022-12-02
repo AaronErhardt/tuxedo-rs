@@ -1,12 +1,10 @@
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use gtk::glib::{self, clone, timeout_add_local_once, MainContext, SourceId};
-use gtk::prelude::{
-    BoxExt, ButtonExt, ObjectExt, OrientableExt, PopoverExt, RangeExt, ScaleExt, WidgetExt,
-};
+use gtk::prelude::{BoxExt, ButtonExt, OrientableExt, PopoverExt, RangeExt, ScaleExt, WidgetExt};
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView};
-use relm4::{factory, gtk, tokio, RelmWidgetExt};
-use tailor_api::{Color, FanProfilePoint};
+use relm4::{factory, gtk};
+use tailor_api::FanProfilePoint;
 
 use crate::components::fan_edit::FanEditInput;
 use crate::state::{TailorStateMsg, STATE};

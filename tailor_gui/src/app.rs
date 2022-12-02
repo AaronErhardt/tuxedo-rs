@@ -15,7 +15,7 @@ use crate::components::keyboard_edit::KeyboardEdit;
 use crate::components::profiles::Profiles;
 use crate::config::{APP_ID, PROFILE};
 use crate::modals::about::AboutDialog;
-use crate::state::initialize_tailor_state;
+use crate::state::{initialize_tailor_state, TailorStateInner, STATE};
 
 pub enum ConnectionState {
     Connecting,
@@ -38,6 +38,7 @@ pub struct FullProfileInfo {
 pub(super) struct App {
     about_dialog: Controller<AboutDialog>,
     connection_state: ConnectionState,
+    error: Option<adw::Toast>,
 }
 
 #[derive(Debug)]
@@ -47,6 +48,7 @@ pub(super) enum Command {
 
 #[derive(Debug)]
 pub(super) enum AppMsg {
+    AddError(String),
     Quit,
 }
 
@@ -96,97 +98,101 @@ impl Component for App {
                     None
                 },
 
-            gtk::Box{
-                set_orientation: gtk::Orientation::Vertical,
+            adw::ToastOverlay {
+                #[watch]
+                add_toast?: &model.error,
 
-                adw::HeaderBar {
-                    set_centering_policy: adw::CenteringPolicy::Strict,
+                gtk::Box {
+                    set_orientation: gtk::Orientation::Vertical,
 
-                    #[wrap(Some)]
-                    #[transition(SlideDown)]
-                    set_title_widget = if model.connection_state.is_ok() {
-                        #[name = "view_title"]
-                        adw::ViewSwitcherTitle {
-                            set_stack: Some(&view_stack),
-                            set_title: "Tailor",
-                        }
-                    } else {
-                        gtk::Label {
-                            set_label: "Tailor",
+                    adw::HeaderBar {
+                        set_centering_policy: adw::CenteringPolicy::Strict,
+
+                        #[wrap(Some)]
+                        #[transition(SlideDown)]
+                        set_title_widget = if model.connection_state.is_ok() {
+                            #[name = "view_title"]
+                            adw::ViewSwitcherTitle {
+                                set_stack: Some(&view_stack),
+                                set_title: "Tailor",
+                            }
+                        } else {
+                            gtk::Label {
+                                set_label: "Tailor",
+                            }
+                        },
+
+                        pack_end = &gtk::MenuButton {
+                            set_icon_name: "open-menu-symbolic",
+                            set_menu_model: Some(&primary_menu),
                         }
                     },
-
-                    pack_end = &gtk::MenuButton {
-                        set_icon_name: "open-menu-symbolic",
-                        set_menu_model: Some(&primary_menu),
-                    }
-                },
-                #[transition(SlideDown)]
-                match &model.connection_state {
-                    ConnectionState::Ok => {
-                        gtk::Box {
-                            set_orientation: gtk::Orientation::Vertical,
-                            set_vexpand: true,
-
-                            #[name = "view_stack"]
-                            adw::ViewStack {
+                    #[transition(SlideDown)]
+                    match &model.connection_state {
+                        ConnectionState::Ok => {
+                            gtk::Box {
+                                set_orientation: gtk::Orientation::Vertical,
                                 set_vexpand: true,
 
-                                #[local_ref]
-                                add_titled[Some("profiles"), "Profiles"] = profile_widget -> adw::Clamp {
-                                } -> {
-                                    set_icon_name: Some("profile-settings"),
-                                },
-                                #[local]
-                                add_titled[Some("keyboard"), "Keyboard"] = &keyboard_edit_widget -> adw::Clamp {
-                                } -> {
-                                    set_icon_name: Some("keyboard-color"),
-                                },
-                                #[local_ref]
-                                add_titled[Some("fan"), "Fan control"] = fan_list -> adw::Clamp {
-                                } -> {
-                                    set_icon_name: Some("fan-speed"),
-                                },
-                            },
-                            #[name = "view_bar"]
-                            adw::ViewSwitcherBar {
-                                set_stack: Some(&view_stack),
-                            }
-                        }
-                    },
-                    ConnectionState::Connecting => {
-                        #[name = "loading_box"]
-                        gtk::Box {
-                            set_orientation: gtk::Orientation::Vertical,
-                            set_spacing: 15,
-                            set_valign: gtk::Align::Center,
-                            set_vexpand: true,
+                                #[name = "view_stack"]
+                                adw::ViewStack {
+                                    set_vexpand: true,
+                                    set_margin_start: 12,
+                                    set_margin_end: 12,
 
-                            gtk::Label {
-                                set_label: "Waiting for connection...",
-                                add_css_class: "title-header",
-                            },
-                            #[name = "spinner"]
-                            gtk::Spinner {
-                                start: (),
+                                    #[local_ref]
+                                    add_titled[Some("profiles"), "Profiles"] = profile_widget -> adw::Clamp {} -> {
+                                        set_icon_name: Some("profile-settings"),
+                                    },
+                                    #[local]
+                                    add_titled[Some("keyboard"), "Keyboard"] = &keyboard_edit_widget -> adw::Clamp {} -> {
+                                        set_icon_name: Some("keyboard-color"),
+                                    },
+                                    #[local_ref]
+                                    add_titled[Some("fan"), "Fan control"] = fan_list -> adw::Clamp {} -> {
+                                        set_icon_name: Some("fan-speed"),
+                                    },
+                                },
+                                #[name = "view_bar"]
+                                adw::ViewSwitcherBar {
+                                    set_stack: Some(&view_stack),
+                                }
                             }
-                        }
-                    },
-                    ConnectionState::Error => {
-                        #[name = "error_box"]
-                        gtk::Box {
-                            set_orientation: gtk::Orientation::Vertical,
-                            set_spacing: 15,
-                            set_valign: gtk::Align::Center,
-                            set_vexpand: true,
+                        },
+                        ConnectionState::Connecting => {
+                            #[name = "loading_box"]
+                            gtk::Box {
+                                set_orientation: gtk::Orientation::Vertical,
+                                set_spacing: 15,
+                                set_valign: gtk::Align::Center,
+                                set_vexpand: true,
 
-                            gtk::Label {
-                                set_label: "Error",
-                                add_css_class: "title-header",
-                            },
-                            gtk::Label {
-                                set_label: "ERROR MESSAGE"
-                            },
+                                gtk::Label {
+                                    set_label: "Waiting for connection...",
+                                    add_css_class: "title-header",
+                                },
+                                #[name = "spinner"]
+                                gtk::Spinner {
+                                    start: (),
+                                }
+                            }
+                        },
+                        ConnectionState::Error => {
+                            #[name = "error_box"]
+                            gtk::Box {
+                                set_orientation: gtk::Orientation::Vertical,
+                                set_spacing: 15,
+                                set_valign: gtk::Align::Center,
+                                set_vexpand: true,
+
+                                gtk::Label {
+                                    set_label: "Error",
+                                    add_css_class: "title-header",
+                                },
+                                gtk::Label {
+                                    set_label: "ERROR MESSAGE"
+                                },
+                            }
                         }
                     }
                 }
@@ -206,6 +212,16 @@ impl Component for App {
         root: &Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
+        STATE.subscribe_optional(sender.input_sender(), |state| {
+            state.get().and_then(|state| {
+                if state.changed(TailorStateInner::error()) {
+                    state.error.clone().map(AppMsg::AddError)
+                } else {
+                    None
+                }
+            })
+        });
+
         let about_dialog = AboutDialog::builder()
             .transient_for(root)
             .launch(())
@@ -228,6 +244,7 @@ impl Component for App {
         let model = Self {
             about_dialog,
             connection_state: ConnectionState::Connecting,
+            error: None,
         };
 
         let widgets = view_output!();
@@ -267,8 +284,11 @@ impl Component for App {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>, root: &Self::Root) {
+    fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>, _root: &Self::Root) {
         match message {
+            AppMsg::AddError(error) => {
+                self.error = Some(adw::Toast::new(&error));
+            }
             AppMsg::Quit => main_application().quit(),
         }
     }
