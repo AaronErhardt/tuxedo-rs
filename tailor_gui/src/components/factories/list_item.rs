@@ -91,11 +91,7 @@ impl FactoryComponent for ListItem {
         Some(output)
     }
 
-    fn init_model(
-        name: Self::Init,
-        _index: &DynamicIndex,
-        sender: FactorySender<Self>,
-    ) -> Self {
+    fn init_model(name: Self::Init, _index: &DynamicIndex, _sender: FactorySender<Self>) -> Self {
         Self { name }
     }
 

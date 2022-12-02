@@ -1,9 +1,10 @@
 use crate::templates::{MsgDialogBox, MsgDialogButtons};
-use gtk::{
-    prelude::{EntryBufferExtManual, ButtonExt, EntryExt, GtkWindowExt, WidgetExt, GridExt, EditableExt},
+use gtk::prelude::{
+    ButtonExt, EditableExt, EntryBufferExtManual, EntryExt, GridExt, GtkWindowExt, WidgetExt,
 };
 use relm4::{
-    Component, ComponentController, ComponentParts, ComponentSender, Controller, SimpleComponent, RelmWidgetExt,
+    Component, ComponentController, ComponentParts, ComponentSender, Controller, RelmWidgetExt,
+    SimpleComponent,
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
 
@@ -99,9 +100,7 @@ impl SimpleComponent for NewEntryDialog {
                 active_index: Some(0),
                 variants: items,
             })
-            .forward(sender.input_sender(), |_| {
-                NewEntryInput::Noop
-            });
+            .forward(sender.input_sender(), |_| NewEntryInput::Noop);
 
         let model = Self {
             items,
@@ -116,10 +115,12 @@ impl SimpleComponent for NewEntryDialog {
 
     fn update(&mut self, message: Self::Input, sender: ComponentSender<Self>) {
         match message {
-            NewEntryInput::Save if self.valid_name() => sender.output(Some(NewEntryOutput {
-                name: self.buffer.text(),
-                based_of: self.items.model().get_active_elem().unwrap().to_string(),
-            })).unwrap(),
+            NewEntryInput::Save if self.valid_name() => sender
+                .output(Some(NewEntryOutput {
+                    name: self.buffer.text(),
+                    based_of: self.items.model().get_active_elem().unwrap().to_string(),
+                }))
+                .unwrap(),
             NewEntryInput::Noop => (),
             _ => {
                 sender.output(None).unwrap();

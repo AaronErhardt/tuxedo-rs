@@ -149,11 +149,7 @@ impl FactoryComponent for Profile {
         widgets
     }
 
-    fn init_model(
-        init: Self::Init,
-        _index: &DynamicIndex,
-        sender: FactorySender<Self>,
-    ) -> Self {
+    fn init_model(init: Self::Init, _index: &DynamicIndex, sender: FactorySender<Self>) -> Self {
         let ProfileInit {
             name,
             info,

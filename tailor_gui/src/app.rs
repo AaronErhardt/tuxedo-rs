@@ -252,7 +252,7 @@ impl Component for App {
         let about_action = {
             let sender = model.about_dialog.sender().clone();
             RelmAction::<AboutAction>::new_stateless(move |_| {
-                sender.send(());
+                sender.send(()).unwrap();
             })
         };
 
@@ -276,7 +276,12 @@ impl Component for App {
         }
     }
 
-    fn update_cmd(&mut self, message: Self::CommandOutput, sender: ComponentSender<Self>, root: &Self::Root) {
+    fn update_cmd(
+        &mut self,
+        message: Self::CommandOutput,
+        sender: ComponentSender<Self>,
+        _root: &Self::Root,
+    ) {
         match message {
             Command::SetInitializedState(initialized) => {
                 if initialized {

@@ -51,15 +51,11 @@ impl FactoryComponent for ColorRow {
         }
     }
 
-    fn output_to_parent_input(output: Self::Output) -> Option<KeyboardEditInput> {
+    fn output_to_parent_input(_output: Self::Output) -> Option<KeyboardEditInput> {
         None
     }
 
-    fn init_model(
-        inner: Self::Init,
-        _index: &DynamicIndex,
-        sender: FactorySender<Self>,
-    ) -> Self {
+    fn init_model(inner: Self::Init, _index: &DynamicIndex, sender: FactorySender<Self>) -> Self {
         let color_button = ColorButton::builder()
             .launch(Color {
                 r: 0,
@@ -88,7 +84,7 @@ impl FactoryComponent for ColorRow {
         widgets
     }
 
-    fn update(&mut self, message: Self::Input, sender: FactorySender<Self>) {
+    fn update(&mut self, message: Self::Input, _sender: FactorySender<Self>) {
         match message {
             ColorInput::ColorSet(color) => {}
             ColorInput::Enabled => todo!(),

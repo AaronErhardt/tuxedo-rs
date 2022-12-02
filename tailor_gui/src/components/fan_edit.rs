@@ -251,7 +251,12 @@ impl Component for FanEdit {
         self.draw();
     }
 
-    fn update_cmd(&mut self, profile: Self::CommandOutput, _sender: ComponentSender<Self>, root: &Self::Root) {
+    fn update_cmd(
+        &mut self,
+        profile: Self::CommandOutput,
+        _sender: ComponentSender<Self>,
+        root: &Self::Root,
+    ) {
         self.profile = profile;
         self.visible = true;
 
@@ -482,7 +487,7 @@ impl FanEdit {
                 if profile.fan != fan && profile.temp == temp {
                     temp += 1;
                 }
-            } 
+            }
             if let Some(profile) = self.profile.get(idx + 1) {
                 if profile.fan != fan && profile.temp == temp {
                     temp -= 1;

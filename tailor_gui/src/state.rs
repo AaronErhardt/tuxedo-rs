@@ -107,7 +107,9 @@ impl Reducible for TailorState {
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
                             connection.add_global_profile(&name, &profile).await.ok();
-                            if let Ok(active_name) = connection.get_active_global_profile_name().await {
+                            if let Ok(active_name) =
+                                connection.get_active_global_profile_name().await
+                            {
                                 if active_name == name {
                                     connection.reload().await.ok();
                                 }
@@ -116,7 +118,7 @@ impl Reducible for TailorState {
                     }
 
                     if state.profiles.iter().any(|profile| profile.name == name) {
-                        return false;  
+                        return false;
                     } else {
                         state.get_mut_profiles().push(FullProfileInfo {
                             name,

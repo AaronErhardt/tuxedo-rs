@@ -135,11 +135,7 @@ impl FactoryComponent for FanPoint {
         None
     }
 
-    fn init_model(
-        inner: Self::Init,
-        _index: &DynamicIndex,
-        sender: FactorySender<Self>,
-    ) -> Self {
+    fn init_model(inner: Self::Init, _index: &DynamicIndex, sender: FactorySender<Self>) -> Self {
         Self {
             inner,
             last_override_event: None,
@@ -158,7 +154,7 @@ impl FactoryComponent for FanPoint {
         widgets
     }
 
-    fn update(&mut self, message: Self::Input, sender: FactorySender<Self>) {
+    fn update(&mut self, message: Self::Input, _sender: FactorySender<Self>) {
         match message {
             FanPointInput::Enabled => todo!(),
             FanPointInput::UpdateProfile => todo!(),

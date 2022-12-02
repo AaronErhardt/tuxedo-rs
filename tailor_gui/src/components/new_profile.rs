@@ -1,9 +1,13 @@
-use crate::{templates::{MsgDialogBox, MsgDialogButtons}, app::FullProfileInfo};
-use gtk::{
-    prelude::{EntryBufferExtManual, ButtonExt, EntryExt, GtkWindowExt, WidgetExt, GridExt, EditableExt},
+use crate::{
+    app::FullProfileInfo,
+    templates::{MsgDialogBox, MsgDialogButtons},
+};
+use gtk::prelude::{
+    ButtonExt, EditableExt, EntryBufferExtManual, EntryExt, GridExt, GtkWindowExt, WidgetExt,
 };
 use relm4::{
-    Component, ComponentController, ComponentParts, ComponentSender, Controller, SimpleComponent, RelmWidgetExt,
+    Component, ComponentController, ComponentParts, ComponentSender, Controller, RelmWidgetExt,
+    SimpleComponent,
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
 use tailor_api::ProfileInfo;
@@ -105,25 +109,25 @@ impl SimpleComponent for NewProfileDialog {
         root: &Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let NewProfileInit { profiles, keyboard, fan } = init;
+        let NewProfileInit {
+            profiles,
+            keyboard,
+            fan,
+        } = init;
 
         let keyboard = SimpleComboBox::builder()
             .launch(SimpleComboBox {
                 active_index: Some(0),
                 variants: keyboard,
             })
-            .forward(sender.input_sender(), |_| {
-                NewProfileInput::Noop
-            });
+            .forward(sender.input_sender(), |_| NewProfileInput::Noop);
 
         let fan = SimpleComboBox::builder()
             .launch(SimpleComboBox {
                 active_index: Some(0),
                 variants: fan,
             })
-            .forward(sender.input_sender(), |_| {
-                NewProfileInput::Noop
-            });
+            .forward(sender.input_sender(), |_| NewProfileInput::Noop);
 
         let model = Self {
             profiles,
@@ -141,13 +145,15 @@ impl SimpleComponent for NewProfileDialog {
 
     fn update(&mut self, message: Self::Input, sender: ComponentSender<Self>) {
         match message {
-            NewProfileInput::Save if self.valid_name() => sender.output(Some(FullProfileInfo {
-                name: self.buffer.text(),
-                data: ProfileInfo {
-                    keyboard: self.keyboard.model().get_active_elem().unwrap().to_string(),
-                    fan: self.fan.model().get_active_elem().unwrap().to_string(),
-                }
-            })).unwrap(),
+            NewProfileInput::Save if self.valid_name() => sender
+                .output(Some(FullProfileInfo {
+                    name: self.buffer.text(),
+                    data: ProfileInfo {
+                        keyboard: self.keyboard.model().get_active_elem().unwrap().to_string(),
+                        fan: self.fan.model().get_active_elem().unwrap().to_string(),
+                    },
+                }))
+                .unwrap(),
             NewProfileInput::Noop => (),
             _ => {
                 sender.output(None).unwrap();

@@ -99,7 +99,12 @@ impl Component for KeyboardEdit {
         ComponentParts { model, widgets }
     }
 
-    fn update_cmd(&mut self, color_profile: Self::CommandOutput, sender: ComponentSender<Self>, root: &Self::Root) {
+    fn update_cmd(
+        &mut self,
+        color_profile: Self::CommandOutput,
+        _sender: ComponentSender<Self>,
+        _root: &Self::Root,
+    ) {
         match color_profile {
             ColorProfile::None => todo!(),
             ColorProfile::Single(_) => todo!(),

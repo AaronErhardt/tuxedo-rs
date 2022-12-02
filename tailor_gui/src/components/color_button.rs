@@ -35,6 +35,8 @@ impl Component for ColorButton {
             #[name = "image"]
             gtk::Picture::for_pixbuf(&model.pixbuf) {
                 inline_css: "border-radius: 2px",
+                #[watch]
+                set_pixbuf: Some(&model.pixbuf)
             }
         }
     }
@@ -53,16 +55,10 @@ impl Component for ColorButton {
         ComponentParts { model, widgets }
     }
 
-    fn update_with_view(
-        &mut self,
-        widgets: &mut Self::Widgets,
-        message: Self::Input,
-        sender: ComponentSender<Self>,
-        _root: &Self::Root
-    ) {
+    fn update(&mut self, message: Self::Input, sender: ComponentSender<Self>, root: &Self::Root) {
         match message {
             ColorButtonInput::OpenDialog => {
-                let parent_window = widgets.button.toplevel_window().unwrap();
+                let parent_window = root.toplevel_window().unwrap();
                 let dialog = gtk::ColorChooserDialog::builder()
                     .transient_for(&parent_window)
                     .modal(true)
@@ -103,7 +99,6 @@ impl Component for ColorButton {
             }
             ColorButtonInput::UpdateColor(color) => {
                 util::fill_pixbuf(&self.pixbuf, &color);
-                widgets.image.set_pixbuf(Some(&self.pixbuf));
                 sender.output(color).unwrap();
             }
         }

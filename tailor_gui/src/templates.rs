@@ -1,5 +1,5 @@
 use gtk::traits::{ButtonExt, OrientableExt, WidgetExt};
-use relm4::{WidgetTemplate, RelmWidgetExt};
+use relm4::{RelmWidgetExt, WidgetTemplate};
 
 #[relm4::widget_template(pub)]
 impl WidgetTemplate for MsgDialogBox {

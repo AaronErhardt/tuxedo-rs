@@ -1,4 +1,7 @@
-use crate::{app::FullProfileInfo, state::{STATE, TailorStateMsg}};
+use crate::{
+    app::FullProfileInfo,
+    state::{TailorStateMsg, STATE},
+};
 use adw::traits::PreferencesGroupExt;
 use futures::StreamExt;
 use gtk::prelude::{ButtonExt, WidgetExt};
@@ -7,7 +10,10 @@ use relm4::{
     ComponentParts, ComponentSender,
 };
 
-use super::{factories::profile::{Profile, ProfileInit}, new_profile::{NewProfileDialog, NewProfileInit}};
+use super::{
+    factories::profile::{Profile, ProfileInit},
+    new_profile::{NewProfileDialog, NewProfileInit},
+};
 
 pub struct Profiles {
     profiles: FactoryVecDeque<Profile>,
@@ -71,7 +77,11 @@ impl Component for Profiles {
         let profile_box = adw::PreferencesGroup::default();
         let profiles = FactoryVecDeque::new(profile_box.clone(), sender.input_sender());
 
-        let model = Self { profiles, keyboard: Vec::new(), fan: Vec::new() };
+        let model = Self {
+            profiles,
+            keyboard: Vec::new(),
+            fan: Vec::new(),
+        };
 
         let widgets = view_output!();
 
@@ -113,19 +123,21 @@ impl Component for Profiles {
                 if let Some(profile) = self.profiles.get(index) {
                     STATE.emit(TailorStateMsg::DeleteProfile(profile.name.clone()));
                 }
-            },
+            }
             ProfilesInput::Add => {
                 let profiles = self.profiles.iter().map(|i| i.name.to_string()).collect();
                 let fan = self.fan.clone();
                 let keyboard = self.keyboard.clone();
-                relm4::spawn_local(async move {
-                    let mut new_profile = NewProfileDialog::builder().launch(NewProfileInit {
+                let mut new_profile = NewProfileDialog::builder()
+                    .transient_for(root)
+                    .launch(NewProfileInit {
                         profiles,
                         keyboard,
-                        fan
-                    }).into_stream();
-                    if let Some(info) = new_profile.next().await.unwrap()
-                    {
+                        fan,
+                    })
+                    .into_stream();
+                relm4::spawn_local(async move {
+                    if let Some(info) = new_profile.next().await.unwrap() {
                         STATE.emit(TailorStateMsg::AddProfile(info.name, info.data));
                     }
                 });

@@ -5,7 +5,7 @@ use gtk::{
 };
 use relm4::{
     adw, component, factory::FactoryVecDeque, gtk, prelude::DynamicIndex, Component,
-    ComponentController, ComponentParts, ComponentSender, Controller, RelmWidgetExt,
+    ComponentController, ComponentParts, ComponentSender, Controller,
 };
 
 use crate::state::{TailorStateInner, TailorStateMsg, STATE};
@@ -118,7 +118,7 @@ impl Component for FanList {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, input: Self::Input, sender: ComponentSender<Self>, root: &Self::Root) {
+    fn update(&mut self, input: Self::Input, _sender: ComponentSender<Self>, root: &Self::Root) {
         self.reset();
 
         match input {
@@ -138,7 +138,7 @@ impl Component for FanList {
             }
             ListInput::Rename(index, name) => {
                 let index = index.current_index();
-                let current_name =&self.profiles[index].name;
+                let current_name = &self.profiles[index].name;
                 if current_name != &name {
                     let count = self.profiles.iter().filter(|p| p.name == name).count();
                     if count == 0 {
@@ -160,9 +160,12 @@ impl Component for FanList {
                 }
             }
             ListInput::Add => {
-                let profiles= self.profiles.iter().map(|i| i.name.to_string()).collect();
+                let profiles = self.profiles.iter().map(|i| i.name.to_string()).collect();
+                let mut new_entry = NewEntryDialog::builder()
+                    .transient_for(root)
+                    .launch(profiles)
+                    .into_stream();
                 relm4::spawn_local(async move {
-                    let mut new_entry = NewEntryDialog::builder().launch(profiles).into_stream();
                     if let Some(NewEntryOutput { name, based_of }) = new_entry.next().await.unwrap()
                     {
                         STATE.emit(TailorStateMsg::CopyFanProfile(based_of, name));
