@@ -6,7 +6,7 @@ use gtk::{gdk::RGBA, gdk_pixbuf::Pixbuf, ResponseType};
 use relm4::{gtk, Component, ComponentParts, ComponentSender, RelmWidgetExt};
 use tailor_api::Color;
 
-use crate::tailor_state::TAILOR_STATE;
+use crate::state::{TailorStateMsg, STATE};
 use crate::util::{self, rgba_to_color};
 
 pub struct ColorButton {
@@ -58,6 +58,7 @@ impl Component for ColorButton {
         widgets: &mut Self::Widgets,
         message: Self::Input,
         sender: ComponentSender<Self>,
+        _root: &Self::Root
     ) {
         match message {
             ColorButtonInput::OpenDialog => {
@@ -82,22 +83,14 @@ impl Component for ColorButton {
 
                 dialog.connect_rgba_notify(|dialog| {
                     let rgba: RGBA = dialog.rgba();
-                    let connection = TAILOR_STATE.read().as_ref().unwrap().connection.clone();
                     let color = util::rgba_to_color(rgba);
-
-                    relm4::spawn_local(async move {
-                        connection.override_keyboard_color(&color).await.ok();
-                    });
+                    STATE.emit(TailorStateMsg::OverwriteColor(color));
                 });
 
                 color_swatch.connect_notify_local(Some("rgba"), |obj, _| {
                     let rgba: RGBA = obj.property("rgba");
-                    let connection = TAILOR_STATE.read().as_ref().unwrap().connection.clone();
                     let color = util::rgba_to_color(rgba);
-
-                    relm4::spawn_local(async move {
-                        connection.override_keyboard_color(&color).await.ok();
-                    });
+                    STATE.emit(TailorStateMsg::OverwriteColor(color));
                 });
 
                 relm4::spawn_local(async move {
@@ -111,7 +104,7 @@ impl Component for ColorButton {
             ColorButtonInput::UpdateColor(color) => {
                 util::fill_pixbuf(&self.pixbuf, &color);
                 widgets.image.set_pixbuf(Some(&self.pixbuf));
-                sender.output(color);
+                sender.output(color).unwrap();
             }
         }
     }

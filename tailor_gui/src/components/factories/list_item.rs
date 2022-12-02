@@ -1,8 +1,10 @@
-use adw::{prelude::MessageDialogExtManual, traits::MessageDialogExt};
-use gtk::prelude::{BoxExt, ButtonExt, OrientableExt, WidgetExt};
+use adw::prelude::{MessageDialogExt, MessageDialogExtManual};
+use gtk::glib;
+use gtk::prelude::{BoxExt, ButtonExt, ObjectExt, OrientableExt, WidgetExt};
+use gtk::traits::EditableExt;
 use relm4::{
     adw, factory,
-    factory::{DynamicIndex, FactoryComponent, FactoryComponentSender, FactoryView},
+    factory::{DynamicIndex, FactoryComponent, FactorySender},
     gtk, RelmWidgetExt,
 };
 
@@ -29,8 +31,20 @@ impl FactoryComponent for ListItem {
 
             gtk::Box {
                 set_hexpand: true,
-                gtk::Label {
-                    set_label: &self.name,
+                set_halign: gtk::Align::Start,
+                set_valign: gtk::Align::Center,
+
+                #[name(edit_label)]
+                gtk::EditableLabel {
+                    add_css_class: "padded",
+                    #[watch]
+                    set_text: &self.name,
+
+                    connect_editing_notify[sender, index] => move |e| {
+                        if !e.is_editing() {
+                            sender.output(ListInput::Rename(index.clone(), e.text().into()))
+                        }
+                    }
                 },
             },
 
@@ -80,7 +94,7 @@ impl FactoryComponent for ListItem {
     fn init_model(
         name: Self::Init,
         _index: &DynamicIndex,
-        sender: FactoryComponentSender<Self>,
+        sender: FactorySender<Self>,
     ) -> Self {
         Self { name }
     }
@@ -89,13 +103,19 @@ impl FactoryComponent for ListItem {
         &mut self,
         index: &DynamicIndex,
         root: &Self::Root,
-        _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
-        sender: FactoryComponentSender<Self>,
+        returned_widget: &gtk::ListBoxRow,
+        sender: FactorySender<Self>,
     ) -> Self::Widgets {
         let widgets = view_output!();
 
         widgets
+            .edit_label
+            .bind_property("editing", returned_widget, "activatable")
+            .flags(glib::BindingFlags::INVERT_BOOLEAN)
+            .build();
+
+        widgets
     }
 
-    fn update(&mut self, message: Self::Input, sender: FactoryComponentSender<Self>) {}
+    fn update(&mut self, _message: Self::Input, _sender: FactorySender<Self>) {}
 }

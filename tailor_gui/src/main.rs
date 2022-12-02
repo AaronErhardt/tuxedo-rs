@@ -3,7 +3,8 @@ pub mod components;
 mod config;
 mod modals;
 mod setup;
-pub mod tailor_state;
+pub mod state;
+pub mod templates;
 pub mod util;
 
 use gtk::prelude::ApplicationExt;

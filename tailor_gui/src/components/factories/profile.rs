@@ -3,7 +3,7 @@ use gtk::prelude::{ButtonExt, CheckButtonExt, ListBoxRowExt, ObjectExt, WidgetEx
 use once_cell::unsync::Lazy;
 use relm4::{
     adw, factory,
-    factory::{DynamicIndex, FactoryComponent, FactoryComponentSender, FactoryView},
+    factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView},
     gtk, Component, ComponentController, Controller, RelmWidgetExt,
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
@@ -11,7 +11,7 @@ use tailor_api::ProfileInfo;
 
 use crate::{
     components::profiles::ProfilesInput,
-    tailor_state::{FAN_PROFILES, KEYBOARD_PROFILES, TAILOR_STATE},
+    state::{TailorStateMsg, STATE},
 };
 
 const RADIO_GROUP: Lazy<gtk::CheckButton> = Lazy::new(gtk::CheckButton::default);
@@ -30,6 +30,8 @@ pub struct ProfileInit {
     pub name: String,
     pub info: ProfileInfo,
     pub active: bool,
+    pub keyboard_profiles: Vec<String>,
+    pub fan_profiles: Vec<String>,
 }
 
 #[derive(Debug)]
@@ -64,7 +66,7 @@ impl FactoryComponent for Profile {
 
                     set_group: Some(&*RADIO_GROUP),
 
-                    connect_toggled[index] => move |btn| {
+                    connect_toggled[sender, index] => move |btn| {
                         if btn.is_active() {
                             sender.input(ProfileInput::Enabled);
                             sender.output(ProfilesInput::Enabled(index.clone()));
@@ -79,8 +81,14 @@ impl FactoryComponent for Profile {
 
                 #[name = "delete_button"]
                 gtk::Button {
+                    add_css_class: "destructive-action",
                     set_icon_name: "remove-symbolic",
                     set_visible: false,
+                    #[watch]
+                    set_sensitive: !self.active,
+                    connect_clicked[sender, index] => move |_| {
+                        sender.output(ProfilesInput::Remove(index.clone()));
+                    }
                 }
             },
 
@@ -131,7 +139,7 @@ impl FactoryComponent for Profile {
         index: &DynamicIndex,
         root: &Self::Root,
         _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
-        sender: FactoryComponentSender<Self>,
+        sender: FactorySender<Self>,
     ) -> Self::Widgets {
         let keyboard_box = self.keyboard_combo_box.widget();
         let fan_box = self.fan_combo_box.widget();
@@ -144,24 +152,30 @@ impl FactoryComponent for Profile {
     fn init_model(
         init: Self::Init,
         _index: &DynamicIndex,
-        sender: FactoryComponentSender<Self>,
+        sender: FactorySender<Self>,
     ) -> Self {
-        let ProfileInit { name, info, active } = init;
+        let ProfileInit {
+            name,
+            info,
+            active,
+            keyboard_profiles,
+            fan_profiles,
+        } = init;
 
-        let variants = KEYBOARD_PROFILES.read().clone();
-        let active_index = variants.iter().position(|var| var == &info.keyboard);
+        let active_index = keyboard_profiles
+            .iter()
+            .position(|profile| profile == &info.keyboard);
         let keyboard_combo_box = SimpleComboBox::builder()
             .launch(SimpleComboBox {
-                variants,
+                variants: keyboard_profiles,
                 active_index,
             })
             .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile);
 
-        let variants = FAN_PROFILES.read().clone();
-        let active_index = variants.iter().position(|var| var == &info.fan);
+        let active_index = fan_profiles.iter().position(|profile| profile == &info.fan);
         let fan_combo_box = SimpleComboBox::builder()
             .launch(SimpleComboBox {
-                variants,
+                variants: fan_profiles,
                 active_index,
             })
             .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile);
@@ -175,18 +189,16 @@ impl FactoryComponent for Profile {
         }
     }
 
-    fn update(&mut self, message: Self::Input, sender: FactoryComponentSender<Self>) {
+    fn update(&mut self, message: Self::Input, sender: FactorySender<Self>) {
         let name = self.name.clone();
-
-        let guard = TAILOR_STATE.read();
-        let connection = guard.as_ref().unwrap().connection.clone();
 
         match message {
             ProfileInput::Enabled => {
-                sender.oneshot_command(async move {
-                    connection.set_active_global_profile_name(&name).await.ok();
-                    connection.reload().await.ok();
-                });
+                if !self.active {
+                    sender.oneshot_command(async move {
+                        STATE.emit(TailorStateMsg::SetActiveProfile(name));
+                    });
+                }
             }
             ProfileInput::UpdateProfile => {
                 let keyboard = self
@@ -212,8 +224,7 @@ impl FactoryComponent for Profile {
                 let profile = self.info.clone();
 
                 sender.oneshot_command(async move {
-                    connection.add_global_profile(&name, &profile).await.ok();
-                    connection.reload().await.ok();
+                    STATE.emit(TailorStateMsg::AddProfile(name, profile));
                 });
             }
         }

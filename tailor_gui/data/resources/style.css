@@ -2,3 +2,16 @@
   font-size: 36px;
   font-weight: bold;
 }
+
+editablelabel.padded stack * {
+  padding: 6px;
+  border-radius: 6px;
+}
+
+levelbar trough block {
+  border-radius: 6px;
+}
+
+.fan-dialog .message-area {
+  padding: 12px;
+}

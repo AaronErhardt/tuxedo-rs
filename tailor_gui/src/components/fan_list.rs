@@ -1,30 +1,37 @@
+use futures::StreamExt;
 use gtk::{
     prelude::{ButtonExt, WidgetExt},
-    traits::ListBoxRowExt,
+    traits::{BoxExt, ListBoxRowExt, OrientableExt},
 };
 use relm4::{
     adw, component, factory::FactoryVecDeque, gtk, prelude::DynamicIndex, Component,
-    ComponentController, ComponentParts, ComponentSender, Controller, RelmWidgetExt
+    ComponentController, ComponentParts, ComponentSender, Controller, RelmWidgetExt,
 };
 
-use crate::tailor_state::{FAN_PROFILES, TAILOR_STATE};
+use crate::state::{TailorStateInner, TailorStateMsg, STATE};
 
 use super::{
     factories::list_item::ListItem,
     fan_edit::{FanEdit, FanEditInput},
+    new_entry::{NewEntryDialog, NewEntryOutput},
 };
 
+#[tracker::track]
 pub struct FanList {
+    #[do_not_track]
     profiles: FactoryVecDeque<ListItem>,
+    #[do_not_track]
     fan_edit: Controller<FanEdit>,
-    root: adw::Clamp,
+    toast: Option<adw::Toast>,
 }
 
 #[derive(Debug)]
 pub enum ListInput {
     UpdateProfiles(Vec<String>),
+    Rename(DynamicIndex, String),
     Edit(usize),
     Remove(DynamicIndex),
+    Add,
 }
 
 #[component(pub)]
@@ -33,23 +40,50 @@ impl Component for FanList {
     type Input = ListInput;
     type Output = ();
     type Init = ();
-    type Widgets = ProfilesWidgets;
+    type Widgets = FanListWidgets;
 
     view! {
         adw::Clamp {
             set_margin_top: 10,
             set_margin_bottom: 10,
 
-            #[local]
-            profile_box -> gtk::ListBox {
-                set_valign: gtk::Align::Start,
-                add_css_class: "boxed-list",
+            #[name(toast_overlay)]
+            adw::ToastOverlay {
+                #[track(model.changed(FanList::toast()))]
+                add_toast?: model.toast.as_ref(),
 
-                connect_row_activated[sender] => move |_, row| {
-                    let index = row.index();
-                    sender.input(ListInput::Edit(index as usize));
+                gtk::Box {
+                    set_orientation: gtk::Orientation::Vertical,
+                    set_spacing: 6,
+
+                    gtk::Box {
+                        set_orientation: gtk::Orientation::Horizontal,
+
+                        gtk::Label {
+                            add_css_class: "heading",
+                            set_label: "Fan profiles",
+                        },
+                        gtk::Box {
+                            set_hexpand: true,
+                        },
+                        gtk::Button {
+                            set_icon_name: "plus",
+                            connect_clicked => ListInput::Add,
+                        }
+                    },
+
+                    #[local]
+                    profile_box -> gtk::ListBox {
+                        set_valign: gtk::Align::Start,
+                        add_css_class: "boxed-list",
+
+                        connect_row_activated[sender] => move |_, row| {
+                            let index = row.index();
+                            sender.input(ListInput::Edit(index as usize));
+                        }
+                    }
                 }
-            },
+            }
         }
     }
 
@@ -58,19 +92,25 @@ impl Component for FanList {
         root: &Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
+        STATE.subscribe_optional(sender.input_sender(), move |state| {
+            let state = state.unwrap();
+            if state.changed(TailorStateInner::fan_profiles()) {
+                Some(ListInput::UpdateProfiles(state.fan_profiles.clone()))
+            } else {
+                None
+            }
+        });
+
         let profile_box = gtk::ListBox::default();
         let profiles = FactoryVecDeque::new(profile_box.clone(), sender.input_sender());
 
         let fan_edit = FanEdit::builder().transient_for(root).launch(()).detach();
 
-        FAN_PROFILES.subscribe(sender.input_sender(), move |state| {
-            ListInput::UpdateProfiles(state.clone())
-        });
-
         let model = Self {
             profiles,
-            root: root.clone(),
             fan_edit,
+            toast: None,
+            tracker: 0,
         };
 
         let widgets = view_output!();
@@ -78,7 +118,9 @@ impl Component for FanList {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, input: Self::Input, sender: ComponentSender<Self>) {
+    fn update(&mut self, input: Self::Input, sender: ComponentSender<Self>, root: &Self::Root) {
+        self.reset();
+
         match input {
             ListInput::UpdateProfiles(list) => {
                 // Repopulate the profiles
@@ -94,14 +136,38 @@ impl Component for FanList {
                     self.fan_edit.emit(FanEditInput::Load(name));
                 }
             }
-            ListInput::Remove(index) => {
+            ListInput::Rename(index, name) => {
                 let index = index.current_index();
-                let element = self.profiles.guard().remove(index).unwrap();
+                let current_name =&self.profiles[index].name;
+                if current_name != &name {
+                    let count = self.profiles.iter().filter(|p| p.name == name).count();
+                    if count == 0 {
+                        STATE.emit(TailorStateMsg::RenameFanProfile(current_name.clone(), name));
+                    } else {
+                        self.profiles.guard()[index].name = current_name.clone();
+                        self.set_toast(Some(adw::Toast::new("Name already exists")));
+                    }
+                }
+            }
+            ListInput::Remove(index) => {
+                if self.profiles.len() > 1 {
+                    let index = index.current_index();
+                    let element = self.profiles.guard().remove(index).unwrap();
 
-                let connection = TAILOR_STATE.read().as_ref().unwrap().connection.clone();
-                sender.oneshot_command(async move {
-                    dbg!(connection.remove_fan_profile(&element.name).await).ok();
-                })
+                    STATE.emit(TailorStateMsg::DeleteFanProfile(element.name));
+                } else {
+                    self.set_toast(Some(adw::Toast::new("There must be at least one profile")));
+                }
+            }
+            ListInput::Add => {
+                let profiles= self.profiles.iter().map(|i| i.name.to_string()).collect();
+                relm4::spawn_local(async move {
+                    let mut new_entry = NewEntryDialog::builder().launch(profiles).into_stream();
+                    if let Some(NewEntryOutput { name, based_of }) = new_entry.next().await.unwrap()
+                    {
+                        STATE.emit(TailorStateMsg::CopyFanProfile(based_of, name));
+                    }
+                });
             }
         }
     }

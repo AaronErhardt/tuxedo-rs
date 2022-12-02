@@ -9,12 +9,13 @@ use gtk::{
 };
 use relm4::{
     factory,
-    factory::{DynamicIndex, FactoryComponent, FactoryComponentSender, FactoryView},
+    factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView},
     gtk, tokio, RelmWidgetExt,
 };
 use tailor_api::{Color, FanProfilePoint};
 
-use crate::{components::fan_edit::FanEditInput, tailor_state::tailor_connection};
+use crate::components::fan_edit::FanEditInput;
+use crate::state::{TailorStateMsg, STATE};
 
 pub struct FanPoint {
     inner: FanProfilePoint,
@@ -110,7 +111,7 @@ impl FactoryComponent for FanPoint {
                                 set_digits: 0,
                                 set_range: (0.0, 100.0),
                             },
-                            
+
                             gtk::Button {
                                 set_icon_name: "remove",
                                 add_css_class: "destructive-action",
@@ -137,11 +138,11 @@ impl FactoryComponent for FanPoint {
     fn init_model(
         inner: Self::Init,
         _index: &DynamicIndex,
-        sender: FactoryComponentSender<Self>,
+        sender: FactorySender<Self>,
     ) -> Self {
         Self {
             inner,
-            last_override_event: None
+            last_override_event: None,
         }
     }
 
@@ -150,14 +151,14 @@ impl FactoryComponent for FanPoint {
         index: &DynamicIndex,
         root: &Self::Root,
         _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
-        sender: FactoryComponentSender<Self>,
+        sender: FactorySender<Self>,
     ) -> Self::Widgets {
         let widgets = view_output!();
 
         widgets
     }
 
-    fn update(&mut self, message: Self::Input, sender: FactoryComponentSender<Self>) {
+    fn update(&mut self, message: Self::Input, sender: FactorySender<Self>) {
         match message {
             FanPointInput::Enabled => todo!(),
             FanPointInput::UpdateProfile => todo!(),
@@ -171,12 +172,12 @@ impl FactoryComponent for FanPoint {
                 }
 
                 // Don't override the value immediately, but wait a bit for other events to arrive.
-                self.last_override_event = Some(timeout_add_local_once(Duration::from_millis(60), move || {
-                    let connection = tailor_connection();
-                    relm4::spawn(async move {
-                        connection.override_fan_speed(value).await.ok();
-                    });
-                }));
+                self.last_override_event = Some(timeout_add_local_once(
+                    Duration::from_millis(60),
+                    move || {
+                        STATE.emit(TailorStateMsg::OverwriteFanSpeed(value));
+                    },
+                ));
 
                 self.inner.fan = value;
             }

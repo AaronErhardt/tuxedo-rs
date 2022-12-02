@@ -1,7 +1,7 @@
 use gtk::prelude::{OrientableExt, WidgetExt};
 use relm4::{
     factory,
-    factory::{DynamicIndex, FactoryComponent, FactoryComponentSender, FactoryView},
+    factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView},
     gtk, Component, ComponentController, Controller,
 };
 use tailor_api::{Color, ColorPoint};
@@ -58,7 +58,7 @@ impl FactoryComponent for ColorRow {
     fn init_model(
         inner: Self::Init,
         _index: &DynamicIndex,
-        sender: FactoryComponentSender<Self>,
+        sender: FactorySender<Self>,
     ) -> Self {
         let color_button = ColorButton::builder()
             .launch(Color {
@@ -79,7 +79,7 @@ impl FactoryComponent for ColorRow {
         index: &DynamicIndex,
         root: &Self::Root,
         _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
-        sender: FactoryComponentSender<Self>,
+        sender: FactorySender<Self>,
     ) -> Self::Widgets {
         let color_button = self.color_button.widget();
 
@@ -88,7 +88,7 @@ impl FactoryComponent for ColorRow {
         widgets
     }
 
-    fn update(&mut self, message: Self::Input, sender: FactoryComponentSender<Self>) {
+    fn update(&mut self, message: Self::Input, sender: FactorySender<Self>) {
         match message {
             ColorInput::ColorSet(color) => {}
             ColorInput::Enabled => todo!(),

@@ -18,10 +18,7 @@ use crate::{
     components::{fan_list::FanList, keyboard_edit::KeyboardEdit, profiles::Profiles},
     config::{APP_ID, PROFILE},
 };
-use crate::{
-    modals::about::AboutDialog,
-    tailor_state::{initialize_tailor_state, TAILOR_STATE},
-};
+use crate::{modals::about::AboutDialog, state::initialize_tailor_state};
 
 pub enum ConnectionState {
     Connecting,
@@ -35,7 +32,7 @@ impl ConnectionState {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FullProfileInfo {
     pub name: String,
     pub data: ProfileInfo,
@@ -202,7 +199,7 @@ impl Component for App {
 
     fn pre_view() {
         // Update spinner
-        let loading = TAILOR_STATE.read().is_none();
+        let loading = matches!(&model.connection_state, ConnectionState::Connecting);
         spinner.set_spinning(loading);
         loading_box.set_visible(loading);
     }
@@ -217,15 +214,18 @@ impl Component for App {
             .launch(())
             .detach();
 
-        let keyboard_edit = KeyboardEdit::builder().launch(()).detach();
-        let keyboard_edit_widget = keyboard_edit.widget();
+        let mut keyboard_list = KeyboardEdit::builder().launch(()).detach();
+        keyboard_list.detach_runtime();
+        let keyboard_edit_widget = keyboard_list.widget();
 
         let keyboard_edit_widget = adw::Clamp::default();
 
-        let fan_list = FanList::builder().launch(()).detach();
+        let mut fan_list = FanList::builder().launch(()).detach();
+        fan_list.detach_runtime();
         let fan_list = fan_list.widget();
 
-        let profiles = Profiles::builder().launch(()).detach();
+        let mut profiles = Profiles::builder().launch(()).detach();
+        profiles.detach_runtime();
         let profile_widget = profiles.widget();
 
         let model = Self {
@@ -270,13 +270,13 @@ impl Component for App {
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>) {
+    fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>, root: &Self::Root) {
         match message {
             AppMsg::Quit => main_application().quit(),
         }
     }
 
-    fn update_cmd(&mut self, message: Self::CommandOutput, sender: ComponentSender<Self>) {
+    fn update_cmd(&mut self, message: Self::CommandOutput, sender: ComponentSender<Self>, root: &Self::Root) {
         match message {
             Command::SetInitializedState(initialized) => {
                 if initialized {

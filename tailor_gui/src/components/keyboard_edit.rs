@@ -1,4 +1,4 @@
-use crate::tailor_state::TAILOR_STATE;
+use crate::state::STATE;
 use gtk::{
     prelude::{BoxExt, WidgetExt},
     traits::GtkWindowExt,
@@ -74,10 +74,7 @@ impl Component for KeyboardEdit {
         root: &Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let color_points = gtk::Box::default();
-        let colors = FactoryVecDeque::new(color_points.clone(), sender.input_sender());
-
-        TAILOR_STATE.subscribe_optional(sender.input_sender(), move |state| {
+        STATE.subscribe_optional(sender.input_sender(), move |state| {
             /*state.as_ref().map(|state| {
                 KeyboardEditInput::UpdateProfiles((
                     state.profiles.clone(),
@@ -87,6 +84,9 @@ impl Component for KeyboardEdit {
             })*/
             None
         });
+
+        let color_points = gtk::Box::default();
+        let colors = FactoryVecDeque::new(color_points.clone(), sender.input_sender());
 
         let model = Self {
             profile_name: "".into(),
@@ -99,7 +99,7 @@ impl Component for KeyboardEdit {
         ComponentParts { model, widgets }
     }
 
-    fn update_cmd(&mut self, color_profile: Self::CommandOutput, sender: ComponentSender<Self>) {
+    fn update_cmd(&mut self, color_profile: Self::CommandOutput, sender: ComponentSender<Self>, root: &Self::Root) {
         match color_profile {
             ColorProfile::None => todo!(),
             ColorProfile::Single(_) => todo!(),
@@ -113,7 +113,7 @@ impl Component for KeyboardEdit {
         }
     }
 
-    fn update(&mut self, input: Self::Input, _sender: ComponentSender<Self>) {
+    fn update(&mut self, input: Self::Input, _sender: ComponentSender<Self>, root: &Self::Root) {
         match input {}
     }
 }
