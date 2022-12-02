@@ -1,23 +1,19 @@
-use std::{f64::consts::PI, time::Duration};
+use std::f64::consts::PI;
+use std::time::Duration;
 
-use crate::{
-    state::{tailor_connection, TailorStateMsg, STATE},
-    templates,
+use gtk::cairo::Operator;
+use gtk::gdk::{self, RGBA};
+use gtk::glib::{timeout_add_local_once, MainContext, SourceId};
+use gtk::prelude::{
+    BoxExt, ButtonExt, DrawingAreaExt, GestureDragExt, GtkWindowExt, OrientableExt,
+    StyleContextExt, WidgetExt,
 };
-use gtk::{
-    cairo::Operator,
-    gdk::{self, RGBA},
-    glib::{timeout_add_local_once, MainContext, SourceId},
-    prelude::{
-        DrawingAreaExt, GestureDragExt, GtkWindowExt, OrientableExt, StyleContextExt, WidgetExt,
-    },
-    traits::{BoxExt, ButtonExt},
-};
-use relm4::{
-    adw, component, drawing::DrawHandler, gtk, Component, ComponentParts, ComponentSender,
-    RelmWidgetExt,
-};
+use relm4::drawing::DrawHandler;
+use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender, RelmWidgetExt};
 use tailor_api::FanProfilePoint;
+
+use crate::state::{tailor_connection, TailorStateMsg, STATE};
+use crate::templates;
 
 struct Colors {
     fill: RGBA,
@@ -70,9 +66,9 @@ pub enum FanEditInput {
 #[component(pub)]
 impl Component for FanEdit {
     type CommandOutput = Vec<FanProfilePoint>;
+    type Init = ();
     type Input = FanEditInput;
     type Output = ();
-    type Init = ();
     type Widgets = KeyboardEditWidgets;
 
     view! {

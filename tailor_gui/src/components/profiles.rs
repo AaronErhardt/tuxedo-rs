@@ -1,19 +1,14 @@
-use crate::{
-    app::FullProfileInfo,
-    state::{TailorStateMsg, STATE},
-};
-use adw::traits::PreferencesGroupExt;
+use adw::prelude::PreferencesGroupExt;
 use futures::StreamExt;
 use gtk::prelude::{ButtonExt, WidgetExt};
-use relm4::{
-    adw, component, factory::FactoryVecDeque, gtk, prelude::DynamicIndex, Component,
-    ComponentParts, ComponentSender,
-};
+use relm4::factory::FactoryVecDeque;
+use relm4::prelude::DynamicIndex;
+use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender};
 
-use super::{
-    factories::profile::{Profile, ProfileInit},
-    new_profile::{NewProfileDialog, NewProfileInit},
-};
+use super::factories::profile::{Profile, ProfileInit};
+use super::new_profile::{NewProfileDialog, NewProfileInit};
+use crate::app::FullProfileInfo;
+use crate::state::{TailorStateMsg, STATE};
 
 pub struct Profiles {
     profiles: FactoryVecDeque<Profile>,
@@ -37,9 +32,9 @@ pub enum ProfilesInput {
 #[component(pub)]
 impl Component for Profiles {
     type CommandOutput = ();
+    type Init = ();
     type Input = ProfilesInput;
     type Output = ();
-    type Init = ();
     type Widgets = ProfilesWidgets;
 
     view! {

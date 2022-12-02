@@ -1,18 +1,13 @@
-use adw::traits::{ExpanderRowExt, PreferencesRowExt};
+use adw::prelude::{ExpanderRowExt, PreferencesRowExt};
 use gtk::prelude::{ButtonExt, CheckButtonExt, ListBoxRowExt, ObjectExt, WidgetExt};
 use once_cell::unsync::Lazy;
-use relm4::{
-    adw, factory,
-    factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView},
-    gtk, Component, ComponentController, Controller, RelmWidgetExt,
-};
+use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView};
+use relm4::{adw, factory, gtk, Component, ComponentController, Controller, RelmWidgetExt};
 use relm4_components::simple_combo_box::SimpleComboBox;
 use tailor_api::ProfileInfo;
 
-use crate::{
-    components::profiles::ProfilesInput,
-    state::{TailorStateMsg, STATE},
-};
+use crate::components::profiles::ProfilesInput;
+use crate::state::{TailorStateMsg, STATE};
 
 const RADIO_GROUP: Lazy<gtk::CheckButton> = Lazy::new(gtk::CheckButton::default);
 
@@ -42,12 +37,12 @@ pub enum ProfileInput {
 
 #[factory(pub)]
 impl FactoryComponent for Profile {
-    type ParentWidget = adw::PreferencesGroup;
-    type ParentInput = ProfilesInput;
     type CommandOutput = ();
+    type Init = ProfileInit;
     type Input = ProfileInput;
     type Output = ProfilesInput;
-    type Init = ProfileInit;
+    type ParentInput = ProfilesInput;
+    type ParentWidget = adw::PreferencesGroup;
     type Widgets = ProfileWidgets;
 
     view! {

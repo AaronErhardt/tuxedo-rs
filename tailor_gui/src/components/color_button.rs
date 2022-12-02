@@ -1,8 +1,10 @@
+use gtk::gdk::RGBA;
+use gtk::gdk_pixbuf::Pixbuf;
 use gtk::prelude::{
     ButtonExt, Cast, ColorChooserExt, DialogExt, DialogExtManual, GridExt, GtkWindowExt, ObjectExt,
     WidgetExt,
 };
-use gtk::{gdk::RGBA, gdk_pixbuf::Pixbuf, ResponseType};
+use gtk::ResponseType;
 use relm4::{gtk, Component, ComponentParts, ComponentSender, RelmWidgetExt};
 use tailor_api::Color;
 
@@ -22,9 +24,9 @@ pub enum ColorButtonInput {
 #[relm4::component(pub)]
 impl Component for ColorButton {
     type CommandOutput = ();
+    type Init = Color;
     type Input = ColorButtonInput;
     type Output = Color;
-    type Init = Color;
     type Widgets = ColorButtonWidgets;
 
     view! {

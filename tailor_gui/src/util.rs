@@ -1,7 +1,5 @@
-use gtk::{
-    gdk::RGBA,
-    gdk_pixbuf::{Colorspace, Pixbuf},
-};
+use gtk::gdk::RGBA;
+use gtk::gdk_pixbuf::{Colorspace, Pixbuf};
 use tailor_api::Color;
 
 pub fn rgba_to_color(rgba: RGBA) -> Color {

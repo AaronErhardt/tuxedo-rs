@@ -1,7 +1,3 @@
-use crate::{
-    app::FullProfileInfo,
-    templates::{MsgDialogBox, MsgDialogButtons},
-};
 use gtk::prelude::{
     ButtonExt, EditableExt, EntryBufferExtManual, EntryExt, GridExt, GtkWindowExt, WidgetExt,
 };
@@ -11,6 +7,9 @@ use relm4::{
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
 use tailor_api::ProfileInfo;
+
+use crate::app::FullProfileInfo;
+use crate::templates::{MsgDialogBox, MsgDialogButtons};
 
 pub struct NewProfileDialog {
     profiles: Vec<String>,
@@ -34,9 +33,9 @@ pub enum NewProfileInput {
 
 #[relm4::component(pub)]
 impl SimpleComponent for NewProfileDialog {
+    type Init = NewProfileInit;
     type Input = NewProfileInput;
     type Output = Option<FullProfileInfo>;
-    type Init = NewProfileInit;
 
     view! {
         window = adw::Window {

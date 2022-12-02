@@ -1,14 +1,11 @@
 use gtk::prelude::{OrientableExt, WidgetExt};
-use relm4::{
-    factory,
-    factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView},
-    gtk, Component, ComponentController, Controller,
-};
+use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView};
+use relm4::{factory, gtk, Component, ComponentController, Controller};
 use tailor_api::{Color, ColorPoint};
 
-use crate::components::{
-    color_button::ColorButton, keyboard_edit::KeyboardEditInput, profiles::ProfilesInput,
-};
+use crate::components::color_button::ColorButton;
+use crate::components::keyboard_edit::KeyboardEditInput;
+use crate::components::profiles::ProfilesInput;
 
 pub struct ColorRow {
     inner: ColorPoint,
@@ -24,12 +21,12 @@ pub enum ColorInput {
 
 #[factory(pub)]
 impl FactoryComponent for ColorRow {
-    type ParentWidget = gtk::Box;
-    type ParentInput = KeyboardEditInput;
     type CommandOutput = ();
+    type Init = ColorPoint;
     type Input = ColorInput;
     type Output = ProfilesInput;
-    type Init = ColorPoint;
+    type ParentInput = KeyboardEditInput;
+    type ParentWidget = gtk::Box;
     type Widgets = ProfileWidgets;
 
     view! {

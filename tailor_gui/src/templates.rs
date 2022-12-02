@@ -1,4 +1,4 @@
-use gtk::traits::{ButtonExt, OrientableExt, WidgetExt};
+use gtk::prelude::{ButtonExt, OrientableExt, WidgetExt};
 use relm4::{RelmWidgetExt, WidgetTemplate};
 
 #[relm4::widget_template(pub)]

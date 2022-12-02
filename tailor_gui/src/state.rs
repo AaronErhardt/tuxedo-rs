@@ -1,6 +1,7 @@
 use std::time::Duration;
 
-use relm4::{tokio::sync::OnceCell, Reducer, Reducible};
+use relm4::tokio::sync::OnceCell;
+use relm4::{Reducer, Reducible};
 use tailor_api::{Color, ColorProfile, FanProfilePoint, ProfileInfo};
 use tailor_client::TailorConnection;
 

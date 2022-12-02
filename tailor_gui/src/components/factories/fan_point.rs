@@ -1,17 +1,11 @@
 use std::time::{Duration, Instant};
 
-use gtk::glib::{self, timeout_add_local_once, MainContext};
-use gtk::{
-    glib::{clone, SourceId},
-    prelude::{
-        BoxExt, ButtonExt, ObjectExt, OrientableExt, PopoverExt, RangeExt, ScaleExt, WidgetExt,
-    },
+use gtk::glib::{self, clone, timeout_add_local_once, MainContext, SourceId};
+use gtk::prelude::{
+    BoxExt, ButtonExt, ObjectExt, OrientableExt, PopoverExt, RangeExt, ScaleExt, WidgetExt,
 };
-use relm4::{
-    factory,
-    factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView},
-    gtk, tokio, RelmWidgetExt,
-};
+use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView};
+use relm4::{factory, gtk, tokio, RelmWidgetExt};
 use tailor_api::{Color, FanProfilePoint};
 
 use crate::components::fan_edit::FanEditInput;
@@ -31,12 +25,12 @@ pub enum FanPointInput {
 
 #[factory(pub)]
 impl FactoryComponent for FanPoint {
-    type ParentWidget = gtk::Box;
-    type ParentInput = FanEditInput;
     type CommandOutput = ();
+    type Init = FanProfilePoint;
     type Input = FanPointInput;
     type Output = ();
-    type Init = FanProfilePoint;
+    type ParentInput = FanEditInput;
+    type ParentWidget = gtk::Box;
     type Widgets = ProfileWidgets;
 
     view! {

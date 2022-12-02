@@ -1,12 +1,8 @@
 use adw::prelude::{MessageDialogExt, MessageDialogExtManual};
 use gtk::glib;
-use gtk::prelude::{BoxExt, ButtonExt, ObjectExt, OrientableExt, WidgetExt};
-use gtk::traits::EditableExt;
-use relm4::{
-    adw, factory,
-    factory::{DynamicIndex, FactoryComponent, FactorySender},
-    gtk, RelmWidgetExt,
-};
+use gtk::prelude::{BoxExt, ButtonExt, EditableExt, ObjectExt, OrientableExt, WidgetExt};
+use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender};
+use relm4::{adw, factory, gtk, RelmWidgetExt};
 
 use crate::components::fan_list::ListInput;
 
@@ -16,12 +12,12 @@ pub struct ListItem {
 
 #[factory(pub)]
 impl FactoryComponent for ListItem {
-    type ParentWidget = gtk::ListBox;
-    type ParentInput = ListInput;
     type CommandOutput = ();
+    type Init = String;
     type Input = ();
     type Output = ListInput;
-    type Init = String;
+    type ParentInput = ListInput;
+    type ParentWidget = gtk::ListBox;
     type Widgets = ProfileWidgets;
 
     view! {

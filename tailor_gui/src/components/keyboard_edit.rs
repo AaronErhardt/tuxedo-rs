@@ -1,14 +1,10 @@
-use crate::state::STATE;
-use gtk::{
-    prelude::{BoxExt, WidgetExt},
-    traits::GtkWindowExt,
-};
-use relm4::{
-    adw, component, factory::FactoryVecDeque, gtk, Component, ComponentParts, ComponentSender,
-};
+use gtk::prelude::{BoxExt, GtkWindowExt, WidgetExt};
+use relm4::factory::FactoryVecDeque;
+use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender};
 use tailor_api::ColorProfile;
 
 use super::factories::color::ColorRow;
+use crate::state::STATE;
 
 enum ColorProfileType {
     Loading,
@@ -29,9 +25,9 @@ pub enum KeyboardEditInput {}
 #[component(pub)]
 impl Component for KeyboardEdit {
     type CommandOutput = ColorProfile;
+    type Init = ();
     type Input = KeyboardEditInput;
     type Output = ();
-    type Init = ();
     type Widgets = KeyboardEditWidgets;
 
     view! {

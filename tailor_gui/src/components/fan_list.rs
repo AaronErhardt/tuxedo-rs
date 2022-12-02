@@ -1,20 +1,16 @@
 use futures::StreamExt;
-use gtk::{
-    prelude::{ButtonExt, WidgetExt},
-    traits::{BoxExt, ListBoxRowExt, OrientableExt},
-};
+use gtk::prelude::{BoxExt, ButtonExt, ListBoxRowExt, OrientableExt, WidgetExt};
+use relm4::factory::FactoryVecDeque;
+use relm4::prelude::DynamicIndex;
 use relm4::{
-    adw, component, factory::FactoryVecDeque, gtk, prelude::DynamicIndex, Component,
-    ComponentController, ComponentParts, ComponentSender, Controller,
+    adw, component, gtk, Component, ComponentController, ComponentParts, ComponentSender,
+    Controller,
 };
 
+use super::factories::list_item::ListItem;
+use super::fan_edit::{FanEdit, FanEditInput};
+use super::new_entry::{NewEntryDialog, NewEntryOutput};
 use crate::state::{TailorStateInner, TailorStateMsg, STATE};
-
-use super::{
-    factories::list_item::ListItem,
-    fan_edit::{FanEdit, FanEditInput},
-    new_entry::{NewEntryDialog, NewEntryOutput},
-};
 
 #[tracker::track]
 pub struct FanList {
@@ -37,9 +33,9 @@ pub enum ListInput {
 #[component(pub)]
 impl Component for FanList {
     type CommandOutput = ();
+    type Init = ();
     type Input = ListInput;
     type Output = ();
-    type Init = ();
     type Widgets = FanListWidgets;
 
     view! {

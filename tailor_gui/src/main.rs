@@ -7,13 +7,10 @@ pub mod state;
 pub mod templates;
 pub mod util;
 
-use gtk::prelude::ApplicationExt;
-use relm4::{
-    actions::{AccelsPlus, RelmAction, RelmActionGroup},
-    gtk, main_application, RelmApp,
-};
-
 use app::App;
+use gtk::prelude::ApplicationExt;
+use relm4::actions::{AccelsPlus, RelmAction, RelmActionGroup};
+use relm4::{gtk, main_application, RelmApp};
 use setup::setup;
 
 use crate::config::APP_ID;

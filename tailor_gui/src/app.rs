@@ -1,24 +1,21 @@
-use relm4::{
-    actions::{ActionGroupName, RelmAction, RelmActionGroup},
-    adw,
-    gtk::{
-        self,
-        traits::{BoxExt, OrientableExt},
-    },
-    main_application, Component, ComponentController, ComponentParts, ComponentSender, Controller,
-};
-
 use gtk::prelude::{
     ApplicationExt, ApplicationWindowExt, GtkWindowExt, ObjectExt, SettingsExt, WidgetExt,
 };
 use gtk::{gio, glib};
+use relm4::actions::{ActionGroupName, RelmAction, RelmActionGroup};
+use relm4::gtk::prelude::{BoxExt, OrientableExt};
+use relm4::{
+    adw, gtk, main_application, Component, ComponentController, ComponentParts, ComponentSender,
+    Controller,
+};
 use tailor_api::ProfileInfo;
 
-use crate::{
-    components::{fan_list::FanList, keyboard_edit::KeyboardEdit, profiles::Profiles},
-    config::{APP_ID, PROFILE},
-};
-use crate::{modals::about::AboutDialog, state::initialize_tailor_state};
+use crate::components::fan_list::FanList;
+use crate::components::keyboard_edit::KeyboardEdit;
+use crate::components::profiles::Profiles;
+use crate::config::{APP_ID, PROFILE};
+use crate::modals::about::AboutDialog;
+use crate::state::initialize_tailor_state;
 
 pub enum ConnectionState {
     Connecting,
@@ -60,10 +57,10 @@ relm4::new_stateless_action!(AboutAction, WindowActionGroup, "about");
 
 #[relm4::component(pub)]
 impl Component for App {
+    type CommandOutput = Command;
     type Init = ();
     type Input = AppMsg;
     type Output = ();
-    type CommandOutput = Command;
     type Widgets = AppWidgets;
 
     menu! {

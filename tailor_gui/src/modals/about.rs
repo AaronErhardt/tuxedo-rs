@@ -1,19 +1,17 @@
 use gtk::prelude::GtkWindowExt;
-use relm4::gtk;
-use relm4::{ComponentParts, ComponentSender, SimpleComponent};
+use relm4::{gtk, ComponentParts, ComponentSender, SimpleComponent};
 
 // use gettextrs::gettext;
-
 use crate::config::{APP_ID, VERSION};
 
 pub struct AboutDialog {}
 
 impl SimpleComponent for AboutDialog {
     type Init = ();
-    type Widgets = adw::AboutWindow;
     type Input = ();
     type Output = ();
     type Root = adw::AboutWindow;
+    type Widgets = adw::AboutWindow;
 
     fn init_root() -> Self::Root {
         adw::AboutWindow::builder()

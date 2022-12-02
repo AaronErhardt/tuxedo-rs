@@ -1,7 +1,6 @@
-use relm4::gtk;
-
 use gettextrs::{gettext, LocaleCategory};
 use gtk::{gdk, gio, glib};
+use relm4::gtk;
 
 use crate::config::{APP_ID, GETTEXT_PACKAGE, ICON_RESOURCES_FILE, LOCALEDIR, RESOURCES_FILE};
 

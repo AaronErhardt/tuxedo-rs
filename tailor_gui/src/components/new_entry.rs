@@ -1,4 +1,3 @@
-use crate::templates::{MsgDialogBox, MsgDialogButtons};
 use gtk::prelude::{
     ButtonExt, EditableExt, EntryBufferExtManual, EntryExt, GridExt, GtkWindowExt, WidgetExt,
 };
@@ -7,6 +6,8 @@ use relm4::{
     SimpleComponent,
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
+
+use crate::templates::{MsgDialogBox, MsgDialogButtons};
 
 pub struct NewEntryDialog {
     items: Controller<SimpleComboBox<String>>,
@@ -28,9 +29,9 @@ pub struct NewEntryOutput {
 
 #[relm4::component(pub)]
 impl SimpleComponent for NewEntryDialog {
+    type Init = Vec<String>;
     type Input = NewEntryInput;
     type Output = Option<NewEntryOutput>;
-    type Init = Vec<String>;
 
     view! {
         window = adw::Window {
