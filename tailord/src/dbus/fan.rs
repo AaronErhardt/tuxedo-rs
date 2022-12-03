@@ -35,7 +35,7 @@ impl FanInterface {
     async fn rename_profile(&self, old_name: &str, new_name: &str) -> fdo::Result<Vec<String>> {
         if self.list_profiles().await?.contains(&new_name.to_string()) {
             Err(fdo::Error::InvalidArgs(format!(
-                "File `{old_name}` already exists"
+                "File `{new_name}` already exists"
             )))
         } else {
             let profiles = util::get_profiles(PROFILE_DIR).await?;
