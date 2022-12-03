@@ -51,7 +51,7 @@ impl<'a> TailorConnection<'a> {
         Ok(self.keyboard.list_profiles().await?)
     }
 
-    pub async fn copy_keyboard_profiles(&self, from: &str, to: &str) -> ClientResult<()> {
+    pub async fn copy_keyboard_profile(&self, from: &str, to: &str) -> ClientResult<()> {
         let profile = self.get_keyboard_profile(from).await?;
         self.add_keyboard_profile(to, &profile).await
     }
@@ -78,7 +78,7 @@ impl<'a> TailorConnection<'a> {
     pub async fn add_fan_profile(
         &self,
         name: &str,
-        profile: &Vec<FanProfilePoint>,
+        profile: &[FanProfilePoint],
     ) -> ClientResult<()> {
         let value = serde_json::to_string(profile)?;
         Ok(self.fan.add_profile(name, &value).await?)
@@ -93,7 +93,7 @@ impl<'a> TailorConnection<'a> {
         Ok(self.fan.list_profiles().await?)
     }
 
-    pub async fn copy_fan_profiles(&self, from: &str, to: &str) -> ClientResult<()> {
+    pub async fn copy_fan_profile(&self, from: &str, to: &str) -> ClientResult<()> {
         let profile = self.get_fan_profile(from).await?;
         self.add_fan_profile(to, &profile).await
     }
@@ -157,55 +157,5 @@ impl<'a> TailorConnection<'a> {
 
     pub async fn reload(&self) -> ClientResult<()> {
         Ok(self.profiles.reload().await?)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use tailor_api::{Color, ColorPoint, ColorProfile, ColorTransition};
-
-    use crate::TailorConnection;
-
-    #[tokio::test]
-    async fn test_connection() {
-        let connection = TailorConnection::new().await.unwrap();
-        let profile = ColorProfile::Multiple(vec![
-            ColorPoint {
-                color: Color { r: 0, g: 255, b: 0 },
-                transition: ColorTransition::Linear,
-                transition_time: 3000,
-            },
-            ColorPoint {
-                color: Color { r: 255, g: 0, b: 0 },
-                transition: ColorTransition::Linear,
-                transition_time: 3000,
-            },
-            ColorPoint {
-                color: Color { r: 0, g: 0, b: 255 },
-                transition: ColorTransition::Linear,
-                transition_time: 3000,
-            },
-        ]);
-
-        let profile_name = "__test";
-        connection
-            .add_keyboard_profile(profile_name, &profile)
-            .await
-            .unwrap();
-        assert_eq!(
-            connection.get_keyboard_profile(profile_name).await.unwrap(),
-            profile
-        );
-        connection
-            .list_keyboard_profiles()
-            .await
-            .unwrap()
-            .iter()
-            .find(|s| s.as_str() == profile_name)
-            .unwrap();
-        connection
-            .remove_keyboard_profile(profile_name)
-            .await
-            .unwrap();
     }
 }
