@@ -168,86 +168,86 @@ impl Reducible for TailorState {
                     }
                 }
             }
-            TailorStateMsg::CopyFanProfile(other_name, new_name) => {
+            TailorStateMsg::CopyFanProfile(from, to) => {
                 if let Some(state) = self.get_mut() {
                     {
-                        let new_name = new_name.clone();
+                        let to = to.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
                             handle_result(
-                                connection.copy_fan_profiles(&new_name, &other_name).await,
+                                connection.copy_fan_profile(&from, &to).await,
                             );
                         });
                     }
-                    state.get_mut_fan_profiles().push(new_name);
+                    state.get_mut_fan_profiles().push(to);
                 }
             }
-            TailorStateMsg::CopyKeyboardProfile(other_name, new_name) => {
+            TailorStateMsg::CopyKeyboardProfile(from, to) => {
                 if let Some(state) = self.get_mut() {
                     {
-                        let new_name = new_name.clone();
+                        let to = to.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
                             handle_result(
                                 connection
-                                    .copy_keyboard_profiles(&new_name, &other_name)
+                                    .copy_keyboard_profile(&from, &to)
                                     .await,
                             );
                         });
                     }
-                    state.get_mut_keyboard_profiles().push(new_name);
+                    state.get_mut_keyboard_profiles().push(to);
                 }
             }
-            TailorStateMsg::RenameProfile(old_name, new_name) => {
+            TailorStateMsg::RenameProfile(from, to) => {
                 if let Some(state) = self.get_mut() {
                     let connection = state.connection.clone();
                     let profiles = state.get_mut_profiles();
-                    if let Some(profile) = profiles.iter_mut().find(|p| p.name == old_name) {
+                    if let Some(profile) = profiles.iter_mut().find(|p| p.name == from) {
                         {
-                            let new_name = new_name.clone();
+                            let to = to.clone();
                             relm4::spawn(async move {
                                 handle_result(
-                                    connection.rename_global_profile(&old_name, &new_name).await,
+                                    connection.rename_global_profile(&from, &to).await,
                                 );
                             });
                         }
-                        profile.name = new_name;
+                        profile.name = to;
                     }
                 }
             }
-            TailorStateMsg::RenameFanProfile(old_name, new_name) => {
+            TailorStateMsg::RenameFanProfile(from, to) => {
                 if let Some(state) = self.get_mut() {
                     let connection = state.connection.clone();
                     let profiles = state.get_mut_fan_profiles();
-                    if let Some(profile) = profiles.iter_mut().find(|p| *p == &old_name) {
+                    if let Some(profile) = profiles.iter_mut().find(|p| *p == &from) {
                         {
-                            let new_name = new_name.clone();
+                            let to = to.clone();
                             relm4::spawn(async move {
                                 handle_result(
-                                    connection.rename_fan_profile(&old_name, &new_name).await,
+                                    connection.rename_fan_profile(&from, &to).await,
                                 );
                             });
                         }
-                        *profile = new_name;
+                        *profile = to;
                     }
                 }
             }
-            TailorStateMsg::RenameKeyboardProfile(old_name, new_name) => {
+            TailorStateMsg::RenameKeyboardProfile(from, to) => {
                 if let Some(state) = self.get_mut() {
                     let connection = state.connection.clone();
                     let profiles = state.get_mut_keyboard_profiles();
-                    if let Some(profile) = profiles.iter_mut().find(|p| *p == &old_name) {
+                    if let Some(profile) = profiles.iter_mut().find(|p| *p == &from) {
                         {
-                            let new_name = new_name.clone();
+                            let to = to.clone();
                             relm4::spawn(async move {
                                 handle_result(
                                     connection
-                                        .rename_keyboard_profile(&old_name, &new_name)
+                                        .rename_keyboard_profile(&from, &to)
                                         .await,
                                 );
                             });
                         }
-                        *profile = new_name;
+                        *profile = to;
                     }
                 }
             }

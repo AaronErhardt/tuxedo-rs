@@ -32,23 +32,23 @@ impl KeyboardInterface {
         util::remove_file(KEYBOARD_DIR, name).await
     }
 
-    async fn rename_profile(&self, old_name: &str, new_name: &str) -> fdo::Result<Vec<String>> {
-        if self.list_profiles().await?.contains(&new_name.to_string()) {
+    async fn rename_profile(&self, from: &str, to: &str) -> fdo::Result<Vec<String>> {
+        if self.list_profiles().await?.contains(&to.to_string()) {
             Err(fdo::Error::InvalidArgs(format!(
-                "File `{new_name}` already exists"
+                "File `{to}` already exists"
             )))
         } else {
             let profiles = util::get_profiles(PROFILE_DIR).await?;
 
             for profile in profiles {
                 let mut data = util::read_json::<ProfileInfo>(PROFILE_DIR, &profile).await?;
-                if data.keyboard == old_name {
-                    data.keyboard = new_name.to_string();
+                if data.keyboard == from {
+                    data.keyboard = to.to_string();
                     util::write_json(PROFILE_DIR, &profile, &data).await?;
                 }
             }
 
-            util::move_file(KEYBOARD_DIR, old_name, new_name).await?;
+            util::move_file(KEYBOARD_DIR, from, to).await?;
 
             self.list_profiles().await
         }

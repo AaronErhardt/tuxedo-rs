@@ -56,12 +56,8 @@ impl<'a> TailorConnection<'a> {
         self.add_keyboard_profile(to, &profile).await
     }
 
-    pub async fn rename_keyboard_profile(
-        &self,
-        old_name: &str,
-        new_name: &str,
-    ) -> ClientResult<Vec<String>> {
-        Ok(self.keyboard.rename_profile(old_name, new_name).await?)
+    pub async fn rename_keyboard_profile(&self, from: &str, to: &str) -> ClientResult<Vec<String>> {
+        Ok(self.keyboard.rename_profile(from, to).await?)
     }
 
     pub async fn remove_keyboard_profile(&self, name: &str) -> ClientResult<()> {
@@ -98,12 +94,8 @@ impl<'a> TailorConnection<'a> {
         self.add_fan_profile(to, &profile).await
     }
 
-    pub async fn rename_fan_profile(
-        &self,
-        old_name: &str,
-        new_name: &str,
-    ) -> ClientResult<Vec<String>> {
-        Ok(self.fan.rename_profile(old_name, new_name).await?)
+    pub async fn rename_fan_profile(&self, from: &str, to: &str) -> ClientResult<Vec<String>> {
+        Ok(self.fan.rename_profile(from, to).await?)
     }
 
     pub async fn remove_fan_profile(&self, name: &str) -> ClientResult<()> {
@@ -135,12 +127,8 @@ impl<'a> TailorConnection<'a> {
         self.add_global_profile(to, &profile).await
     }
 
-    pub async fn rename_global_profile(
-        &self,
-        old_name: &str,
-        new_name: &str,
-    ) -> ClientResult<Vec<String>> {
-        Ok(self.profiles.rename_profile(old_name, new_name).await?)
+    pub async fn rename_global_profile(&self, from: &str, to: &str) -> ClientResult<Vec<String>> {
+        Ok(self.profiles.rename_profile(from, to).await?)
     }
 
     pub async fn remove_global_profile(&self, name: &str) -> ClientResult<()> {

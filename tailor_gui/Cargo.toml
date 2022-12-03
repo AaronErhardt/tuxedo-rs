@@ -16,7 +16,7 @@ gtk = { package = "gtk4", version = "0.5", features = ["v4_8"] }
 
 tracker = "0.2"
 
-tailor_client = "0.1.2"
+tailor_client = "0.1.8"
 tailor_api = "0.1"
 futures = "0.3.24"
 once_cell = "1.15.0"

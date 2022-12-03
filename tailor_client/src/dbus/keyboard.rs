@@ -14,7 +14,7 @@ trait Keyboard {
 
     async fn remove_profile(&self, name: &str) -> fdo::Result<()>;
 
-    async fn rename_profile(&self, old_name: &str, new_name: &str) -> fdo::Result<Vec<String>>;
+    async fn rename_profile(&self, from: &str, to: &str) -> fdo::Result<Vec<String>>;
 
     async fn override_color(&self, color: &str) -> fdo::Result<()>;
 }

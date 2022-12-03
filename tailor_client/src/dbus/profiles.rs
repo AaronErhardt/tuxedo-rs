@@ -14,7 +14,7 @@ trait Profiles {
 
     async fn remove_profile(&self, name: &str) -> fdo::Result<()>;
 
-    async fn rename_profile(&self, old_name: &str, new_name: &str) -> fdo::Result<Vec<String>>;
+    async fn rename_profile(&self, from: &str, to: &str) -> fdo::Result<Vec<String>>;
 
     async fn set_active_profile_name(&self, name: &str) -> fdo::Result<()>;
 

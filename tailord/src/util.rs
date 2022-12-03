@@ -57,10 +57,10 @@ pub async fn remove_file(base_path: &str, name: &str) -> Result<(), fdo::Error> 
         .map_err(|err| fdo::Error::IOError(err.to_string()))
 }
 
-pub async fn move_file(base_path: &str, old_name: &str, new_name: &str) -> Result<(), fdo::Error> {
+pub async fn move_file(base_path: &str, from: &str, to: &str) -> Result<(), fdo::Error> {
     tokio::fs::rename(
-        normalize_json_path(base_path, old_name)?,
-        normalize_json_path(base_path, new_name)?,
+        normalize_json_path(base_path, from)?,
+        normalize_json_path(base_path, to)?,
     )
     .await
     .map_err(|err| fdo::Error::IOError(err.to_string()))
