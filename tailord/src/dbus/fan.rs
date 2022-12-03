@@ -48,7 +48,7 @@ impl FanInterface {
                 }
             }
 
-            util::move_file(FAN_DIR, new_name, old_name).await?;
+            util::move_file(FAN_DIR, old_name, new_name).await?;
 
             self.list_profiles().await
         }

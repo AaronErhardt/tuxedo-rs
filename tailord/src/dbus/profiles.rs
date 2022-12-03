@@ -41,7 +41,7 @@ impl ProfileInterface {
                 "File `{old_name}` already exists"
             )))
         } else {
-            util::move_file(PROFILE_DIR, new_name, old_name).await?;
+            util::move_file(PROFILE_DIR, old_name, new_name).await?;
 
             if self.get_active_profile_name().await? == old_name {
                 self.set_active_profile_name(new_name).await?;
