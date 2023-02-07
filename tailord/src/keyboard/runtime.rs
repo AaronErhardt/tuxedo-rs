@@ -38,7 +38,7 @@ impl KeyboardRuntime {
                     if let Some(mut color) = override_color {
                         loop {
                             if let Err(err) = self.io.set_color_left(&color).await {
-                                tracing::error!("Failed to update keyboard color: `{}`", err.to_string());
+                                tracing::tracing::error!("Failed to update keyboard color: `{}`", err.to_string());
                                 break;
                             }
                             tokio::select! {
@@ -76,7 +76,7 @@ impl KeyboardRuntime {
     async fn run_color_animation(&mut self, color_steps: &[(Color, u32)]) {
         for step in color_steps.iter().cycle() {
             if let Err(err) = self.io.set_color_left(&step.0).await {
-                tracing::error!("Failed setting keyboard colors: `{err}`")
+                tracing::tracing::error!("Failed setting keyboard colors: `{err}`")
             }
 
             tokio::select! {

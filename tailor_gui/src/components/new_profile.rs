@@ -3,7 +3,7 @@ use gtk::prelude::{
 };
 use relm4::{
     Component, ComponentController, ComponentParts, ComponentSender, Controller, RelmWidgetExt,
-    SimpleComponent,
+    SimpleComponent, gtk, adw
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
 use tailor_api::ProfileInfo;

@@ -54,14 +54,14 @@ impl Profile {
         {
             profile_info
         } else {
-            tracing::error!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`");
+            tracing::tracing::error!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`");
             ProfileInfo::default()
         };
 
         let keyboard = match load_keyboard_profile(&profile_info) {
             Ok(keyboard) => keyboard,
             Err(err) => {
-                tracing::error!(
+                tracing::tracing::error!(
                     "Failed to load keyboard color profile called `{}`: `{}`",
                     profile_info.keyboard,
                     err.to_string(),
@@ -73,7 +73,7 @@ impl Profile {
         let fan = match load_fan_profile(&profile_info) {
             Ok(fan) => fan,
             Err(err) => {
-                tracing::error!(
+                tracing::tracing::error!(
                     "Failed to load fan color profile called `{}`: `{}`",
                     profile_info.fan,
                     err.to_string(),

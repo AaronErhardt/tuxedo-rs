@@ -59,7 +59,7 @@ impl FanRuntime {
                     if let Some(mut speed) = override_speed {
                         loop {
                             if let Err(err) = self.io.set_fan_speed_percent(Fan::Fan1, speed) {
-                                tracing::error!("Failed to update fan speed: `{}`", err.to_string());
+                                tracing::tracing::error!("Failed to update fan speed: `{}`", err.to_string());
                                 break;
                             }
                             tokio::select! {
@@ -86,7 +86,7 @@ impl FanRuntime {
                 temp
             }
             Err(err) => {
-                tracing::error!("Failed reading the current temperature: `{err}`");
+                tracing::tracing::error!("Failed reading the current temperature: `{err}`");
                 self.temp_history.get_latest()
             }
         }
@@ -96,7 +96,7 @@ impl FanRuntime {
         if self.fan_speed != new_speed {
             self.fan_speed = new_speed;
             if let Err(err) = self.io.set_fan_speed_percent(Fan::Fan1, new_speed) {
-                tracing::error!("Failed setting new fan speed: `{err}`");
+                tracing::tracing::error!("Failed setting new fan speed: `{err}`");
             }
         }
     }

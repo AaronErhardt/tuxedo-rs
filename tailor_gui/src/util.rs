@@ -1,5 +1,6 @@
 use gtk::gdk::RGBA;
 use gtk::gdk_pixbuf::{Colorspace, Pixbuf};
+use relm4::gtk;
 use tailor_api::Color;
 
 pub fn rgba_to_color(rgba: RGBA) -> Color {
