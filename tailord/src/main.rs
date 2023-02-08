@@ -47,9 +47,15 @@ async fn start_runtime() {
     let signals = Signals::new([SIGTERM, SIGINT, SIGQUIT]).unwrap();
     tokio_uring::spawn(handle_signals(signals, shutdown_sender));
 
-    let keyboard_interface = KeyboardInterface { color_sender };
+    let keyboard_interface = KeyboardInterface {
+        color_sender,
+        keyboard_sender: keyboard_sender.clone(),
+    };
 
-    let fan_interface = FanInterface { fan_speed_sender };
+    let fan_interface = FanInterface {
+        fan_speed_sender,
+        fan_sender: fan_sender.clone(),
+    };
 
     let profile_interface = ProfileInterface {
         keyboard_sender,

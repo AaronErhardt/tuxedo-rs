@@ -3,12 +3,14 @@ use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 
 use crate::{
-    profiles::{FAN_DIR, PROFILE_DIR},
+    fancontrol::profile::FanProfile,
+    profiles::{Profile, FAN_DIR, PROFILE_DIR},
     util,
 };
 
 pub struct FanInterface {
     pub fan_speed_sender: mpsc::Sender<u8>,
+    pub fan_sender: mpsc::Sender<FanProfile>,
 }
 
 #[dbus_interface(name = "com.tux.Tailor.Fan")]
@@ -17,7 +19,15 @@ impl FanInterface {
         // Verify correctness of the file.
         serde_json::from_str::<Vec<FanProfilePoint>>(value)
             .map_err(|err| fdo::Error::InvalidArgs(err.to_string()))?;
-        util::write_file(FAN_DIR, name, value.as_bytes()).await
+        util::write_file(FAN_DIR, name, value.as_bytes()).await?;
+
+        // Reload if the fan profile is part of the active global profile
+        let info = Profile::get_active_profile_info()?;
+        if info.fan == name {
+            let info = Profile::reload()?;
+            self.fan_sender.send(info.fan).await.unwrap();
+        }
+        Ok(())
     }
 
     async fn get_profile(&self, name: &str) -> fdo::Result<String> {

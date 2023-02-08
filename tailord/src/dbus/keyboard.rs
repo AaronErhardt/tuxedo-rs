@@ -3,12 +3,13 @@ use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 
 use crate::{
-    profiles::{KEYBOARD_DIR, PROFILE_DIR},
+    profiles::{Profile, KEYBOARD_DIR, PROFILE_DIR},
     util,
 };
 
 pub struct KeyboardInterface {
     pub color_sender: mpsc::Sender<Color>,
+    pub keyboard_sender: mpsc::Sender<ColorProfile>,
 }
 
 #[dbus_interface(name = "com.tux.Tailor.Keyboard")]
@@ -17,7 +18,15 @@ impl KeyboardInterface {
         // Verify correctness of the file.
         serde_json::from_str::<ColorProfile>(value)
             .map_err(|err| fdo::Error::InvalidArgs(err.to_string()))?;
-        util::write_file(KEYBOARD_DIR, name, value.as_bytes()).await
+        util::write_file(KEYBOARD_DIR, name, value.as_bytes()).await?;
+
+        // Reload if the keyboard profile is part of the active global profile
+        let info = Profile::get_active_profile_info()?;
+        if info.keyboard == name {
+            let info = Profile::reload()?;
+            self.keyboard_sender.send(info.keyboard).await.unwrap();
+        }
+        Ok(())
     }
 
     async fn get_profile(&self, name: &str) -> fdo::Result<String> {

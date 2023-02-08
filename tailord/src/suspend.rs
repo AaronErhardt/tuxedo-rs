@@ -45,7 +45,7 @@ pub async fn process_suspend(receiver: &mut broadcast::Receiver<bool>) {
             }
         }
         Err(err) => {
-            tracing::tracing::error!("Filed receiving suspend message: `{err}`");
+            tracing::error!("Filed receiving suspend message: `{err}`");
         }
     }
 }
@@ -62,7 +62,7 @@ async fn wait_for_wake_up(receiver: &mut broadcast::Receiver<bool>) {
                 }
             }
             Err(err) => {
-                tracing::tracing::error!("Filed receiving suspend message: `{err}`");
+                tracing::error!("Filed receiving suspend message: `{err}`");
             }
         }
     }

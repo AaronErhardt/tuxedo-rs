@@ -35,7 +35,7 @@ fn load_keyboard_profile(info: &ProfileInfo) -> fdo::Result<ColorProfile> {
 }
 
 fn load_fan_profile(info: &ProfileInfo) -> fdo::Result<FanProfile> {
-    FanProfile::load_config(&fan_path(info)?)
+    FanProfile::load_config(fan_path(info)?)
 }
 
 #[derive(Debug, Default)]
@@ -48,20 +48,15 @@ impl Profile {
     pub fn load() -> Self {
         init_paths();
 
-        let profile_info = if let Some(profile_info) = std::fs::read(ACTIVE_PROFILE_PATH)
-            .ok()
-            .and_then(|data| serde_json::from_slice(&data).ok())
-        {
-            profile_info
-        } else {
-            tracing::tracing::error!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`");
+        let profile_info = Self::get_active_profile_info().unwrap_or_else(|_| {
+            tracing::error!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`");
             ProfileInfo::default()
-        };
+        });
 
         let keyboard = match load_keyboard_profile(&profile_info) {
             Ok(keyboard) => keyboard,
             Err(err) => {
-                tracing::tracing::error!(
+                tracing::error!(
                     "Failed to load keyboard color profile called `{}`: `{}`",
                     profile_info.keyboard,
                     err.to_string(),
@@ -73,7 +68,7 @@ impl Profile {
         let fan = match load_fan_profile(&profile_info) {
             Ok(fan) => fan,
             Err(err) => {
-                tracing::tracing::error!(
+                tracing::error!(
                     "Failed to load fan color profile called `{}`: `{}`",
                     profile_info.fan,
                     err.to_string(),
@@ -115,11 +110,14 @@ impl Profile {
         ))
     }
 
-    pub fn reload() -> fdo::Result<Self> {
-        let profile_info_data = std::fs::read(ACTIVE_PROFILE_PATH).map_err(zbus::Error::Io)?;
-        let profile_info: ProfileInfo = serde_json::from_slice(&profile_info_data)
-            .map_err(|err| fdo::Error::InvalidFileContent(err.to_string()))?;
+    pub fn get_active_profile_info() -> fdo::Result<ProfileInfo> {
+        let data = std::fs::read(ACTIVE_PROFILE_PATH)
+            .map_err(|err| fdo::Error::IOError(err.to_string()))?;
+        serde_json::from_slice(&data).map_err(|err| fdo::Error::InvalidFileContent(err.to_string()))
+    }
 
+    pub fn reload() -> fdo::Result<Self> {
+        let profile_info: ProfileInfo = Self::get_active_profile_info()?;
         let keyboard = load_keyboard_profile(&profile_info)?;
         let fan = load_fan_profile(&profile_info)?;
 
