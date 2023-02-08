@@ -35,7 +35,6 @@ impl Component for Profiles {
     type Init = ();
     type Input = ProfilesInput;
     type Output = ();
-    type Widgets = ProfilesWidgets;
 
     view! {
         adw::Clamp {
@@ -47,7 +46,7 @@ impl Component for Profiles {
                 set_title: "Profiles",
                 #[wrap(Some)]
                 set_header_suffix = &gtk::Button {
-                    set_icon_name: "plus-symbolic",
+                    set_icon_name: "plus",
                     connect_clicked => ProfilesInput::Add,
                 }
             },

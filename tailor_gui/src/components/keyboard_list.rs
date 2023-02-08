@@ -8,21 +8,21 @@ use relm4::{
 };
 
 use super::factories::list_item::{ListItem, ListMsg};
-use super::fan_edit::{FanEdit, FanEditInput};
+use super::keyboard_edit::{KeyboardEdit, KeyboardEditInput};
 use super::new_entry::{NewEntryDialog, NewEntryInit, NewEntryOutput};
 use crate::state::{TailorStateInner, TailorStateMsg, STATE};
 
 #[tracker::track]
-pub struct FanList {
+pub struct KeyboardList {
     #[do_not_track]
-    profiles: FactoryVecDeque<ListItem<FanListInput>>,
+    profiles: FactoryVecDeque<ListItem<KeyboardListInput>>,
     #[do_not_track]
-    fan_edit: Controller<FanEdit>,
+    keyboard_edit: Controller<KeyboardEdit>,
     toast: Option<adw::Toast>,
 }
 
 #[derive(Debug)]
-pub enum FanListInput {
+pub enum KeyboardListInput {
     UpdateProfiles(Vec<String>),
     Rename(DynamicIndex, String),
     Edit(usize),
@@ -30,9 +30,9 @@ pub enum FanListInput {
     Add,
 }
 
-impl ListMsg for FanListInput {
+impl ListMsg for KeyboardListInput {
     fn ty() -> &'static str {
-        "fan"
+        "keyboard"
     }
 
     fn rename(index: DynamicIndex, text: String) -> Self {
@@ -45,10 +45,10 @@ impl ListMsg for FanListInput {
 }
 
 #[component(pub)]
-impl Component for FanList {
+impl Component for KeyboardList {
     type CommandOutput = ();
     type Init = ();
-    type Input = FanListInput;
+    type Input = KeyboardListInput;
     type Output = ();
 
     view! {
@@ -58,7 +58,7 @@ impl Component for FanList {
 
             #[name(toast_overlay)]
             adw::ToastOverlay {
-                #[track(model.changed(FanList::toast()))]
+                #[track(model.changed(KeyboardList::toast()))]
                 add_toast?: model.toast.as_ref(),
 
                 gtk::Box {
@@ -70,14 +70,14 @@ impl Component for FanList {
 
                         gtk::Label {
                             add_css_class: "heading",
-                            set_label: "Fan profiles",
+                            set_label: "Keyboard profiles",
                         },
                         gtk::Box {
                             set_hexpand: true,
                         },
                         gtk::Button {
                             set_icon_name: "plus",
-                            connect_clicked => FanListInput::Add,
+                            connect_clicked => KeyboardListInput::Add,
                         }
                     },
 
@@ -88,7 +88,7 @@ impl Component for FanList {
 
                         connect_row_activated[sender] => move |_, row| {
                             let index = row.index();
-                            sender.input(FanListInput::Edit(index as usize));
+                            sender.input(KeyboardListInput::Edit(index as usize));
                         }
                     }
                 }
@@ -103,8 +103,10 @@ impl Component for FanList {
     ) -> ComponentParts<Self> {
         STATE.subscribe_optional(sender.input_sender(), move |state| {
             let state = state.unwrap();
-            if state.changed(TailorStateInner::fan_profiles()) {
-                Some(FanListInput::UpdateProfiles(state.fan_profiles.clone()))
+            if state.changed(TailorStateInner::keyboard_profiles()) {
+                Some(KeyboardListInput::UpdateProfiles(
+                    state.keyboard_profiles.clone(),
+                ))
             } else {
                 None
             }
@@ -113,11 +115,14 @@ impl Component for FanList {
         let profile_box = gtk::ListBox::default();
         let profiles = FactoryVecDeque::new(profile_box.clone(), sender.input_sender());
 
-        let fan_edit = FanEdit::builder().transient_for(root).launch(()).detach();
+        let keyboard_edit = KeyboardEdit::builder()
+            .transient_for(root)
+            .launch(())
+            .detach();
 
         let model = Self {
             profiles,
-            fan_edit,
+            keyboard_edit,
             toast: None,
             tracker: 0,
         };
@@ -131,7 +136,7 @@ impl Component for FanList {
         self.reset();
 
         match input {
-            FanListInput::UpdateProfiles(list) => {
+            KeyboardListInput::UpdateProfiles(list) => {
                 // Repopulate the profiles
                 let mut guard = self.profiles.guard();
                 guard.clear();
@@ -139,48 +144,51 @@ impl Component for FanList {
                     guard.push_back(list_item);
                 }
             }
-            FanListInput::Edit(index) => {
+            KeyboardListInput::Edit(index) => {
                 if let Some(item) = self.profiles.get(index) {
                     let name = item.name.clone();
-                    self.fan_edit.emit(FanEditInput::Load(name));
+                    self.keyboard_edit.emit(KeyboardEditInput::Load(name));
                 }
             }
-            FanListInput::Rename(index, name) => {
+            KeyboardListInput::Rename(index, name) => {
                 let index = index.current_index();
                 let current_name = &self.profiles[index].name;
                 if current_name != &name {
                     let count = self.profiles.iter().filter(|p| p.name == name).count();
                     if count == 0 {
-                        STATE.emit(TailorStateMsg::RenameFanProfile(current_name.clone(), name));
+                        STATE.emit(TailorStateMsg::RenameKeyboardProfile(
+                            current_name.clone(),
+                            name,
+                        ));
                     } else {
                         self.profiles.guard()[index].name = current_name.clone();
                         self.set_toast(Some(adw::Toast::new("Name already exists")));
                     }
                 }
             }
-            FanListInput::Remove(index) => {
+            KeyboardListInput::Remove(index) => {
                 if self.profiles.len() > 1 {
                     let index = index.current_index();
                     let element = self.profiles.guard().remove(index).unwrap();
 
-                    STATE.emit(TailorStateMsg::DeleteFanProfile(element.name));
+                    STATE.emit(TailorStateMsg::DeleteKeyboardProfile(element.name));
                 } else {
                     self.set_toast(Some(adw::Toast::new("There must be at least one profile")));
                 }
             }
-            FanListInput::Add => {
+            KeyboardListInput::Add => {
                 let profiles = self.profiles.iter().map(|i| i.name.to_string()).collect();
                 let mut new_entry = NewEntryDialog::builder()
                     .transient_for(root)
                     .launch(NewEntryInit {
-                        info: "Add fan profile".into(),
+                        info: "Add keyboard profile".into(),
                         profiles,
                     })
                     .into_stream();
                 relm4::spawn_local(async move {
                     if let Some(NewEntryOutput { name, based_of }) = new_entry.next().await.unwrap()
                     {
-                        STATE.emit(TailorStateMsg::CopyFanProfile(based_of, name));
+                        STATE.emit(TailorStateMsg::CopyKeyboardProfile(based_of, name));
                     }
                 });
             }

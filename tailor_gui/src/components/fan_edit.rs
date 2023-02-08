@@ -5,8 +5,7 @@ use gtk::cairo::Operator;
 use gtk::gdk::{self, RGBA};
 use gtk::glib::{timeout_add_local_once, MainContext, SourceId};
 use gtk::prelude::{
-    BoxExt, ButtonExt, DrawingAreaExt, GestureDragExt, GtkWindowExt, OrientableExt,
-    StyleContextExt, WidgetExt,
+    BoxExt, ButtonExt, DrawingAreaExt, GestureDragExt, OrientableExt, StyleContextExt, WidgetExt,
 };
 use relm4::drawing::DrawHandler;
 use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender, RelmWidgetExt};
@@ -69,17 +68,12 @@ impl Component for FanEdit {
     type Init = ();
     type Input = FanEditInput;
     type Output = ();
-    type Widgets = KeyboardEditWidgets;
 
     view! {
-        dialog = adw::Window {
-            set_default_size: (600, 350),
-            add_css_class: "messagedialog",
-            set_modal: true,
+        #[template]
+        dialog = templates::DialogWindow {
             #[watch]
             set_visible: model.visible,
-
-            connect_close_request => |_| gtk::Inhibit(true),
 
             gtk::Box {
                 set_orientation: gtk::Orientation::Vertical,
@@ -87,10 +81,10 @@ impl Component for FanEdit {
                 add_css_class: "response-area",
 
                 gtk::Label {
-                    add_css_class: "title-2",
+                    add_css_class: "title-4",
                     set_margin_all: 12,
                     #[watch]
-                    set_label: &format!("Edit fan profile {}", model.profile_name.as_deref().unwrap_or_default()),
+                    set_label: &format!("Edit fan profile '{}'", model.profile_name.as_deref().unwrap_or_default()),
                 },
 
                 gtk::Overlay {

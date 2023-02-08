@@ -134,7 +134,6 @@ impl Reducible for TailorState {
                 if let Some(state) = self.get_mut() {
                     {
                         let name = name.clone();
-                        let profile = profile.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
                             handle_result(connection.add_fan_profile(&name, &profile).await);
@@ -151,7 +150,6 @@ impl Reducible for TailorState {
                 if let Some(state) = self.get_mut() {
                     {
                         let name = name.clone();
-                        let profile = profile.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
                             handle_result(connection.add_keyboard_profile(&name, &profile).await);
@@ -174,9 +172,7 @@ impl Reducible for TailorState {
                         let to = to.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
-                            handle_result(
-                                connection.copy_fan_profile(&from, &to).await,
-                            );
+                            handle_result(connection.copy_fan_profile(&from, &to).await);
                         });
                     }
                     state.get_mut_fan_profiles().push(to);
@@ -188,11 +184,7 @@ impl Reducible for TailorState {
                         let to = to.clone();
                         let connection = state.connection.clone();
                         relm4::spawn(async move {
-                            handle_result(
-                                connection
-                                    .copy_keyboard_profile(&from, &to)
-                                    .await,
-                            );
+                            handle_result(connection.copy_keyboard_profile(&from, &to).await);
                         });
                     }
                     state.get_mut_keyboard_profiles().push(to);
@@ -206,9 +198,7 @@ impl Reducible for TailorState {
                         {
                             let to = to.clone();
                             relm4::spawn(async move {
-                                handle_result(
-                                    connection.rename_global_profile(&from, &to).await,
-                                );
+                                handle_result(connection.rename_global_profile(&from, &to).await);
                             });
                         }
                         profile.name = to;
@@ -223,9 +213,7 @@ impl Reducible for TailorState {
                         {
                             let to = to.clone();
                             relm4::spawn(async move {
-                                handle_result(
-                                    connection.rename_fan_profile(&from, &to).await,
-                                );
+                                handle_result(connection.rename_fan_profile(&from, &to).await);
                             });
                         }
                         *profile = to;
@@ -240,11 +228,7 @@ impl Reducible for TailorState {
                         {
                             let to = to.clone();
                             relm4::spawn(async move {
-                                handle_result(
-                                    connection
-                                        .rename_keyboard_profile(&from, &to)
-                                        .await,
-                                );
+                                handle_result(connection.rename_keyboard_profile(&from, &to).await);
                             });
                         }
                         *profile = to;
@@ -303,6 +287,7 @@ impl Reducible for TailorState {
                         handle_result(connection.override_keyboard_color(&color).await);
                     });
                 }
+                return false;
             }
             TailorStateMsg::OverwriteFanSpeed(speed) => {
                 if let Some(state) = self.get() {
@@ -311,6 +296,7 @@ impl Reducible for TailorState {
                         handle_result(connection.override_fan_speed(speed).await);
                     });
                 }
+                return false;
             }
             TailorStateMsg::Error(error) => {
                 if let Some(state) = self.get_mut() {

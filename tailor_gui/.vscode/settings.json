@@ -10,6 +10,9 @@
     "rust-analyzer.runnables.extraArgs": [
         "--target-dir=_build/src"
     ],
+    "cSpell.words": [
+        "zbus"
+    ],
     "mesonbuild.configureOnOpen": false,
     "mesonbuild.buildFolder": "_build",
     "mesonbuild.mesonPath": "/home/aaron/Nextcloud/dev/Projects/Active/tuxedo-rs/tailor_gui/.flatpak/meson.sh",
@@ -17,8 +20,5 @@
     "rust-analyzer.runnables.command": "/home/aaron/Nextcloud/dev/Projects/Active/tuxedo-rs/tailor_gui/.flatpak/cargo.sh",
     "rust-analyzer.files.excludeDirs": [
         ".flatpak"
-    ],
-    "cSpell.words": [
-        "zbus"
     ]
 }

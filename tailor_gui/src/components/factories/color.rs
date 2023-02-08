@@ -1,22 +1,28 @@
 use gtk::prelude::{OrientableExt, WidgetExt};
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView};
+use relm4::gtk::traits::{BoxExt, ButtonExt};
 use relm4::{factory, gtk, Component, ComponentController, Controller};
 use tailor_api::{Color, ColorPoint};
 
 use crate::components::color_button::ColorButton;
 use crate::components::keyboard_edit::KeyboardEditInput;
-use crate::components::profiles::ProfilesInput;
 
 pub struct ColorRow {
-    inner: ColorPoint,
+    pub inner: ColorPoint,
     color_button: Controller<ColorButton>,
 }
 
 #[derive(Debug)]
 pub enum ColorInput {
-    ColorSet(Color),
-    Enabled,
-    UpdateProfile,
+    SetColor(Color),
+    SetTime(u32),
+}
+
+#[derive(Debug)]
+pub enum ColorOutput {
+    Up(DynamicIndex),
+    Down(DynamicIndex),
+    Remove(DynamicIndex),
 }
 
 #[factory(pub)]
@@ -24,42 +30,80 @@ impl FactoryComponent for ColorRow {
     type CommandOutput = ();
     type Init = ColorPoint;
     type Input = ColorInput;
-    type Output = ProfilesInput;
+    type Output = ColorOutput;
     type ParentInput = KeyboardEditInput;
-    type ParentWidget = gtk::Box;
-    type Widgets = ProfileWidgets;
+    type ParentWidget = gtk::ListBox;
 
     view! {
         gtk::Box {
             set_orientation: gtk::Orientation::Horizontal,
-
-            gtk::SpinButton {
-                set_adjustment: &gtk::Adjustment::new(1.0, 0.0, 100.0, 0.1, 1.0, 1.0),
-                set_climb_rate: 1.0,
-                set_digits: 2,
-            },
+            add_css_class: "header",
 
             gtk::Box {
-                set_hexpand: true,
-            },
+                set_spacing: 12,
+                set_orientation: gtk::Orientation::Horizontal,
+                set_valign: gtk::Align::Center,
 
-            #[local_ref]
-            color_button -> gtk::Button,
+                #[local_ref]
+                color_button -> gtk::Button,
+
+                gtk::SpinButton {
+                    set_adjustment: &gtk::Adjustment::new(1.0, 0.0, 1000.0, 0.1, 1.0, 1.0),
+                    set_climb_rate: 1.0,
+                    set_digits: 2,
+                    set_width_request: 112,
+                    set_tooltip_text: Some("The transition time in ms"),
+                    set_value: self.inner.transition_time as f64 / 1000.0,
+
+                    connect_value_changed[sender] => move |btn| {
+                        let value = btn.value() * 1000.0;
+                        sender.input(ColorInput::SetTime(value as u32));
+                    }
+                },
+
+                gtk::Box {
+                    set_hexpand: true,
+                },
+
+                gtk::Box {
+                    set_spacing: 6,
+
+                    gtk::Button {
+                        set_icon_name: "go-up",
+                        connect_clicked[sender, index] => move |_| {
+                            sender.output(ColorOutput::Up(index.clone()));
+                        }
+                    },
+                    gtk::Button {
+                        set_icon_name: "go-down",
+                        connect_clicked[sender, index] => move |_| {
+                            sender.output(ColorOutput::Down(index.clone()));
+                        }
+                    },
+                    gtk::Button {
+                        set_icon_name: "remove",
+                        add_css_class: "destructive-action",
+                        connect_clicked[sender, index] => move |_| {
+                            sender.output(ColorOutput::Remove(index.clone()));
+                        }
+                    }
+                }
+            }
         }
     }
 
-    fn output_to_parent_input(_output: Self::Output) -> Option<KeyboardEditInput> {
-        None
+    fn output_to_parent_input(output: Self::Output) -> Option<KeyboardEditInput> {
+        Some(match output {
+            ColorOutput::Up(index) => KeyboardEditInput::Up(index),
+            ColorOutput::Down(index) => KeyboardEditInput::Down(index),
+            ColorOutput::Remove(index) => KeyboardEditInput::Remove(index),
+        })
     }
 
     fn init_model(inner: Self::Init, _index: &DynamicIndex, sender: FactorySender<Self>) -> Self {
         let color_button = ColorButton::builder()
-            .launch(Color {
-                r: 0,
-                g: 255,
-                b: 100,
-            })
-            .forward(sender.input_sender(), |color| ColorInput::ColorSet(color));
+            .launch(inner.color.clone())
+            .forward(sender.input_sender(), ColorInput::SetColor);
 
         Self {
             color_button,
@@ -83,9 +127,12 @@ impl FactoryComponent for ColorRow {
 
     fn update(&mut self, message: Self::Input, _sender: FactorySender<Self>) {
         match message {
-            ColorInput::ColorSet(color) => {}
-            ColorInput::Enabled => todo!(),
-            ColorInput::UpdateProfile => todo!(),
+            ColorInput::SetColor(color) => {
+                self.inner.color = color;
+            }
+            ColorInput::SetTime(time) => {
+                self.inner.transition_time = time;
+            }
         }
     }
 }

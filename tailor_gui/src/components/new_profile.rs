@@ -2,8 +2,8 @@ use gtk::prelude::{
     ButtonExt, EditableExt, EntryBufferExtManual, EntryExt, GridExt, GtkWindowExt, WidgetExt,
 };
 use relm4::{
-    Component, ComponentController, ComponentParts, ComponentSender, Controller, RelmWidgetExt,
-    SimpleComponent, gtk, adw
+    adw, gtk, Component, ComponentController, ComponentParts, ComponentSender, Controller,
+    RelmWidgetExt, SimpleComponent,
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
 use tailor_api::ProfileInfo;
@@ -48,7 +48,7 @@ impl SimpleComponent for NewProfileDialog {
             MsgDialogBox {
                 #[template_child]
                 title -> gtk::Label {
-                    set_label: "Create new fan profile"
+                    set_label: "Create new profile"
                 },
 
                 gtk::Grid {

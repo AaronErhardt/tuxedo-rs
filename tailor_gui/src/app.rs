@@ -11,7 +11,7 @@ use relm4::{
 use tailor_api::ProfileInfo;
 
 use crate::components::fan_list::FanList;
-use crate::components::keyboard_edit::KeyboardEdit;
+use crate::components::keyboard_list::KeyboardList;
 use crate::components::profiles::Profiles;
 use crate::config::{APP_ID, PROFILE};
 use crate::modals::about::AboutDialog;
@@ -63,7 +63,6 @@ impl Component for App {
     type Init = ();
     type Input = AppMsg;
     type Output = ();
-    type Widgets = AppWidgets;
 
     menu! {
         primary_menu: {
@@ -123,7 +122,7 @@ impl Component for App {
                         },
 
                         pack_end = &gtk::MenuButton {
-                            set_icon_name: "open-menu-symbolic",
+                            set_icon_name: "open-menu",
                             set_menu_model: Some(&primary_menu),
                         }
                     },
@@ -144,8 +143,8 @@ impl Component for App {
                                     add_titled[Some("profiles"), "Profiles"] = profile_widget -> adw::Clamp {} -> {
                                         set_icon_name: Some("profile-settings"),
                                     },
-                                    #[local]
-                                    add_titled[Some("keyboard"), "Keyboard"] = &keyboard_edit_widget -> adw::Clamp {} -> {
+                                    #[local_ref]
+                                    add_titled[Some("keyboard"), "Keyboard"] = keyboard_list_widget -> adw::Clamp {} -> {
                                         set_icon_name: Some("keyboard-color"),
                                     },
                                     #[local_ref]
@@ -227,11 +226,9 @@ impl Component for App {
             .launch(())
             .detach();
 
-        let mut keyboard_list = KeyboardEdit::builder().launch(()).detach();
+        let mut keyboard_list = KeyboardList::builder().launch(()).detach();
         keyboard_list.detach_runtime();
-        let keyboard_edit_widget = keyboard_list.widget();
-
-        let keyboard_edit_widget = adw::Clamp::default();
+        let keyboard_list_widget = keyboard_list.widget();
 
         let mut fan_list = FanList::builder().launch(()).detach();
         fan_list.detach_runtime();

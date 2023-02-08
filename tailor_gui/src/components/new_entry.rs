@@ -2,8 +2,8 @@ use gtk::prelude::{
     ButtonExt, EditableExt, EntryBufferExtManual, EntryExt, GridExt, GtkWindowExt, WidgetExt,
 };
 use relm4::{
-    Component, ComponentController, ComponentParts, ComponentSender, Controller, RelmWidgetExt,
-    SimpleComponent, gtk, adw
+    adw, gtk, Component, ComponentController, ComponentParts, ComponentSender, Controller,
+    RelmWidgetExt, SimpleComponent,
 };
 use relm4_components::simple_combo_box::SimpleComboBox;
 
@@ -12,6 +12,11 @@ use crate::templates::{MsgDialogBox, MsgDialogButtons};
 pub struct NewEntryDialog {
     items: Controller<SimpleComboBox<String>>,
     buffer: gtk::EntryBuffer,
+}
+
+pub struct NewEntryInit {
+    pub info: String,
+    pub profiles: Vec<String>,
 }
 
 #[derive(Debug)]
@@ -29,7 +34,7 @@ pub struct NewEntryOutput {
 
 #[relm4::component(pub)]
 impl SimpleComponent for NewEntryDialog {
-    type Init = Vec<String>;
+    type Init = NewEntryInit;
     type Input = NewEntryInput;
     type Output = Option<NewEntryOutput>;
 
@@ -44,7 +49,7 @@ impl SimpleComponent for NewEntryDialog {
             MsgDialogBox {
                 #[template_child]
                 title -> gtk::Label {
-                    set_label: "Create new fan profile"
+                    set_label: &info,
                 },
 
                 gtk::Grid {
@@ -92,14 +97,16 @@ impl SimpleComponent for NewEntryDialog {
     }
 
     fn init(
-        items: Self::Init,
+        init: Self::Init,
         root: &Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
+        let NewEntryInit { info, profiles } = init;
+
         let items = SimpleComboBox::builder()
             .launch(SimpleComboBox {
                 active_index: Some(0),
-                variants: items,
+                variants: profiles,
             })
             .forward(sender.input_sender(), |_| NewEntryInput::Noop);
 

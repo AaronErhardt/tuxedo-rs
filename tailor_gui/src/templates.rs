@@ -1,5 +1,7 @@
 use gtk::prelude::{ButtonExt, OrientableExt, WidgetExt};
-use relm4::{RelmWidgetExt, WidgetTemplate, gtk};
+use relm4::gtk::traits::GtkWindowExt;
+use relm4::gtk::{self};
+use relm4::{adw, RelmWidgetExt, WidgetTemplate};
 
 #[relm4::widget_template(pub)]
 impl WidgetTemplate for MsgDialogBox {
@@ -42,5 +44,23 @@ impl WidgetTemplate for MsgDialogButtons {
                 add_css_class: &["flat", "suggested"],
             },
         }
+    }
+}
+
+#[relm4::widget_template(pub)]
+impl WidgetTemplate for DialogWindow {
+    view! {
+        window = adw::Window {
+            set_default_size: (600, 350),
+            add_css_class: "messagedialog",
+            set_modal: true,
+            connect_close_request => |_| gtk::Inhibit(true),
+        }
+    }
+}
+
+impl AsRef<gtk::Window> for DialogWindow {
+    fn as_ref(&self) -> &gtk::Window {
+        self.window.as_ref()
     }
 }

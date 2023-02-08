@@ -29,7 +29,6 @@ impl FactoryComponent for FanPoint {
     type Output = ();
     type ParentInput = FanEditInput;
     type ParentWidget = gtk::Box;
-    type Widgets = ProfileWidgets;
 
     view! {
         main_box = gtk::Box {
@@ -107,7 +106,7 @@ impl FactoryComponent for FanPoint {
                             gtk::Button {
                                 set_icon_name: "remove",
                                 add_css_class: "destructive-action",
-                                connect_clicked[sender, popover] => move |_| {
+                                connect_clicked[popover] => move |_| {
                                     popover.popdown();
                                 }
                             }
@@ -123,11 +122,7 @@ impl FactoryComponent for FanPoint {
         }
     }
 
-    fn output_to_parent_input(output: Self::Output) -> Option<FanEditInput> {
-        None
-    }
-
-    fn init_model(inner: Self::Init, _index: &DynamicIndex, sender: FactorySender<Self>) -> Self {
+    fn init_model(inner: Self::Init, _index: &DynamicIndex, _sender: FactorySender<Self>) -> Self {
         Self {
             inner,
             last_override_event: None,
@@ -136,7 +131,7 @@ impl FactoryComponent for FanPoint {
 
     fn init_widgets(
         &mut self,
-        index: &DynamicIndex,
+        _index: &DynamicIndex,
         root: &Self::Root,
         _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
         sender: FactorySender<Self>,

@@ -9,7 +9,9 @@ use tailor_api::ProfileInfo;
 use crate::components::profiles::ProfilesInput;
 use crate::state::{TailorStateMsg, STATE};
 
-const RADIO_GROUP: Lazy<gtk::CheckButton> = Lazy::new(gtk::CheckButton::default);
+thread_local! {
+    static RADIO_GROUP: Lazy<gtk::CheckButton> = Lazy::new(gtk::CheckButton::default);
+}
 
 #[derive(Debug)]
 pub struct Profile {
@@ -43,7 +45,6 @@ impl FactoryComponent for Profile {
     type Output = ProfilesInput;
     type ParentInput = ProfilesInput;
     type ParentWidget = adw::PreferencesGroup;
-    type Widgets = ProfileWidgets;
 
     view! {
         adw::ExpanderRow {
@@ -59,7 +60,7 @@ impl FactoryComponent for Profile {
                     #[watch]
                     set_active: self.active,
 
-                    set_group: Some(&*RADIO_GROUP),
+                    set_group: Some(&RADIO_GROUP.with(|g| (**g).clone())),
 
                     connect_toggled[sender, index] => move |btn| {
                         if btn.is_active() {
@@ -77,7 +78,7 @@ impl FactoryComponent for Profile {
                 #[name = "delete_button"]
                 gtk::Button {
                     add_css_class: "destructive-action",
-                    set_icon_name: "remove-symbolic",
+                    set_icon_name: "remove",
                     set_visible: false,
                     #[watch]
                     set_sensitive: !self.active,

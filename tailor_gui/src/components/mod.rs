@@ -3,6 +3,7 @@ pub mod factories;
 pub mod fan_edit;
 pub mod fan_list;
 pub mod keyboard_edit;
+pub mod keyboard_list;
 pub mod new_entry;
 pub mod new_profile;
 pub mod profiles;

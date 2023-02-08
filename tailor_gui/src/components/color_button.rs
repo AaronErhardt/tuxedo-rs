@@ -12,6 +12,7 @@ use crate::state::{TailorStateMsg, STATE};
 use crate::util::{self, rgba_to_color};
 
 pub struct ColorButton {
+    pub color: Color,
     pixbuf: Pixbuf,
 }
 
@@ -27,11 +28,11 @@ impl Component for ColorButton {
     type Init = Color;
     type Input = ColorButtonInput;
     type Output = Color;
-    type Widgets = ColorButtonWidgets;
 
     view! {
         button = gtk::Button {
             add_css_class: "color",
+            set_width_request: 52,
             connect_clicked => ColorButtonInput::OpenDialog,
 
             #[name = "image"]
@@ -50,7 +51,7 @@ impl Component for ColorButton {
     ) -> ComponentParts<Self> {
         let pixbuf = util::new_pixbuf(&color);
 
-        let model = Self { pixbuf };
+        let model = Self { pixbuf, color };
 
         let widgets = view_output!();
 
@@ -101,7 +102,8 @@ impl Component for ColorButton {
             }
             ColorButtonInput::UpdateColor(color) => {
                 util::fill_pixbuf(&self.pixbuf, &color);
-                sender.output(color).unwrap();
+                self.color = color.clone();
+                sender.output(color).ok();
             }
         }
     }
