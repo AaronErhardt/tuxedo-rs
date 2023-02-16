@@ -11,7 +11,7 @@
 The TUXEDO Control Center (TCC) is a neat application that allows you to control different parts of your hardware, such as fans, webcam and performance profiles.
 However, TCC and its tccd service rely on Node.js which makes it slow, memory hungry and hard to package.
 
-Also, tuxedo-rs contains several crates with different levels ob abstraction which allows others to built their own tools on top.
+Also, tuxedo-rs is modular and contains several crates with different levels of abstraction, which makes it easy for everyone to built their own tools on top.
 
 ### Why Rust?
 
