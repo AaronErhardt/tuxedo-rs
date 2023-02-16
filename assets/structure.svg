@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="275"
+   height="343"
+   viewBox="0 0 72.760463 90.75214"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="structure.svg"
+   inkscape:export-filename="structure.png"
+   inkscape:export-xdpi="600"
+   inkscape:export-ydpi="600"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="3.1619579"
+     inkscape:cx="145.95387"
+     inkscape:cy="64.833248"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1745">
+    <inkscape:grid
+       type="xygrid"
+       id="grid132"
+       originx="0"
+       originy="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2">
+    <rect
+       x="328.10794"
+       y="425.00262"
+       width="411.53198"
+       height="413.40045"
+       id="rect32196" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient30898">
+      <stop
+         style="stop-color:#3584e4;stop-opacity:1;"
+         offset="0"
+         id="stop30894" />
+      <stop
+         style="stop-color:#2ec27e;stop-opacity:1;"
+         offset="1"
+         id="stop30896" />
+    </linearGradient>
+    <marker
+       style="overflow:visible"
+       id="Arrow2"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow2"
+       markerWidth="4"
+       markerHeight="4"
+       viewBox="0 0 7.7 5.6"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="none">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="arrow2L" />
+    </marker>
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-2" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-9" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-5" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-7" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-3" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-3" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-1" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-5" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-0" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-5-6" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-1" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-5-5" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-1-9" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-5-5-3" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-1-9-4" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-5-5-3-7" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-1-9-4-7" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-5-5-3-7-8" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-1-9-4-3" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-5-5-3-7-1" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient30898"
+       id="linearGradient30900"
+       x1="88.355225"
+       y1="44.738228"
+       x2="88.355225"
+       y2="53.734062"
+       gradientUnits="userSpaceOnUse" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-1-9-6" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-0-9" />
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-8-5-6-2" />
+    <marker
+       style="overflow:visible"
+       id="Arrow2-5"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow2"
+       markerWidth="4"
+       markerHeight="4"
+       viewBox="0 0 7.7 5.6"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="none">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="arrow2L-0" />
+    </marker>
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-1-9-6-4" />
+    <marker
+       style="overflow:visible"
+       id="Arrow2-5-2"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Arrow2"
+       markerWidth="4"
+       markerHeight="4"
+       viewBox="0 0 7.7 5.6"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="none">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="arrow2L-0-2" />
+    </marker>
+    <rect
+       x="15"
+       y="15"
+       width="225"
+       height="20"
+       id="rect4584-6-3-2-0-1-0-4-1-9-6-4-6" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g29915"
+       transform="translate(-0.13229135,-8.7267436)" />
+    <g
+       id="g1745"
+       transform="translate(-3.9487465,-8.7112401)">
+      <rect
+         style="opacity:1;fill:none;fill-opacity:1;stroke:#ff7800;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+         id="rect236"
+         width="70.154594"
+         height="56.111675"
+         x="5.2716632"
+         y="10.034157"
+         ry="0" />
+      <text
+         xml:space="preserve"
+         transform="matrix(0.26458333,0,0,0.26458333,6.6611512,6.7526951)"
+         id="text4582"
+         style="font-size:16px;line-height:1.25;font-family:sans-serif;text-align:center;white-space:pre;shape-inside:url(#rect4584);display:inline"
+         x="35.399986"
+         y="0"><tspan
+           x="92.044006"
+           y="29.558003"
+           id="tspan7480"><tspan
+             style="font-weight:500;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Medium'"
+             id="tspan7478">tuxedo-rs</tspan></tspan></text>
+      <g
+         id="g19088-8-2-0"
+         transform="translate(-65.865634,11.353439)"
+         style="stroke:#2ec27e;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.799459,41.775379)"
+           id="text4582-7-5-9-6-7-3-3"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.6667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="5.0839324"
+           y="0"><tspan
+             x="15"
+             y="28.261142"
+             id="tspan7484"><tspan
+               style="text-align:start"
+               id="tspan7482">tuxedo_sysfs</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.818509,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-6"
+           style="font-size:6.66667px;line-height:1.25;font-family:sans-serif;text-align:start;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-5);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="-18.126698"
+           y="0"><tspan
+             x="15"
+             y="21.065837"
+             id="tspan7488"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7486">tuxedo-keyboard abstraction layer</tspan></tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#2ec27e;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-1"
+           width="33.072922"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g19088-8-2-0-5"
+         transform="translate(-65.865639,1.5638552)"
+         style="stroke:#2ec27e;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,45.926469,41.775379)"
+           id="text4582-7-5-9-6-7-3-3-4"
+           style="font-size:14.6667px;line-height:1.25;font-family:sans-serif;text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-1);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="5.0839324"
+           y="0"><tspan
+             x="105.29463"
+             y="28.344867"
+             id="tspan7492"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7490">tailord</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.806165,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-6-7"
+           style="font-size:6.66667px;line-height:1.25;font-family:sans-serif;text-align:start;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-5-5);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="-18.126698"
+           y="0"><tspan
+             x="15"
+             y="21.065837"
+             id="tspan7496"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7494">hardware control system service</tspan></tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#2ec27e;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-1-65"
+           width="67.468758"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g19088-8-2-0-5-7"
+         transform="translate(-65.865634,-18.015311)"
+         style="stroke:#2ec27e;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,50.549745,41.775379)"
+           id="text4582-7-5-9-6-7-3-3-4-4"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.6667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-1-9);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="5.0839324"
+           y="0"><tspan
+             x="87.753255"
+             y="28.261142"
+             id="tspan7498">tailor_client</tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.675634,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-6-7-5"
+           style="font-size:6.66667px;line-height:1.25;font-family:sans-serif;text-align:start;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-5-5-3);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="-18.126698"
+           y="0"><tspan
+             x="15"
+             y="21.065837"
+             id="tspan7502"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7500">user-space hardware control library</tspan></tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#3584e4;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-1-65-2"
+           width="67.46875"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g19088-8-2-0-5-7-4"
+         transform="translate(-65.865634,-27.804895)"
+         style="stroke:#2ec27e;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,48.326601,41.775379)"
+           id="text4582-7-5-9-6-7-3-3-4-4-4"
+           style="font-size:14.6667px;line-height:1.25;font-family:sans-serif;text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-1-9-4);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="5.0839324"
+           y="0"><tspan
+             x="96.15726"
+             y="28.344867"
+             id="tspan7506"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7504">tailor_gui</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.666815,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-6-7-5-3"
+           style="font-size:6.66667px;line-height:1.25;font-family:sans-serif;text-align:start;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-5-5-3-7);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="-18.126698"
+           y="0"><tspan
+             x="15"
+             y="21.065837"
+             id="tspan7510"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7508">hardware control GUI</tspan></tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#3584e4;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-1-65-2-0"
+           width="33.072922"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g19088-8-2-0-5-7-4-4"
+         transform="translate(-31.4698,-27.804895)"
+         style="stroke:#2ec27e;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,47.642917,41.775379)"
+           id="text4582-7-5-9-6-7-3-3-4-4-4-9"
+           style="font-size:14.6667px;line-height:1.25;font-family:sans-serif;text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-1-9-4-3);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="5.0839324"
+           y="0"><tspan
+             x="98.731279"
+             y="28.344867"
+             id="tspan7514"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7512">tailor_cli</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.666814,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-6-7-5-3-2"
+           style="font-size:6.66667px;line-height:1.25;font-family:sans-serif;text-align:start;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-5-5-3-7-1);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="-18.126698"
+           y="0"><tspan
+             x="15"
+             y="21.065837"
+             id="tspan7518"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7516">hardware control command line tool</tspan></tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#3584e4;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:1.27, 1.11125;stroke-dashoffset:1.00542;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-1-65-2-0-0"
+           width="33.072922"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g19088-8-2-0-5-7-4-6"
+         transform="translate(-31.469805,-8.2257284)"
+         style="stroke:#2ec27e;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,48.396454,41.775379)"
+           id="text4582-7-5-9-6-7-3-3-4-4-4-8"
+           style="font-size:14.6667px;line-height:1.25;font-family:sans-serif;text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-1-9-4-7);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="5.0839324"
+           y="0"><tspan
+             x="95.893265"
+             y="28.344867"
+             id="tspan7522"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7520">tailor_api</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.790291,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-6-7-5-3-8"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.66667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:start;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-5-5-3-7-8);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="-18.126698"
+           y="0"><tspan
+             x="15"
+             y="21.027781"
+             id="tspan7524">shared API definitions and types</tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:url(#linearGradient30900);stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-1-65-2-0-4"
+           width="33.072922"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g19088-8-2-0-3"
+         transform="translate(-31.4698,11.353439)"
+         style="stroke:#2ec27e;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.799458,41.775379)"
+           id="text4582-7-5-9-6-7-3-3-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.6667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-0);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="5.0839324"
+           y="0"><tspan
+             x="15"
+             y="28.261142"
+             id="tspan7528"><tspan
+               style="text-align:start"
+               id="tspan7526">tuxedo_ioctl</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.818508,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-6-0"
+           style="font-size:6.66667px;line-height:1.25;font-family:sans-serif;text-align:start;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-5-6);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="-18.126698"
+           y="0"><tspan
+             x="15"
+             y="21.065837"
+             id="tspan7532"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7530">tuxedo-io abstraction layer</tspan></tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#2ec27e;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-1-6"
+           width="33.072922"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <rect
+         style="fill:none;fill-opacity:1;stroke:#f6d32d;stroke-width:0.528828;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+         id="rect236-6"
+         width="70.114922"
+         height="20.88241"
+         x="5.2714939"
+         y="77.258163"
+         ry="0" />
+      <g
+         id="g19088-8-2"
+         transform="translate(-65.885637,33.558429)"
+         style="stroke:#2ec27e;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,55.115645,41.775379)"
+           id="text4582-7-5-9-6-7-3"
+           style="font-size:14.6667px;line-height:1.25;font-family:sans-serif;text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="35.399986"
+           y="0"><tspan
+             x="70.497892"
+             y="28.344867"
+             id="tspan7536"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans'"
+               id="tspan7534">tuxedo-keyboard</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,51.960905,46.599353)"
+           id="text4582-7-5-9-6-7-3-9"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.66667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8);display:inline;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+           x="35.399986"
+           y="0"><tspan
+             x="81.919985"
+             y="21.027781"
+             id="tspan7538">keyboad RGB-control via sysfs</tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#e01b24;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7"
+           width="33.072922"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g19088-8-2-9"
+         transform="translate(-65.885637,43.348012)"
+         style="stroke:#2ec27e;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,69.446328,41.775379)"
+           id="text4582-7-5-9-6-7-3-4"
+           style="font-size:14.6667px;line-height:1.25;font-family:sans-serif;text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-3);display:inline;stroke:none;stroke-opacity:1"
+           x="35.399986"
+           y="0"><tspan
+             x="15"
+             y="28.344867"
+             id="tspan7542"><tspan
+               style="font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:start"
+               id="tspan7540">Linux kernel</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,49.731344,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-7"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.66667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-1);display:inline;stroke:none;stroke-opacity:1"
+           x="35.399986"
+           y="0"><tspan
+             x="90.613329"
+             y="21.027781"
+             id="tspan7544">Operating system kernel</tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-8"
+           width="67.46875"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g19088-8-2-6"
+         transform="translate(-31.489804,33.558429)"
+         style="stroke:#2ec27e;stroke-opacity:1">
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,48.588535,41.775379)"
+           id="text4582-7-5-9-6-7-3-1"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.6667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-7);display:inline;stroke:none;stroke-opacity:1"
+           x="35.399986"
+           y="0"><tspan
+             x="95.16727"
+             y="28.261142"
+             id="tspan7546">tuxedo-io</tspan></text>
+        <text
+           xml:space="preserve"
+           transform="matrix(0.26458333,0,0,0.26458333,47.836927,46.599353)"
+           id="text4582-7-5-9-6-7-3-9-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.66667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-8-3);display:inline;stroke:none;stroke-opacity:1"
+           x="35.399986"
+           y="0"><tspan
+             x="98.073329"
+             y="21.027781"
+             id="tspan7548">fan control via ioctl</tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#e01b24;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           id="rect11409-6-1-2-9-7-9"
+           width="33.072922"
+           height="8.4666672"
+           x="72.480217"
+           y="45.002811" />
+      </g>
+      <g
+         id="g33405"
+         transform="translate(-0.18520515)">
+        <path
+           style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2)"
+           d="M 21.881038,46.302083 V 37.041667"
+           id="path30043"
+           sodipodi:nodetypes="cc" />
+        <path
+           style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2)"
+           d="m 24.791455,35.71875 v 9.260417"
+           id="path30414"
+           sodipodi:nodetypes="cc" />
+        <g
+           id="g33079"
+           transform="translate(0.18520845,0.50180732)">
+          <rect
+             style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.560333;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-dashoffset:3.8;stroke-opacity:1;paint-order:stroke fill markers"
+             id="rect32776"
+             width="11.906249"
+             height="3.9687514"
+             x="17.197916"
+             y="38.364582"
+             ry="0.7937513" />
+          <text
+             xml:space="preserve"
+             transform="matrix(0.26458333,0,0,0.26458333,-10.68035,34.208385)"
+             id="text4582-7-5-9-6-7-3-3-4-4-8"
+             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.6667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Italic';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-1-9-6);display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+             x="5.0839324"
+             y="0"><tspan
+               x="106.72463"
+               y="28.261142"
+               id="tspan7550">D-BUS</tspan></text>
+        </g>
+      </g>
+      <g
+         id="g33405-8"
+         transform="translate(-0.26458367,29.36875)">
+        <path
+           style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2-5)"
+           d="M 21.960417,48.947917 V 37.041667"
+           id="path30043-7"
+           sodipodi:nodetypes="cc" />
+        <path
+           style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2-5)"
+           d="M 24.870834,35.71875 V 47.625"
+           id="path30414-1"
+           sodipodi:nodetypes="cc" />
+        <g
+           id="g33079-7"
+           transform="translate(0.26458697,1.9843765)">
+          <rect
+             style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.556584;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-dashoffset:3.8;stroke-opacity:1;paint-order:stroke fill markers"
+             id="rect32776-2"
+             width="9.7895794"
+             height="4.7624969"
+             x="18.25625"
+             y="37.967712"
+             ry="0.95250064" />
+          <text
+             xml:space="preserve"
+             transform="matrix(0.26458333,0,0,0.26458333,-10.68035,33.913461)"
+             id="text4582-7-5-9-6-7-3-3-4-4-8-7"
+             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.6667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Italic';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-1-9-6-4);display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+             x="5.0839324"
+             y="0"><tspan
+               x="111.45462"
+               y="28.261142"
+               id="tspan7552">sysfs</tspan></text>
+        </g>
+      </g>
+      <g
+         id="g33405-8-1"
+         transform="translate(34.131251,29.368754)">
+        <path
+           style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2-5-2)"
+           d="M 21.960417,48.947917 V 37.041667"
+           id="path30043-7-0"
+           sodipodi:nodetypes="cc" />
+        <path
+           style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2-5-2)"
+           d="M 24.870834,35.71875 V 47.625"
+           id="path30414-1-6"
+           sodipodi:nodetypes="cc" />
+        <g
+           id="g33079-7-1"
+           transform="translate(0.26458697,1.9843765)">
+          <rect
+             style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.541333;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:1.9;stroke-dasharray:none;stroke-dashoffset:3.8;stroke-opacity:1;paint-order:stroke fill markers"
+             id="rect32776-2-5"
+             width="9.2604103"
+             height="4.7625074"
+             x="18.520834"
+             y="37.967701"
+             ry="0.95250273" />
+          <text
+             xml:space="preserve"
+             transform="matrix(0.26458333,0,0,0.26458333,-10.61826,34.030283)"
+             id="text4582-7-5-9-6-7-3-3-4-4-8-7-9"
+             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.6667px;line-height:1.25;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Italic';text-align:center;white-space:pre;shape-inside:url(#rect4584-6-3-2-0-1-0-4-1-9-6-4-6);display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-opacity:1"
+             x="5.0839324"
+             y="0"><tspan
+               x="113.03865"
+               y="28.261142"
+               id="tspan7554">ioctl</tspan></text>
+        </g>
+      </g>
+    </g>
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text32194"
+       style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect32196);display:inline" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-7.8012328"
+       y="41.87579"
+       id="text32394"><tspan
+         sodipodi:role="line"
+         id="tspan32392"
+         style="stroke-width:0.264583"
+         x="-7.8012328"
+         y="41.87579" /></text>
+  </g>
+</svg>

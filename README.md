@@ -11,7 +11,7 @@
 The TUXEDO Control Center (TCC) is a neat application that allows you to control different parts of your hardware, such as fans, webcam and performance profiles.
 However, TCC and its tccd service rely on Node.js which makes it slow, memory hungry and hard to package.
 
-Also, we keep the hardware abstractions and other utilities in individual crates to allow others to build their own applications on top.
+Also, tuxedo-rs contains several crates with different levels ob abstraction which allows others to built their own tools on top.
 
 ### Why Rust?
 
@@ -21,11 +21,94 @@ Also, we keep the hardware abstractions and other utilities in individual crates
 - High performance
 - Easy to package (no additional runtime or dependencies)
 
+## Structure
+
+![Project structure](assets/structure_light.png#gh-light-mode-only)
+![Project structure](assets/structure_dark.png#gh-dark-mode-only)
+
+## Installation
+
+Currently, tuxedo-rs isn't available from package archives so you have to install it from source.
+
+### Tuxedo driver modules
+
+If you use a distribution that doesn't package the required tuxedo hardware drivers, you can install the from [source](https://github.com/tuxedocomputers/tuxedo-keyboard).
+
+```sh
+git clone https://github.com/tuxedocomputers/tuxedo-keyboard.git
+cd tuxedo-keyboard
+git checkout release
+sudo make dkmsinstall
+```
+
+### Tailord
+
+Tailord is the system service that runs in the background and interacts with the driver modules.
+It exposes a D-BUS interface that can be used by applications to configure the hardware.
+
+```sh
+cd tailord
+meson setup --prefix=/usr _build
+ninja -C _build
+ninja -C _build install
+```
+
+If you have the TUXEDO Control Center (TCC) and its daemons installed, make sure to deactivate them first.
+
+```sh
+sudo systemctl disable tccd.service 
+sudo systemctl stop tccd.service 
+sudo systemctl disable tccd-sleep.service 
+sudo systemctl stop tccd-sleep.service 
+```
+
+Then, enable tailord with the following commands:
+
+```sh
+sudo systemctl enable tailord.service 
+sudo systemctl start tailord.service 
+```
+
+### Tailor GUI
+
+Tailord will soon be available as flatpak. 
+In the meantime, you can install it from source.
+If you're not building it with flatpak-builder, make sure you have the following dependencies installed on your system.
+
+Ubuntu:
+
+```sh
+sudo apt install meson libadwaita-1-dev libgtk-4-dev
+```
+
+Arch Linux:
+
+```sh
+sudo pacman -S meson libadwaita gtk4
+```
+
+Fedora:
+
+```sh
+sudo dnf -y install meson libadwaita-devel gtk4-devel
+```
+
+Then build and install Tailor GUI with meson:
+
+```sh
+cd tailor_gui
+meson setup --prefix=/usr _build
+ninja -C _build
+ninja -C _build install
+```
+
 ## Roadmap
 
 - [x] Ioctl abstraction for tuxedo_io
-- [x] Additional hardware abstractions (just limited to clevo hardware)
-- [x] Deamon with DBus interface for user space application
-- [ ] CLI that interacts with the deamon
-- [ ] Native GUI that interacts with the deamon
+- [x] Sysfs abstraction for tuxedo_keyboard
+- [ ] Support for hardware based on uniwill
+- [x] Daemon with DBus interface for user space application
+- [x] Client library for interacting with the daemon
+- [ ] CLI that interacts with the daemon
+- [x] Native GUI that interacts with the daemon
 - [ ] OPTIONAL: Rewrite various tuxedo kernel modules in Rust

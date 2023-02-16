@@ -70,7 +70,7 @@ impl SimpleComponent for NewEntryDialog {
 
                     attach[0, 1, 1, 1] = &gtk::Label {
                         set_halign: gtk::Align::Start,
-                        set_label: "Based of",
+                        set_label: "Based on",
                     },
 
                     #[local_ref]
