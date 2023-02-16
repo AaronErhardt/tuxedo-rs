@@ -23,8 +23,8 @@ Also, tuxedo-rs contains several crates with different levels ob abstraction whi
 
 ## Structure
 
-![Project structure](assets/structure_light.png#gh-light-mode-only)
-![Project structure](assets/structure_dark.png#gh-dark-mode-only)
+<img alt="Project structure" src="assets/structure_light.png#gh-light-mode-only" width="480" />
+<img alt="Project structure" src="assets/structure_dark.png#gh-dark-mode-only" width="480" />
 
 ## Installation
 
