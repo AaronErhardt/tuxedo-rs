@@ -26,6 +26,13 @@ Also, tuxedo-rs is modular and contains several crates with different levels of 
 <img alt="Project structure" src="assets/structure_light.png#gh-light-mode-only" width="480" />
 <img alt="Project structure" src="assets/structure_dark.png#gh-dark-mode-only" width="480" />
 
+## Tested hardware
+
+This list includes devices that were successfully tested with tuxedo-rs.
+Since I have limited access to hardware, please consider adding your device(s) to the list.
+
++ TUXEDO Aura 15 Gen1
+
 ## Installation
 
 Currently, tuxedo-rs isn't available from package archives so you have to install it from source.
