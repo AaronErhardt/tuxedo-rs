@@ -92,58 +92,90 @@ sys_fs_type!(KB, RW, KeyboardState, State, "state");
 /// A type that manages all sysfs files related to
 /// keyboard color management.
 pub struct KeyboardController {
-    color_left: ColorLeft,
-    color_right: ColorRight,
-    color_center: ColorCenter,
-    color_extra: ColorExtra,
-    brightness: Brightness,
-    mode: Mode,
-    state: State,
+    color_left: Option<ColorLeft>,
+    color_right: Option<ColorRight>,
+    color_center: Option<ColorCenter>,
+    color_extra: Option<ColorExtra>,
+    brightness: Option<Brightness>,
+    mode: Option<Mode>,
+    state: Option<State>,
 }
 
 impl KeyboardController {
     pub async fn new() -> Result<Self, io::Error> {
         Ok(Self {
-            color_left: ColorLeft::new().await?,
-            color_right: ColorRight::new().await?,
-            color_center: ColorCenter::new().await?,
-            color_extra: ColorExtra::new().await?,
-            brightness: Brightness::new().await?,
-            mode: Mode::new().await?,
-            state: State::new().await?,
+            color_left: ColorLeft::new().await.ok(),
+            color_right: ColorRight::new().await.ok(),
+            color_center: ColorCenter::new().await.ok(),
+            color_extra: ColorExtra::new().await.ok(),
+            brightness: Brightness::new().await.ok(),
+            mode: Mode::new().await.ok(),
+            state: State::new().await.ok(),
         })
     }
 
     pub async fn set_color_left(&self, color: &Color) -> Result<(), io::Error> {
-        sys_fs_write(&self.color_left, color).await
+        if let Some(color_left) = &self.color_left {
+            Ok(sys_fs_write(color_left, color).await?)
+        } else {
+            Ok(())
+        }
     }
 
     pub async fn get_color_left(&self) -> Result<Color, io::Error> {
-        sys_fs_read(&self.color_left).await
+        if let Some(color_left) = &self.color_left {
+            Ok(sys_fs_read(color_left).await?)
+        } else {
+            Err(io::Error::new(io::ErrorKind::NotFound, "Color not found"))
+        }
     }
 
     pub async fn set_color_right(&self, color: &Color) -> Result<(), io::Error> {
-        sys_fs_write(&self.color_right, color).await
+        if let Some(color_right) = &self.color_right {
+            sys_fs_write(color_right, color).await
+        } else {
+            Ok(())
+        }
     }
 
     pub async fn get_color_right(&self) -> Result<Color, io::Error> {
-        sys_fs_read(&self.color_left).await
+        if let Some(color_right) = &self.color_right {
+            sys_fs_read(color_right).await
+        } else {
+            Err(io::Error::new(io::ErrorKind::NotFound, "Color not found"))
+        }
     }
 
     pub async fn set_color_center(&self, color: &Color) -> Result<(), io::Error> {
-        sys_fs_write(&self.color_center, color).await
+        if let Some(color_center) = &self.color_center {
+            sys_fs_write(color_center, color).await
+        } else {
+            Ok(())
+        }
     }
 
     pub async fn get_color_center(&self) -> Result<Color, io::Error> {
-        sys_fs_read(&self.color_left).await
+        if let Some(color_center) = &self.color_center {
+            sys_fs_read(color_center).await
+        } else {
+            Err(io::Error::new(io::ErrorKind::NotFound, "Color not found"))
+        }
     }
 
     pub async fn set_color_extra(&self, color: &Color) -> Result<(), io::Error> {
-        sys_fs_write(&self.color_extra, color).await
+        if let Some(color_extra) = &self.color_extra {
+            Ok(sys_fs_write(color_extra, color).await?)
+        } else {
+            Ok(())
+        }
     }
 
     pub async fn get_color_extra(&self) -> Result<Color, io::Error> {
-        sys_fs_read(&self.color_left).await
+        if let Some(color_extra) = &self.color_extra {
+            sys_fs_read(color_extra).await
+        } else {
+            Err(io::Error::new(io::ErrorKind::NotFound, "Color not found"))
+        }
     }
 
     pub async fn set_color_all(&self, color: &Color) -> Result<(), io::Error> {
@@ -161,27 +193,51 @@ impl KeyboardController {
     }
 
     pub async fn set_brightness(&self, brightness: u8) -> Result<(), io::Error> {
-        sys_fs_write(&self.brightness, &brightness).await
+        if let Some(br) = &self.brightness {
+            sys_fs_write(br, &brightness).await
+        } else {
+            Ok(())
+        }
     }
 
     pub async fn get_brightness(&self) -> Result<u8, io::Error> {
-        sys_fs_read(&self.brightness).await
+        if let Some(br) = &self.brightness {
+            sys_fs_read(br).await
+        } else {
+            Err(io::Error::new(io::ErrorKind::NotFound, "Color not found"))
+        }
     }
 
     pub async fn set_mode(&self, mode: bool) -> Result<(), io::Error> {
-        sys_fs_write(&self.mode, &NumBool(mode)).await
+        if let Some(md) = &self.mode {
+            sys_fs_write(md, &NumBool(mode)).await
+        } else {
+            Ok(())
+        }
     }
 
     pub async fn get_mode(&self) -> Result<bool, io::Error> {
-        sys_fs_read(&self.mode).await.map(|res| res.0)
+        if let Some(mode) = &self.mode {
+            sys_fs_read(mode).await.map(|res| res.0)
+        } else {
+            Err(io::Error::new(io::ErrorKind::NotFound, "Color not found"))
+        }
     }
 
     pub async fn set_state(&self, state: KeyboardState) -> Result<(), io::Error> {
-        sys_fs_write(&self.state, &state).await
+        if let Some(st) = &self.state {
+            sys_fs_write(st, &state).await
+        } else {
+            Ok(())
+        }
     }
 
     pub async fn get_state(&self) -> Result<KeyboardState, io::Error> {
-        sys_fs_read(&self.state).await
+        if let Some(state) = &self.state {
+            sys_fs_read(state).await
+        } else {
+            Err(io::Error::new(io::ErrorKind::NotFound, "Color not found"))
+        }
     }
 }
 
