@@ -3,6 +3,8 @@ use once_cell::sync::Lazy;
 use tokio::sync::broadcast;
 use zbus::{dbus_proxy, Connection};
 
+use std::{time::Duration, future::pending};
+
 static SUSPEND_CHANNEL: Lazy<(broadcast::Sender<bool>, broadcast::Receiver<bool>)> =
     Lazy::new(|| broadcast::channel(1));
 
@@ -20,8 +22,22 @@ trait Suspend {
     fn prepare_for_sleep(&self, arg1: bool) -> fdo::Result<()>;
 }
 
-pub async fn wait_for_suspend() -> Result<(), zbus::Error> {
-    let sender = SUSPEND_CHANNEL.0.clone();
+pub async fn wait_for_suspend() {
+    let mut sender = SUSPEND_CHANNEL.0.clone();
+
+    // Don't try to reconnect anymore after 3 attempts
+    for _ in 0..3 {
+        tracing::info!("Setting up suspend service");
+        if let Err(err) = try_wait_for_suspend(&mut sender).await {
+            tracing::error!("Failed to wait for suspend: `{err}`");
+            // Reconnect after 10s
+            tokio::time::sleep(Duration::from_secs(10)).await;
+        }
+    }
+    tracing::warn!("Stopping suspend service after 3 errors");
+}
+
+async fn try_wait_for_suspend(sender: &mut broadcast::Sender<bool>) -> Result<(), zbus::Error> {
     let connection = Connection::system().await?;
     let proxy = SuspendProxy::new(&connection).await?;
     let mut receiver = proxy.receive_prepare_for_sleep().await?;
@@ -53,8 +69,9 @@ pub async fn process_suspend(receiver: &mut broadcast::Receiver<bool>) {
                 tracing::warn!("Wake up message without suspend.");
             }
         }
-        Err(err) => {
-            tracing::error!("Filed receiving suspend message: `{err}`");
+        Err(_) => {
+            tracing::warn!("Stop listening for suspend messages");
+            pending::<()>().await;
         }
     }
 }
@@ -71,7 +88,7 @@ async fn wait_for_wake_up(receiver: &mut broadcast::Receiver<bool>) {
                 }
             }
             Err(err) => {
-                tracing::error!("Filed receiving suspend message: `{err}`");
+                tracing::error!("Error receiving wake-up message: `{err}`");
             }
         }
     }
