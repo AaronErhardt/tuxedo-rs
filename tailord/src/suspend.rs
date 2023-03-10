@@ -1,3 +1,5 @@
+use std::future::pending;
+
 use futures_lite::StreamExt;
 use tokio::sync::broadcast;
 use zbus::{dbus_proxy, Connection};
@@ -18,6 +20,7 @@ pub async fn wait_for_suspend(sender: broadcast::Sender<bool>) -> Result<(), zbu
     let mut receiver = proxy.receive_prepare_for_sleep().await?;
 
     while let Some(msg) = receiver.next().await {
+        tracing::warn!("Received suspend message {msg:?}");
         let value = *msg.args()?.arg1();
 
         if value {
@@ -39,13 +42,14 @@ pub async fn process_suspend(receiver: &mut broadcast::Receiver<bool>) {
         Ok(msg) => {
             // Suspended!
             if msg {
+                tracing::warn!("We are suspended: {msg:?}");
                 wait_for_wake_up(receiver).await
             } else {
                 tracing::warn!("Wake up message without suspend.");
             }
         }
         Err(err) => {
-            tracing::error!("Filed receiving suspend message: `{err}`");
+            tracing::error!("Error receiving suspend message: `{err}`");
         }
     }
 }
@@ -58,6 +62,7 @@ async fn wait_for_wake_up(receiver: &mut broadcast::Receiver<bool>) {
                 if msg {
                     tracing::warn!("Wake up message without suspend.");
                 } else {
+                    tracing::warn!("Nothing to do.");
                     return;
                 }
             }

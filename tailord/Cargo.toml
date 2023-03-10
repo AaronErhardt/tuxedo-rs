@@ -11,8 +11,9 @@ zbus = { version = "3", default-features = false, features = ["tokio"] }
 
 serde_json = "1"
 
-tokio = { version = "1", features = ["time", "fs", "sync", "macros"] }
-tokio-uring = "0.3"
+tokio = { version = "1", features = ["full", "tracing"] }
+tokio-uring = "0.4"
+console-subscriber = "0.1"
 futures-lite = "1"
 
 tracing = "0.1"

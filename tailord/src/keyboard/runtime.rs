@@ -2,6 +2,7 @@ use std::{future::pending, time::Duration};
 
 use tailor_api::{Color, ColorPoint, ColorProfile, ColorTransition};
 use tokio::sync::{broadcast, mpsc};
+use tuxedo_ioctl::high_level::Hw;
 use tuxedo_sysfs::keyboard::KeyboardController;
 
 use crate::suspend::process_suspend;
@@ -10,6 +11,7 @@ pub struct KeyboardRuntime {
     io: KeyboardController,
     profile: ColorProfile,
     suspend_receiver: broadcast::Receiver<bool>,
+    hw: Hw,
 }
 
 impl KeyboardRuntime {
@@ -18,6 +20,7 @@ impl KeyboardRuntime {
             io: KeyboardController::new().await.unwrap(),
             profile,
             suspend_receiver,
+            hw: Hw::new().unwrap(),
         }
     }
 
@@ -26,34 +29,44 @@ impl KeyboardRuntime {
         mut keyboard_receiver: mpsc::Receiver<ColorProfile>,
         mut color_receiver: mpsc::Receiver<Color>,
     ) {
-        loop {
-            tokio::select! {
-                new_colors = keyboard_receiver.recv() => {
-                    if let Some(colors) = new_colors {
-                        self.profile = colors;
-                    }
-                }
-                // Override the current color value for 1s
-                override_color = color_receiver.recv() => {
-                    if let Some(mut color) = override_color {
-                        loop {
-                            if let Err(err) = self.io.set_color_left(&color).await {
-                                tracing::error!("Failed to update keyboard color: `{}`", err.to_string());
-                                break;
-                            }
-                            tokio::select! {
-                                override_color = color_receiver.recv() => {
-                                    if let Some(new_color) = override_color {
-                                        color = new_color
-                                    }
-                                }
-                                _ = tokio::time::sleep(Duration::from_millis(1000)) => break,
+        // There is no(?) keyboard support for uniwill
+        match self.hw {
+            Hw::Clevo => {
+                loop {
+                    tokio::select! {
+                        new_colors = keyboard_receiver.recv() => {
+                            if let Some(colors) = new_colors {
+                                self.profile = colors;
                             }
                         }
+                        // Override the current color value for 1s
+                        override_color = color_receiver.recv() => {
+                            if let Some(mut color) = override_color {
+                                loop {
+                                    if let Err(err) = self.io.set_color_left(&color).await {
+                                        tracing::error!("Failed to update keyboard color: `{}`", err.to_string());
+                                        break;
+                                    }
+                                    tokio::select! {
+                                        override_color = color_receiver.recv() => {
+                                            if let Some(new_color) = override_color {
+                                                color = new_color
+                                            }
+                                        }
+                                        _ = tokio::time::sleep(Duration::from_millis(1000)) => break,
+                                    }
+                                }
+                            }
+                        }
+                        _ = self.update_colors() => {}
                     }
                 }
-                _ = self.update_colors() => {}
             }
+            Hw::Uniwill => loop {
+                tokio::select! {
+                    _ = tokio::time::sleep(Duration::from_millis(1000)) => {}
+                }
+            },
         }
     }
 
@@ -81,7 +94,9 @@ impl KeyboardRuntime {
 
             tokio::select! {
                 _ = tokio::time::sleep(Duration::from_millis(step.1 as u64)) => {}
-                _ = process_suspend(&mut self.suspend_receiver) => {}
+                _ = process_suspend(&mut self.suspend_receiver) => {
+                    tracing::warn!("suspending in run_color_animation");
+                }
             }
         }
     }

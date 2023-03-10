@@ -9,6 +9,7 @@ license = "GPL-2.0+"
 [dependencies]
 nix = { version = "0.25.0", features = ["ioctl"] }
 thiserror = "1"
+tracing = "0.1"
 
 [dev-dependencies]
 sudo = "0.6"

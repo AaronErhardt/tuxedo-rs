@@ -24,28 +24,21 @@ fn main() {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "info");
     }
-
-    tracing_subscriber::fmt()
-        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
-        .with_writer(std::io::stderr)
-        .without_time()
-        .init();
-
+    console_subscriber::init();
     tokio_uring::start(start_runtime());
 }
 
 async fn start_runtime() {
-    let (suspend_sender, suspend_receiver) = broadcast::channel(1);
     let (shutdown_sender, mut shutdown_receiver) = broadcast::channel(1);
+    let signals = Signals::new([SIGTERM, SIGINT, SIGQUIT]).unwrap();
+    tokio_uring::spawn(handle_signals(signals, shutdown_sender));
 
+    let (suspend_sender, suspend_receiver) = broadcast::channel(1);
     let (keyboard_sender, keyboard_receiver) = mpsc::channel(1);
     let (fan_sender, fan_receiver) = mpsc::channel(1);
 
     let (color_sender, color_receiver) = mpsc::channel(1);
     let (fan_speed_sender, fan_speed_receiver) = mpsc::channel(1);
-
-    let signals = Signals::new([SIGTERM, SIGINT, SIGQUIT]).unwrap();
-    tokio_uring::spawn(handle_signals(signals, shutdown_sender));
 
     let keyboard_interface = KeyboardInterface {
         color_sender,

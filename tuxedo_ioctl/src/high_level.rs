@@ -48,9 +48,27 @@ impl PerformanceProfile {
 }
 
 #[derive(Debug)]
-enum Hw {
+pub enum Hw {
     Clevo,
     Uniwill,
+}
+
+impl Hw {
+    pub fn new() -> Result<Self, std::io::Error> {
+        let file = open_device_file()?;
+
+        if let Ok(value) = read::hwcheck_cl(&file) {
+            if value == 1 {
+                return Ok(Hw::Clevo);
+            }
+        }
+        if let Ok(value) = read::hwcheck_uw(&file) {
+            if value == 1 {
+                return Ok(Hw::Uniwill);
+            }
+        }
+        panic!("Platform not supported yet");
+    }
 }
 
 #[derive(Debug)]
@@ -62,24 +80,8 @@ pub struct IoInterface {
 impl IoInterface {
     pub fn new() -> Result<Self, std::io::Error> {
         let file = open_device_file()?;
-
-        if let Ok(value) = read::cl_webcam_sw(&file) {
-            if value == 1 {
-                return Ok(Self {
-                    file,
-                    hw: Hw::Clevo,
-                });
-            }
-        }
-        if let Ok(value) = read::hwcheck_uw(&file) {
-            if value == 1 {
-                return Ok(Self {
-                    file,
-                    hw: Hw::Uniwill,
-                });
-            }
-        }
-        todo!("Platform not supported yet");
+        let hw = Hw::new()?; 
+        Ok(Self{file, hw})
     }
 
     fn set_fan_speed_percent_clevo(
@@ -110,16 +112,13 @@ impl IoInterface {
 
     fn set_fan_speed_percent_uniwill(
         &mut self,
-        fan: Fan,
+        _fan: Fan,
         fan_speed_percent: u8,
     ) -> Result<(), IoctlError> {
         let fan_speed_raw =
             (fan_speed_percent as f64 * MAX_FAN_SPEED as f64 / 100.0).round() as u32;
-        match fan {
-            Fan::Fan1 => write::uw_fanspeed(&self.file, fan_speed_raw),
-            Fan::Fan2 => write::uw_fanspeed2(&self.file, fan_speed_raw),
-            Fan::Fan3 => Err(IoctlError::DevNotAvailable),
-        }
+        write::uw_fanspeed(&self.file, fan_speed_raw)?;
+        write::uw_fanspeed2(&self.file, fan_speed_raw)
     }
 
     /// Set the fan speed in percent from 0 to 100.
@@ -175,12 +174,24 @@ impl IoInterface {
     }
 
     pub fn set_fans_auto(&self) -> Result<(), IoctlError> {
-        write::cl_fanauto(&self.file, 0xF)
+        match &self.hw {
+            Hw::Clevo => write::cl_fanauto(&self.file, 0xF),
+            other => {
+                tracing::warn!("set_fans_auto(): {other:?} not supported");
+                Ok(())
+            }
+        }
     }
 
     // I'm not sure if that works though...
     pub fn set_fans_manual(&self) -> Result<(), IoctlError> {
-        write::cl_fanauto(&self.file, 0x0)
+        match &self.hw {
+            Hw::Clevo => write::cl_fanauto(&self.file, 0x0),
+            other => {
+                tracing::warn!("set_fans_manual(): {other:?} not supported");
+                Ok(())
+            }
+        }
     }
 
     pub fn set_web_cam_enabled(&self, status: bool) -> Result<(), IoctlError> {
