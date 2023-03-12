@@ -45,7 +45,7 @@ fn main() {
 
     app.set_action_group(Some(&actions.into_action_group()));
 
-    let app = RelmApp::with_app(app);
+    let app = RelmApp::from_app(app);
 
     app.run::<App>(());
 }

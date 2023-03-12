@@ -59,7 +59,7 @@ impl Component for KeyboardList {
             #[name(toast_overlay)]
             adw::ToastOverlay {
                 #[track(model.changed(KeyboardList::toast()))]
-                add_toast?: model.toast.as_ref(),
+                add_toast?: model.toast.clone(),
 
                 gtk::Box {
                     set_orientation: gtk::Orientation::Vertical,

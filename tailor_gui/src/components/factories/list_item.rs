@@ -77,7 +77,7 @@ where
                         let sender = sender.clone();
                         let index = index.clone();
                         relm4::spawn_local(async move {
-                            let response = dialog.run_future().await;
+                            let response = dialog.choose_future().await;
                             if response == "remove" {
                                 sender.output(Msg::remove(index.clone()));
                             }

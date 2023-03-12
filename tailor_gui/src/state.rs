@@ -101,6 +101,7 @@ impl Reducible for TailorState {
                     }
                     *state.get_mut_active_profile_name() = name;
                 }
+                return false;
             }
             TailorStateMsg::AddProfile(name, profile) => {
                 if let Some(state) = self.get_mut() {

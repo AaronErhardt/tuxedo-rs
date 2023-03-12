@@ -3,12 +3,13 @@ use futures::StreamExt;
 use gtk::prelude::{ButtonExt, WidgetExt};
 use relm4::factory::FactoryVecDeque;
 use relm4::prelude::DynamicIndex;
-use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender};
+use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender, WidgetRef};
 
 use super::factories::profile::{Profile, ProfileInit};
 use super::new_profile::{NewProfileDialog, NewProfileInit};
 use crate::app::FullProfileInfo;
 use crate::state::{TailorStateMsg, STATE};
+use crate::templates;
 
 pub struct Profiles {
     profiles: FactoryVecDeque<Profile>,
@@ -37,19 +38,20 @@ impl Component for Profiles {
     type Output = ();
 
     view! {
-        adw::Clamp {
-            set_margin_top: 10,
-            set_margin_bottom: 10,
-
-            #[local]
-            profile_box -> adw::PreferencesGroup {
-                set_title: "Profiles",
-                #[wrap(Some)]
-                set_header_suffix = &gtk::Button {
-                    set_icon_name: "plus",
-                    connect_clicked => ProfilesInput::Add,
-                }
-            },
+        #[template]
+        templates::CustomClamp {
+            #[template_child]
+            clamp {
+                #[local]
+                profile_box -> adw::PreferencesGroup {
+                    set_title: "Profiles",
+                    #[wrap(Some)]
+                    set_header_suffix = &gtk::Button {
+                        set_icon_name: "plus",
+                        connect_clicked => ProfilesInput::Add,
+                    }
+                },
+            }
         }
     }
 
@@ -123,7 +125,7 @@ impl Component for Profiles {
                 let fan = self.fan.clone();
                 let keyboard = self.keyboard.clone();
                 let mut new_profile = NewProfileDialog::builder()
-                    .transient_for(root)
+                    .transient_for(root.widget_ref())
                     .launch(NewProfileInit {
                         profiles,
                         keyboard,

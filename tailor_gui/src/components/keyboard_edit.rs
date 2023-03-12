@@ -69,8 +69,6 @@ impl Component for KeyboardEdit {
 
             gtk::Box {
                 set_orientation: gtk::Orientation::Vertical,
-                // This must be moved in the next libadwaita release due to stylesheet changes
-                add_css_class: "response-area",
 
                 gtk::WindowHandle {
                     gtk::CenterBox {

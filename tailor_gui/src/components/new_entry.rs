@@ -125,7 +125,7 @@ impl SimpleComponent for NewEntryDialog {
         match message {
             NewEntryInput::Save if self.valid_name() => sender
                 .output(Some(NewEntryOutput {
-                    name: self.buffer.text(),
+                    name: self.buffer.text().into(),
                     based_of: self.items.model().get_active_elem().unwrap().to_string(),
                 }))
                 .unwrap(),

@@ -54,9 +54,9 @@ impl FactoryComponent for FanPoint {
                 #[watch]
                 set_value: self.inner.fan as f64,
 
-                add_offset_value: (*gtk::LEVEL_BAR_OFFSET_FULL, 50.0),
-                add_offset_value: (*gtk::LEVEL_BAR_OFFSET_HIGH, 70.0),
-                add_offset_value: (*gtk::LEVEL_BAR_OFFSET_LOW, 90.0),
+                add_offset_value: (gtk::LEVEL_BAR_OFFSET_FULL, 50.0),
+                add_offset_value: (gtk::LEVEL_BAR_OFFSET_HIGH, 70.0),
+                add_offset_value: (gtk::LEVEL_BAR_OFFSET_LOW, 90.0),
             },
 
             #[name = "open_button"]

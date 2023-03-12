@@ -99,7 +99,7 @@ impl Component for App {
 
             adw::ToastOverlay {
                 #[watch]
-                add_toast?: &model.error,
+                add_toast?: model.error.clone(),
 
                 gtk::Box {
                     set_orientation: gtk::Orientation::Vertical,
@@ -140,7 +140,7 @@ impl Component for App {
                                     set_margin_end: 12,
 
                                     #[local_ref]
-                                    add_titled[Some("profiles"), "Profiles"] = profile_widget -> adw::Clamp {} -> {
+                                    add_titled[Some("profiles"), "Profiles"] = profile_widget -> gtk::ScrolledWindow {} -> {
                                         set_icon_name: Some("profile-settings"),
                                     },
                                     #[local_ref]
@@ -236,7 +236,7 @@ impl Component for App {
 
         let mut profiles = Profiles::builder().launch(()).detach();
         profiles.detach_runtime();
-        let profile_widget = profiles.widget();
+        let profile_widget = &**profiles.widget();
 
         let model = Self {
             about_dialog,

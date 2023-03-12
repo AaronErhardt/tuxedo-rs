@@ -146,7 +146,7 @@ impl SimpleComponent for NewProfileDialog {
         match message {
             NewProfileInput::Save if self.valid_name() => sender
                 .output(Some(FullProfileInfo {
-                    name: self.buffer.text(),
+                    name: self.buffer.text().into(),
                     data: ProfileInfo {
                         keyboard: self.keyboard.model().get_active_elem().unwrap().to_string(),
                         fan: self.fan.model().get_active_elem().unwrap().to_string(),
