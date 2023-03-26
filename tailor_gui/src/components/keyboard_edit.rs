@@ -89,55 +89,58 @@ impl Component for KeyboardEdit {
                     },
                 },
 
-                adw::Clamp {
-                    inline_css: "padding: 12px",
+                gtk::ScrolledWindow {
                     add_css_class: "background",
-                    set_vexpand: true,
 
-                    match model.color_profile_type {
-                        ColorProfileType::Loading => {
-                            #[name(spinner)]
-                            gtk::Spinner {
-                            }
-                        },
-                        ColorProfileType::None => {
-                            gtk::Label {
-                                set_label: "Disable the keyboard lights",
-                            }
-                        },
-                        ColorProfileType::Single => {
-                            gtk::Box {
-                                set_halign: gtk::Align::Center,
-                                set_valign: gtk::Align::Center,
+                    adw::Clamp {
+                        set_margin_all: 12,
+                        set_vexpand: true,
 
-                                #[local_ref]
-                                color_button -> gtk::Button,
-                            }
-                        },
-                        ColorProfileType::Multiple => {
-                            gtk::Box {
-                                set_orientation: gtk::Orientation::Vertical,
-
+                        match model.color_profile_type {
+                            ColorProfileType::Loading => {
+                                #[name(spinner)]
+                                gtk::Spinner {
+                                }
+                            },
+                            ColorProfileType::None => {
+                                gtk::Label {
+                                    set_label: "Disable the keyboard lights",
+                                }
+                            },
+                            ColorProfileType::Single => {
                                 gtk::Box {
-                                    set_margin_bottom: 6,
+                                    set_halign: gtk::Align::Center,
+                                    set_valign: gtk::Align::Center,
 
-                                    gtk::Label {
-                                        set_label: "Color pattern",
-                                    },
+                                    #[local_ref]
+                                    color_button -> gtk::Button,
+                                }
+                            },
+                            ColorProfileType::Multiple => {
+                                gtk::Box {
+                                    set_orientation: gtk::Orientation::Vertical,
+
                                     gtk::Box {
-                                        set_hexpand: true,
-                                    },
-                                    gtk::Button {
-                                        set_icon_name: "plus",
-                                        set_halign: gtk::Align::End,
-                                        connect_clicked => KeyboardEditInput::Add,
-                                    }
-                                },
+                                        set_margin_bottom: 6,
 
-                                #[local]
-                                color_points -> gtk::ListBox {
-                                    set_valign: gtk::Align::Start,
-                                    add_css_class: "boxed-list",
+                                        gtk::Label {
+                                            set_label: "Color pattern",
+                                        },
+                                        gtk::Box {
+                                            set_hexpand: true,
+                                        },
+                                        gtk::Button {
+                                            set_icon_name: "plus",
+                                            set_halign: gtk::Align::End,
+                                            connect_clicked => KeyboardEditInput::Add,
+                                        }
+                                    },
+
+                                    #[local]
+                                    color_points -> gtk::ListBox {
+                                        set_valign: gtk::Align::Start,
+                                        add_css_class: "boxed-list",
+                                    }
                                 }
                             }
                         }

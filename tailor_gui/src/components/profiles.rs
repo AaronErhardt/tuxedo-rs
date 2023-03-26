@@ -1,6 +1,6 @@
 use adw::prelude::PreferencesGroupExt;
 use futures::StreamExt;
-use gtk::prelude::{ButtonExt, WidgetExt};
+use gtk::prelude::ButtonExt;
 use relm4::factory::FactoryVecDeque;
 use relm4::prelude::DynamicIndex;
 use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender, WidgetRef};
