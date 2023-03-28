@@ -1,10 +1,10 @@
-# Tuxedo-rs 🐧+🦀=❤️
+<img alt="Tuxedo-rs" src="assets/tuxedo-rs-light.png#gh-light-mode-only" height="112" />
+<img alt="Tuxedo-rs" src="assets/tuxedo-rs-dark.png#gh-dark-mode-only" height="112" />
 
 **Rust libraries for interacting with hardware from [TUXEDO Computers](https://www.tuxedocomputers.com).**
 
-> This is a community project. It is not developed or supported by TUXEDO Computers.
-
-> Although this is tailored towards TUXEDO hardware for now, other vendors are free to contribute their own bindings.
+> This is a community project. It is not developed nor supported by TUXEDO Computers.  
+> Although we only supports TUXEDO hardware for now, other vendors are free to contribute their own bindings.
 
 ## Motivation
 
