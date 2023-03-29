@@ -1,9 +1,15 @@
-<img alt="Tuxedo-rs" src="assets/tuxedo-rs-light.png#gh-light-mode-only" height="112" />
-<img alt="Tuxedo-rs" src="assets/tuxedo-rs-dark.png#gh-dark-mode-only" height="112" />
+<div align="center">
+  <img alt="Tuxedo-rs" src="assets/tuxedo-rs-mascots.png#gh-light-mode-only" width="132" />
+  <img alt="Tuxedo-rs" src="assets/tuxedo-rs-mascots-dark.png#gh-dark-mode-only" width="132" />
+  <h1>Tuxedo-rs 🐧+🦀=❤️</h1>
+  <p>
+    <strong>
+      Rust libraries for interacting with hardware from <a href="https://www.tuxedocomputers.com">TUXEDO Computers</a>.
+	</strong>
+  </p>
+</div>
 
-**Rust libraries for interacting with hardware from [TUXEDO Computers](https://www.tuxedocomputers.com).**
-
-> This is a community project. It is not developed nor supported by TUXEDO Computers.  
+> Tuxedo-rs is a community project. It is not developed nor supported by TUXEDO Computers.  
 > Although we only supports TUXEDO hardware for now, other vendors are free to contribute their own bindings.
 
 ## Motivation
