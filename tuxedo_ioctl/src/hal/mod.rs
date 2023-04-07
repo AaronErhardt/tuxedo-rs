@@ -71,7 +71,12 @@ mod test {
 
         let device = &io.device;
         // Set performance profile
-        device.set_odm_performance_profile("quiet").unwrap();
+        if device.device_interface_id_str().unwrap() == "uniwill_wmi" {
+            device.set_odm_performance_profile("power_save").unwrap();
+        }
+        if device.device_interface_id_str().unwrap() == "clevo_acpi" {
+            device.set_odm_performance_profile("quiet").unwrap();
+        }
 
         // Get temperatures
         assert!(20 < device.get_fan_temperature(0).unwrap());
@@ -92,5 +97,7 @@ mod test {
 
         device.set_fan_speed_percent(0, 100).unwrap();
         assert_eq!(device.get_fan_speed_percent(0).unwrap(), 100);
+
+        device.set_fans_auto().unwrap();
     }
 }

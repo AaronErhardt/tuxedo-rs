@@ -149,4 +149,24 @@ mod test {
             assert!(uw::hw_check(&file).unwrap() == 1);
         }
     }
+
+    #[test]
+    fn test_uw_read() {
+        sudo::escalate_if_needed().unwrap();
+
+        let file = open_device_file().unwrap();
+        assert!(mod_version(&file).unwrap().contains("0.3"));
+
+        if uw::hw_check(&file).unwrap() == 1 {
+            assert!(cl::hw_check(&file).unwrap() != 1);
+
+            assert!(uw::hw_interface_id(&file).unwrap().contains("uniwill_wmi"));
+            uw::fan_speed_0(&file).unwrap();
+            uw::fan_speed_1(&file).unwrap();
+            uw::fan_temp_0(&file).unwrap();
+            uw::fan_temp_1(&file).unwrap();
+        } else {
+            assert!(cl::hw_check(&file).unwrap() == 1);
+        }
+    }
 }
