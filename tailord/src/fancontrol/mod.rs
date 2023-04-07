@@ -31,7 +31,7 @@ impl FanRuntime {
         let temp = io.get_fan_temperature(Fan::Fan1).unwrap();
         let temp_history = TemperatureBuffer::new(temp);
 
-        // io.set_fans_manual().unwrap();
+        io.set_fans_manual().unwrap();
 
         FanRuntime {
             temp_history,
@@ -58,7 +58,8 @@ impl FanRuntime {
                 override_speed = fan_speed_receiver.recv() => {
                     if let Some(mut speed) = override_speed {
                         loop {
-                            // TODO: run the check for all fans
+                            // TODO(uniwill): run the check for all fans, as we have 2 on the
+                            // Pulse.
                             if let Err(err) = self.io.set_fan_speed_percent(Fan::Fan1, speed) {
                                 tracing::error!("Failed to update fan speed: `{}`", err.to_string());
                                 break;

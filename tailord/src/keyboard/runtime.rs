@@ -29,7 +29,6 @@ impl KeyboardRuntime {
         mut keyboard_receiver: mpsc::Receiver<ColorProfile>,
         mut color_receiver: mpsc::Receiver<Color>,
     ) {
-        // There is no(?) keyboard support for uniwill
         match self.hw {
             Hw::Clevo => {
                 loop {
@@ -62,6 +61,8 @@ impl KeyboardRuntime {
                     }
                 }
             }
+            // TODO(uniwill) There is no(?) keyboard support for uniwill, should we just 
+            // prevent this function to run or is it expected to read from the channel?
             Hw::Uniwill => loop {
                 tokio::select! {
                     _ = tokio::time::sleep(Duration::from_millis(1000)) => {}

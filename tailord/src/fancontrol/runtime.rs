@@ -32,9 +32,7 @@ impl FanRuntime {
 
             tokio::select! {
                 _ = tokio::time::sleep(delay) => {},
-                _ = process_suspend(&mut self.suspend_receiver) => {
-                    tracing::warn!("suspending in fan_control_loop");
-                }
+                _ = process_suspend(&mut self.suspend_receiver) => {}
             }
         }
     }
