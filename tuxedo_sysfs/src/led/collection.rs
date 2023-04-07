@@ -33,7 +33,7 @@ impl Collection {
                     function.trim().to_owned()
                 } else {
                     tracing::warn!("Badly formatted led device: {:?}", file_name);
-                    break;
+                    continue;
                 };
 
             let device_name_path = path.join(DEVICE_NAME);
@@ -45,7 +45,7 @@ impl Collection {
                     name
                 } else {
                     tracing::warn!("Could not find LED device name: {:?}", file_name);
-                    break;
+                    continue;
                 }
             };
 
@@ -53,7 +53,7 @@ impl Collection {
             let brightness_path = path.join(BRIGHTNESS);
             if !file_exists(&brightness_path).await {
                 // Not even basic support available -> skip device.
-                break;
+                continue;
             }
 
             // Get maximum brightness
@@ -64,16 +64,16 @@ impl Collection {
                         (file, values[0])
                     } else {
                         tracing::warn!("Brightness file can't be read: {:?}", file_name);
-                        break;
+                        continue;
                     }
                 } else {
                     // Not even basic support available -> skip device.
-                    break;
+                    continue;
                 };
 
             if max_brightness < 2 {
                 // Not even basic support available -> skip device.
-                break;
+                continue;
             }
 
             let multi_index_path = path.join(MULTI_INDEX);
@@ -91,7 +91,7 @@ impl Collection {
                             (file, values)
                         } else {
                             tracing::warn!("Intensities file can't be read: {:?}", file_name);
-                            break;
+                            continue;
                         }
                     } else {
                         // Should be there for an RGB device
@@ -99,7 +99,7 @@ impl Collection {
                             "RGB device should have multiple intensities: {:?}",
                             file_name
                         );
-                        break;
+                        continue;
                     };
 
                 if intensities.len() == 3 {
@@ -117,7 +117,7 @@ impl Collection {
                 } else {
                     // Should be 3 for an RGB device
                     tracing::warn!("RGB device should have 3 intensities: {:?}", file_name);
-                    break;
+                    continue;
                 }
             } else {
                 // Push controller with monochrome capabilities
