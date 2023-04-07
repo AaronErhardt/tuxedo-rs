@@ -33,17 +33,12 @@ impl HardwareDevice for UniwillHardware {
             Err(IoctlError::DevNotAvailable)
         }
     }
-
     fn device_interface_id_str(&self) -> IoctlResult<String> {
-        Ok("uniwill".to_string())
+        read::uw::hw_interface_id(&self.file)
     }
 
     fn device_model_id_str(&self) -> IoctlResult<String> {
         read::uw::model_id(&self.file).map(|id| id.to_string())
-    }
-
-    fn set_enable_mode_set(&self, enabled: bool) -> IoctlResult<()> {
-        write::uw::mode_enable(&self.file, u32::from(enabled))
     }
 
     fn get_number_fans(&self) -> u8 {

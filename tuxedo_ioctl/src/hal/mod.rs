@@ -9,7 +9,13 @@ pub trait HardwareDevice: Sized {
     fn init(file: std::fs::File) -> IoctlResult<Self>;
     fn device_interface_id_str(&self) -> IoctlResult<String>;
     fn device_model_id_str(&self) -> IoctlResult<String>;
-    fn set_enable_mode_set(&self, enabled: bool) -> IoctlResult<()>;
+    fn set_enable_mode_set(&self, _enabled: bool) -> IoctlResult<()> {
+        // This seems to be a dummy call in the Ts code
+        // https://github.com/tuxedocomputers/tuxedo-control-center/blob/646841d8813b7ea6d5945897b46875ed3186b632/src/service-app/classes/FanControlWorker.ts#L92
+        // We can just return.
+        Ok(())
+    }
+
 
     // Get the amount of available fans
     fn get_number_fans(&self) -> u8;
