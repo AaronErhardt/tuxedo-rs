@@ -1,8 +1,10 @@
+use std::time::Duration;
+
 use gtk::prelude::{
     ApplicationExt, ApplicationWindowExt, GtkWindowExt, ObjectExt, SettingsExt, WidgetExt,
 };
 use gtk::{gio, glib};
-use relm4::actions::{ActionGroupName, RelmAction, RelmActionGroup};
+use relm4::actions::{RelmAction, RelmActionGroup};
 use relm4::gtk::prelude::{BoxExt, OrientableExt};
 use relm4::{
     adw, gtk, main_application, Component, ComponentController, ComponentParts, ComponentSender,
@@ -16,6 +18,8 @@ use crate::components::profiles::Profiles;
 use crate::config::{APP_ID, PROFILE};
 use crate::modals::about::AboutDialog;
 use crate::state::{initialize_tailor_state, TailorStateInner, STATE};
+
+const CONNECT_ERROR_MSG: &str = r#"Please make sure <a href="https://github.com/AaronErhardt/tuxedo-rs#tailord">tailord</a> is running correctly on your system. Tailor will connect automatically once tailord becomes available."#;
 
 pub enum ConnectionState {
     Connecting,
@@ -99,7 +103,7 @@ impl Component for App {
 
             adw::ToastOverlay {
                 #[watch]
-                add_toast?: &model.error,
+                add_toast?: model.error.clone(),
 
                 gtk::Box {
                     set_orientation: gtk::Orientation::Vertical,
@@ -140,15 +144,15 @@ impl Component for App {
                                     set_margin_end: 12,
 
                                     #[local_ref]
-                                    add_titled[Some("profiles"), "Profiles"] = profile_widget -> adw::Clamp {} -> {
+                                    add_titled[Some("profiles"), "Profiles"] = profile_widget -> gtk::ScrolledWindow {} -> {
                                         set_icon_name: Some("profile-settings"),
                                     },
                                     #[local_ref]
-                                    add_titled[Some("keyboard"), "Keyboard"] = keyboard_list_widget -> adw::Clamp {} -> {
+                                    add_titled[Some("keyboard"), "Keyboard"] = keyboard_list_widget -> gtk::ScrolledWindow {} -> {
                                         set_icon_name: Some("keyboard-color"),
                                     },
                                     #[local_ref]
-                                    add_titled[Some("fan"), "Fan control"] = fan_list -> adw::Clamp {} -> {
+                                    add_titled[Some("fan"), "Fan control"] = fan_list -> gtk::ScrolledWindow {} -> {
                                         set_icon_name: Some("fan-speed"),
                                     },
                                 },
@@ -185,12 +189,19 @@ impl Component for App {
                                 set_vexpand: true,
 
                                 gtk::Label {
-                                    set_label: "Error",
+                                    set_label: "Connection error",
+                                    set_wrap: true,
                                     add_css_class: "title-header",
                                 },
                                 gtk::Label {
-                                    set_label: "ERROR MESSAGE"
+                                    set_label: CONNECT_ERROR_MSG,
+                                    set_wrap: true,
+                                    set_use_markup: true,
                                 },
+                                #[name = "err_spinner"]
+                                gtk::Spinner {
+                                    start: (),
+                                }
                             }
                         }
                     }
@@ -204,6 +215,9 @@ impl Component for App {
         let loading = matches!(&model.connection_state, ConnectionState::Connecting);
         spinner.set_spinning(loading);
         loading_box.set_visible(loading);
+
+        let err = matches!(&model.connection_state, ConnectionState::Error);
+        err_spinner.set_spinning(err);
     }
 
     fn init(
@@ -228,15 +242,15 @@ impl Component for App {
 
         let mut keyboard_list = KeyboardList::builder().launch(()).detach();
         keyboard_list.detach_runtime();
-        let keyboard_list_widget = keyboard_list.widget();
+        let keyboard_list_widget = &**keyboard_list.widget();
 
         let mut fan_list = FanList::builder().launch(()).detach();
         fan_list.detach_runtime();
-        let fan_list = fan_list.widget();
+        let fan_list = &**fan_list.widget();
 
         let mut profiles = Profiles::builder().launch(()).detach();
         profiles.detach_runtime();
-        let profile_widget = profiles.widget();
+        let profile_widget = &**profiles.widget();
 
         let model = Self {
             about_dialog,
@@ -250,8 +264,6 @@ impl Component for App {
             .view_title
             .bind_property("title-visible", &widgets.view_bar, "reveal")
             .build();
-
-        let actions = RelmActionGroup::<WindowActionGroup>::new();
 
         let shortcuts_action = {
             let shortcuts = widgets.shortcuts.clone();
@@ -267,16 +279,14 @@ impl Component for App {
             })
         };
 
-        actions.add_action(&shortcuts_action);
-        actions.add_action(&about_action);
-
-        widgets
-            .main_window
-            .insert_action_group(WindowActionGroup::NAME, Some(&actions.into_action_group()));
+        let mut actions = RelmActionGroup::<WindowActionGroup>::new();
+        actions.add_action(shortcuts_action);
+        actions.add_action(about_action);
+        actions.register_for_widget(&widgets.main_window);
 
         widgets.load_window_size();
 
-        Self::initialize_connection(&sender);
+        Self::initialize_connection(&sender, None);
 
         ComponentParts { model, widgets }
     }
@@ -302,7 +312,7 @@ impl Component for App {
                     self.connection_state = ConnectionState::Ok;
                 } else {
                     self.connection_state = ConnectionState::Error;
-                    Self::initialize_connection(&sender);
+                    Self::initialize_connection(&sender, Some(Duration::from_secs(1)));
                 }
             }
         }
@@ -342,8 +352,11 @@ impl AppWidgets {
 }
 
 impl App {
-    fn initialize_connection(sender: &ComponentSender<Self>) {
-        sender.oneshot_command(async {
+    fn initialize_connection(sender: &ComponentSender<Self>, delay: Option<Duration>) {
+        sender.oneshot_command(async move {
+            if let Some(delay) = delay {
+                tokio::time::sleep(delay).await;
+            }
             Command::SetInitializedState(initialize_tailor_state().await.is_ok())
         });
     }

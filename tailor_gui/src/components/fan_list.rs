@@ -11,6 +11,7 @@ use super::factories::list_item::{ListItem, ListMsg};
 use super::fan_edit::{FanEdit, FanEditInput};
 use super::new_entry::{NewEntryDialog, NewEntryInit, NewEntryOutput};
 use crate::state::{TailorStateInner, TailorStateMsg, STATE};
+use crate::templates;
 
 #[tracker::track]
 pub struct FanList {
@@ -52,43 +53,44 @@ impl Component for FanList {
     type Output = ();
 
     view! {
-        adw::Clamp {
-            set_margin_top: 10,
-            set_margin_bottom: 10,
-
-            #[name(toast_overlay)]
-            adw::ToastOverlay {
-                #[track(model.changed(FanList::toast()))]
-                add_toast?: model.toast.as_ref(),
-
-                gtk::Box {
-                    set_orientation: gtk::Orientation::Vertical,
-                    set_spacing: 6,
+        #[template]
+        templates::CustomClamp {
+            #[template_child]
+            clamp {
+                #[name(toast_overlay)]
+                adw::ToastOverlay {
+                    #[track(model.changed(FanList::toast()))]
+                    add_toast?: model.toast.clone(),
 
                     gtk::Box {
-                        set_orientation: gtk::Orientation::Horizontal,
+                        set_orientation: gtk::Orientation::Vertical,
+                        set_spacing: 6,
 
-                        gtk::Label {
-                            add_css_class: "heading",
-                            set_label: "Fan profiles",
-                        },
                         gtk::Box {
-                            set_hexpand: true,
+                            set_orientation: gtk::Orientation::Horizontal,
+
+                            gtk::Label {
+                                add_css_class: "heading",
+                                set_label: "Fan profiles",
+                            },
+                            gtk::Box {
+                                set_hexpand: true,
+                            },
+                            gtk::Button {
+                                set_icon_name: "plus",
+                                connect_clicked => FanListInput::Add,
+                            }
                         },
-                        gtk::Button {
-                            set_icon_name: "plus",
-                            connect_clicked => FanListInput::Add,
-                        }
-                    },
 
-                    #[local]
-                    profile_box -> gtk::ListBox {
-                        set_valign: gtk::Align::Start,
-                        add_css_class: "boxed-list",
+                        #[local]
+                        profile_box -> gtk::ListBox {
+                            set_valign: gtk::Align::Start,
+                            add_css_class: "boxed-list",
 
-                        connect_row_activated[sender] => move |_, row| {
-                            let index = row.index();
-                            sender.input(FanListInput::Edit(index as usize));
+                            connect_row_activated[sender] => move |_, row| {
+                                let index = row.index();
+                                sender.input(FanListInput::Edit(index as usize));
+                            }
                         }
                     }
                 }
@@ -113,7 +115,10 @@ impl Component for FanList {
         let profile_box = gtk::ListBox::default();
         let profiles = FactoryVecDeque::new(profile_box.clone(), sender.input_sender());
 
-        let fan_edit = FanEdit::builder().transient_for(root).launch(()).detach();
+        let fan_edit = FanEdit::builder()
+            .transient_for(&**root)
+            .launch(())
+            .detach();
 
         let model = Self {
             profiles,
@@ -171,7 +176,7 @@ impl Component for FanList {
             FanListInput::Add => {
                 let profiles = self.profiles.iter().map(|i| i.name.to_string()).collect();
                 let mut new_entry = NewEntryDialog::builder()
-                    .transient_for(root)
+                    .transient_for(&**root)
                     .launch(NewEntryInit {
                         info: "Add fan profile".into(),
                         profiles,

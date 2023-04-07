@@ -1,5 +1,5 @@
 {
-    "id": "com.github.aaronerhardt.Tailor.Devel",
+    "id": "com.github.aaronerhardt.Tailor",
     "runtime": "org.gnome.Platform",
     "runtime-version": "44",
     "sdk": "org.gnome.Sdk",
@@ -13,7 +13,7 @@
         "--socket=wayland",
         "--system-talk-name=com.tux.Tailor",
         "--device=dri",
-        "--env=RUST_LOG=tailor_gui=debug",
+        "--env=RUST_LOG=tailor_gui=warn",
         "--env=G_MESSAGES_DEBUG=none",
         "--env=RUST_BACKTRACE=1"
     ],
@@ -41,7 +41,7 @@
             "buildsystem": "meson",
             "run-tests": true,
             "config-opts": [
-                "-Dprofile=development"
+                "-Dprofile=default"
             ],
             "sources": [
                 {

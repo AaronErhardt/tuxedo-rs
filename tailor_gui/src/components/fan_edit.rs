@@ -100,7 +100,7 @@ impl Component for FanEdit {
                             }.as_ref(),
                         set_vexpand: true,
                         set_hexpand: true,
-                        add_controller = &gtk::GestureDrag {
+                        add_controller = gtk::GestureDrag {
                             connect_drag_begin[sender] => move |_, x, y| {
                                 sender.input(FanEditInput::DragStart((x, y)));
                             },

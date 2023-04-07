@@ -21,8 +21,8 @@ impl SimpleComponent for AboutDialog {
             .version(VERSION)
             //.translator_credits(&gettext("translator-credits"))
             .modal(true)
-            .developers(vec!["Aaron Erhardt".into()])
-            .artists(vec!["Aaron Erhardt".into()])
+            .developers(vec!["Aaron Erhardt"])
+            .artists(vec!["Aaron Erhardt"])
             .build()
     }
 

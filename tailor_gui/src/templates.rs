@@ -4,12 +4,23 @@ use relm4::gtk::{self};
 use relm4::{adw, RelmWidgetExt, WidgetTemplate};
 
 #[relm4::widget_template(pub)]
+impl WidgetTemplate for CustomClamp {
+    view! {
+        gtk::ScrolledWindow {
+            #[name = "clamp"]
+            adw::Clamp {
+                set_margin_top: 10,
+                set_margin_bottom: 10,
+            }
+        }
+    }
+}
+
+#[relm4::widget_template(pub)]
 impl WidgetTemplate for MsgDialogBox {
     view! {
         gtk::Box {
             set_orientation: gtk::Orientation::Vertical,
-            // This must be moved in the next libadwaita release due to stylesheet changes
-            add_css_class: "response-area",
 
             gtk::WindowHandle {
                 #[name(title)]
@@ -27,6 +38,7 @@ impl WidgetTemplate for MsgDialogButtons {
     view! {
         gtk::Box {
             set_orientation: gtk::Orientation::Horizontal,
+            add_css_class: "response-area",
 
             #[name(cancel_button)]
             gtk::Button {

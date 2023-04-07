@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 mod app;
 pub mod components;
 mod config;
@@ -31,21 +33,20 @@ fn main() {
     app.set_application_id(Some(APP_ID));
     app.set_resource_base_path(Some("/com/github/aaronerhardt/Tailor/"));
 
-    let actions = RelmActionGroup::<AppActionGroup>::new();
-
     let quit_action = {
         let app = app.clone();
         RelmAction::<QuitAction>::new_stateless(move |_| {
             app.quit();
         })
     };
-    actions.add_action(&quit_action);
+
+    let mut actions = RelmActionGroup::<AppActionGroup>::new();
+    actions.add_action(quit_action);
+    actions.register_for_main_application();
 
     app.set_accelerators_for_action::<QuitAction>(&["<Control>q"]);
 
-    app.set_action_group(Some(&actions.into_action_group()));
-
-    let app = RelmApp::with_app(app);
+    let app = RelmApp::from_app(app);
 
     app.run::<App>(());
 }
