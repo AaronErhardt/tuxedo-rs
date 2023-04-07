@@ -1,18 +1,19 @@
 [package]
 name = "tuxedo_sysfs"
+authors = ["Aaron Erhardt <aaron.erhardt@t-online.de>"]
 version = "0.1.0"
 edition = "2021"
 license = "GPL-2.0+"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Tuxedo sysfs interface (part of tuxedo-rs)"
+repository = "https://github.com/AaronErhardt/tuxedo-rs"
 
 [dependencies]
 futures = "0.3"
-tokio-uring = "0.3"
-tokio = { version = "1", features = ["time", "fs"] }
+tokio = { version = "1", features = ["time"] }
+tokio-uring = "0.4"
+tracing = "0.1"
 
 tailor_api = { path = "../tailor_api" }
-tracing = "0.1.37"
 
 [dev-dependencies]
 sudo = "0.6"

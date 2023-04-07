@@ -5,17 +5,14 @@ version = "0.1.8"
 edition = "2021"
 license = "GPL-2.0+"
 description = "Client library for tailord (part of tuxedo-rs)"
-
 repository = "https://github.com/AaronErhardt/tuxedo-rs"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-zbus = { version = "3", default-features = false, features = ["tokio"] }
+thiserror = "1"
 serde_json = "1"
+zbus = { version = "3", default-features = false, features = ["tokio"] }
 
-tailor_api = { version = "0.1", path = "../tailor_api" }
-thiserror = "1.0.34"
+tailor_api = { path = "../tailor_api" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros"] }

@@ -5,9 +5,8 @@ version = "0.1.1"
 edition = "2021"
 license = "GPL-2.0+"
 description = "API types for communication with tailord (part of tuxedo-rs)"
-
 repository = "https://github.com/AaronErhardt/tuxedo-rs"
 
 [dependencies]
+atoi = "2"
 serde = { version = "1", features = ["derive"] }
-atoi = "1"
