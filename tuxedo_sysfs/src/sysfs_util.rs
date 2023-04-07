@@ -3,13 +3,6 @@ use std::path::Path;
 
 use tokio_uring::fs;
 
-pub(crate) async fn file_exists<P>(path: P) -> bool
-where
-    P: AsRef<Path>,
-{
-    tokio::fs::try_exists(path).await.ok() == Some(true)
-}
-
 pub(crate) async fn rw_file<P>(path: P) -> Result<fs::File, io::Error>
 where
     P: AsRef<Path>,
@@ -37,7 +30,7 @@ where
 }
 
 pub(crate) async fn read_to_string(file: &mut fs::File) -> Result<String, io::Error> {
-    let buffer = Vec::new();
+    let buffer = Vec::with_capacity(256);
     let (res, buffer) = file.read_at(buffer, 0).await;
     res?;
     String::from_utf8(buffer).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))
