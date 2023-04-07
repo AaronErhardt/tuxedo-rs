@@ -1,47 +1,53 @@
-use std::sync::Arc;
-
 use crate::{error::IoctlError, read, write};
 
-use super::{HardwareDevice, IoctlResult, WebcamDevice};
+use super::traits::{HardwareDevice, WebcamDevice};
+use super::IoctlResult;
 
 pub const MAX_FAN_SPEED: u8 = 0xff;
 
-const PERF_PROF_STR_QUIET: &str = "quiet";
-const PERF_PROF_STR_POWERSAVE: &str = "power_save";
-const PERF_PROF_STR_ENTERTAINMENT: &str = "entertainment";
-const PERF_PROF_STR_PERFORMANCE: &str = "performance";
+const PERF_PROF_QUIET: &str = "quiet";
+const PERF_PROF_POWERSAVE: &str = "power_saving";
+const PERF_PROF_PERFORMANCE: &str = "performance";
+const PERF_PROF_ENTERTAINMENT: &str = "entertainment";
 
 const PERF_PROFILE_MAP: [(&'static str, u8); 4] = [
-    (PERF_PROF_STR_QUIET, 0x00),
-    (PERF_PROF_STR_POWERSAVE, 0x01),
-    (PERF_PROF_STR_ENTERTAINMENT, 0x02),
-    (PERF_PROF_STR_PERFORMANCE, 0x03),
+    (PERF_PROF_QUIET, 0x00),
+    (PERF_PROF_POWERSAVE, 0x01),
+    (PERF_PROF_PERFORMANCE, 0x02),
+    (PERF_PROF_ENTERTAINMENT, 0x03),
 ];
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ClevoHardware {
-    file: Arc<std::fs::File>,
+    file: std::fs::File,
     num_of_fans: u8,
 }
 
-impl HardwareDevice for ClevoHardware {
-    fn init(file: std::fs::File) -> IoctlResult<Self> {
+impl ClevoHardware {
+    pub fn init(file: std::fs::File) -> IoctlResult<Self> {
         if read::cl::hw_check(&file)? == 1 {
             Ok(Self {
-                file: Arc::new(file),
+                file,
                 num_of_fans: 3,
             })
         } else {
             Err(IoctlError::DevNotAvailable)
         }
     }
+}
 
+impl HardwareDevice for ClevoHardware {
     fn device_interface_id_str(&self) -> IoctlResult<String> {
         read::cl::hw_interface_id(&self.file)
     }
 
     fn device_model_id_str(&self) -> IoctlResult<String> {
-        unimplemented!("clevo does not provide the model ID")
+        Err(IoctlError::NotAvailable)
+    }
+
+    fn set_enable_mode_set(&self, _enabled: bool) -> IoctlResult<()> {
+        // Not implemented for clevo for now...
+        Ok(())
     }
 
     fn get_number_fans(&self) -> u8 {
@@ -66,9 +72,9 @@ impl HardwareDevice for ClevoHardware {
             }
         }
 
-        let mut argument: u32 = fan_speed_raw[0] as u32;
-        argument |= (fan_speed_raw[1] as u32) << 0x08;
-        argument |= (fan_speed_raw[2] as u32) << 0x10;
+        let mut argument: i32 = fan_speed_raw[0] as i32;
+        argument |= (fan_speed_raw[1] as i32) << 0x08;
+        argument |= (fan_speed_raw[2] as i32) << 0x10;
         write::cl::fan_speed(&self.file, argument)?;
         Ok(())
     }
@@ -103,32 +109,32 @@ impl HardwareDevice for ClevoHardware {
 
     fn get_available_odm_performance_profiles(&self) -> IoctlResult<Vec<String>> {
         Ok(vec![
-            PERF_PROF_STR_QUIET.into(),
-            PERF_PROF_STR_POWERSAVE.into(),
-            PERF_PROF_STR_ENTERTAINMENT.into(),
-            PERF_PROF_STR_PERFORMANCE.into(),
+            PERF_PROF_QUIET.into(),
+            PERF_PROF_POWERSAVE.into(),
+            PERF_PROF_ENTERTAINMENT.into(),
+            PERF_PROF_PERFORMANCE.into(),
         ])
     }
 
-    fn set_odm_performance_profile(&self, performance_profile: String) -> IoctlResult<()> {
+    fn set_odm_performance_profile(&self, performance_profile: &str) -> IoctlResult<()> {
         if let Some((_, id)) = PERF_PROFILE_MAP
             .iter()
             .find(|(name, _)| name == &performance_profile)
         {
-            write::cl::perf_profile(&self.file, *id as u32)
+            write::cl::perf_profile(&self.file, *id as i32)
         } else {
             Err(IoctlError::InvalidArgs)
         }
     }
 
     fn get_default_odm_performance_profile(&self) -> IoctlResult<String> {
-        Ok("performace".into())
+        Ok(PERF_PROF_PERFORMANCE.to_owned())
     }
 }
 
 impl WebcamDevice for ClevoHardware {
     fn set_webcam(&self, status: bool) -> IoctlResult<()> {
-        write::cl::webcam_sw(&self.file, u32::from(status))
+        write::cl::webcam_sw(&self.file, i32::from(status))
     }
 
     fn get_webcam(&self) -> IoctlResult<bool> {
@@ -136,13 +142,14 @@ impl WebcamDevice for ClevoHardware {
     }
 }
 
+// Helper methods
 impl ClevoHardware {
     fn read_fanspeed_raw(&self, fan: u8) -> Result<u8, IoctlError> {
         self.read_faninfo_raw(fan)
             .map(|value| (value & 0xFF).try_into().unwrap())
     }
 
-    fn read_faninfo_raw(&self, fan: u8) -> Result<u32, IoctlError> {
+    fn read_faninfo_raw(&self, fan: u8) -> Result<i32, IoctlError> {
         match fan {
             0 => read::cl::fan_info_0(&self.file),
             1 => read::cl::fan_info_1(&self.file),

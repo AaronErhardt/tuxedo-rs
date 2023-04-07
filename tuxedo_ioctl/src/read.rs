@@ -32,11 +32,11 @@ fn read_string(file: &File, request_code: c_ulong) -> Result<String, IoctlError>
     Ok(String::from_utf8(data)?)
 }
 
-fn read_int(file: &File, request_code: c_ulong) -> Result<u32, IoctlError> {
+fn read_int(file: &File, request_code: c_ulong) -> Result<i32, IoctlError> {
     let fd = file.as_raw_fd();
 
-    let mut data = 0_u32;
-    let data_ptr: *mut u32 = &mut data;
+    let mut data = 0_i32;
+    let data_ptr: *mut i32 = &mut data;
 
     // This is safe as long as the kernel driver copies the right
     // amount of bytes. We just assume it does that correctly...
@@ -64,9 +64,9 @@ macro_rules! ioctl_read_int {
     ($name:ident, $id:expr, $seq:expr) => {
         pub fn $name(
             file: &::std::fs::File,
-        ) -> ::std::result::Result<u32, crate::error::IoctlError> {
+        ) -> ::std::result::Result<i32, crate::error::IoctlError> {
             let request_code: ::nix::libc::c_ulong =
-                ::nix::request_code_read!($id, $seq, ::std::mem::size_of::<*mut u32>());
+                ::nix::request_code_read!($id, $seq, ::std::mem::size_of::<*mut i32>());
             read_int(file, request_code)
         }
     };
@@ -88,8 +88,8 @@ pub mod cl {
     ioctl_read_int!(fan_info_2, MAGIC_READ_CL, 0x12);
 
     ioctl_read_int!(webcam_sw, MAGIC_READ_CL, 0x13);
-    ioctl_read_int!(flightmode_sw, MAGIC_READ_CL, 0x14);
-    ioctl_read_int!(touchpad_sw, MAGIC_READ_CL, 0x15);
+    //ioctl_read_int!(flightmode_sw, MAGIC_READ_CL, 0x14);
+    //ioctl_read_int!(touchpad_sw, MAGIC_READ_CL, 0x15);
 }
 
 // Read uniwill
@@ -106,8 +106,8 @@ pub mod uw {
     ioctl_read_int!(fan_temp_0, MAGIC_READ_UW, 0x12);
     ioctl_read_int!(fan_temp_1, MAGIC_READ_UW, 0x13);
 
-    ioctl_read_int!(mode, MAGIC_READ_UW, 0x14);
-    ioctl_read_int!(mode_enable, MAGIC_READ_UW, 0x15);
+    // ioctl_read_int!(mode, MAGIC_READ_UW, 0x14);
+    // ioctl_read_int!(mode_enable, MAGIC_READ_UW, 0x15);
     ioctl_read_int!(fans_off_available, MAGIC_READ_UW, 0x16);
     ioctl_read_int!(fans_min_speed, MAGIC_READ_UW, 0x17);
 
@@ -124,7 +124,6 @@ pub mod uw {
     ioctl_read_int!(profs_available, MAGIC_READ_UW, 0x21);
 }
 
-/*
 #[cfg(test)]
 mod test {
     use super::*;
@@ -135,19 +134,19 @@ mod test {
         sudo::escalate_if_needed().unwrap();
 
         let file = open_device_file().unwrap();
-        assert!(mod_version(&file).unwrap().contains("0.2"));
+        assert!(mod_version(&file).unwrap().contains("0.3"));
 
-        assert_eq!(cl_hwcheck(&file).unwrap(), 1);
-        assert_eq!(uw_hwcheck(&file).unwrap(), 0);
+        if cl::hw_check(&file).unwrap() == 1 {
+            assert!(uw::hw_check(&file).unwrap() != 1);
 
-        assert!(cl_hw_interface_id(&file).unwrap().contains("clevo_acpi"));
-        cl_faninfo1(&file).unwrap();
-        cl_faninfo2(&file).unwrap();
-        cl_faninfo3(&file).unwrap();
+            assert!(cl::hw_interface_id(&file).unwrap().contains("clevo_acpi"));
+            cl::fan_info_0(&file).unwrap();
+            cl::fan_info_1(&file).unwrap();
+            cl::fan_info_2(&file).unwrap();
 
-        cl_webcam_sw(&file).unwrap();
-        cl_flightmode_sw(&file).unwrap();
-        cl_touchpad_sw(&file).unwrap();
+            cl::webcam_sw(&file).unwrap();
+        } else {
+            assert!(uw::hw_check(&file).unwrap() == 1);
+        }
     }
 }
- */
