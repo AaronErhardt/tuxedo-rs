@@ -130,32 +130,83 @@ impl HardwareDevice for UniwillHardware {
     }
 
     fn get_default_odm_performance_profile(&self) -> IoctlResult<String> {
-        todo!()
+        let available_profs = read::uw::profs_available(&self.file)?;
+        if available_profs > 0 {
+            if self.get_number_tdps() > 0 {
+                // LEDs only case (default to LEDs off)
+                return Ok(PERF_PROF_STR_OVERBOOST.into());
+            } else {
+                return Ok(PERF_PROF_STR_ENTHUSIAST.into());
+            }
+        }
+        Err(IoctlError::DevNotAvailable)
     }
 }
 
 impl TdpDevice for UniwillHardware {
-    fn get_number_tdps(&self) -> IoctlResult<u8> {
-        todo!()
+    fn get_number_tdps(&self) -> u8 {
+        let mut number: u8 = 0;
+        for idx in 0..2 {
+            if let Ok(status) = self.get_tdp(idx) {
+                if status > 0 {
+                    number += 1;
+                }
+            }
+        }
+        number
     }
 
-    fn get_tdp_descriptors(&self) -> IoctlResult<Vec<String>> {
-        todo!()
+    fn get_tdp_descriptors(&self) -> Vec<String> {
+        let mut descriptors = Vec::new();
+        for idx in 0..self.get_number_tdps() {
+            match idx {
+                 0 => descriptors.push("pl1".to_string()),
+                 1 => descriptors.push("pl2".to_string()),
+                 2 => descriptors.push("pl4".to_string()),
+                 _ => {}
+            }
+        }
+        descriptors
     }
 
     fn get_tdp_min(&self, tdp_index: u8) -> IoctlResult<u8> {
-        todo!()
+        let tdp = match tdp_index {
+            0 => read::uw::tdp_min_0(&self.file)?,
+            1 => read::uw::tdp_min_1(&self.file)?,
+            2 => read::uw::tdp_min_2(&self.file)?,
+            _ => return Err(IoctlError::InvalidArgs)
+        };
+        Ok(u8::try_from(tdp).unwrap_or_default())
     }
 
     fn get_tdp_max(&self, tdp_index: u8) -> IoctlResult<u8> {
-        todo!()
+        let tdp = match tdp_index {
+            0 => read::uw::tdp_max_0(&self.file)?,
+            1 => read::uw::tdp_max_1(&self.file)?,
+            2 => read::uw::tdp_max_2(&self.file)?,
+            _ => return Err(IoctlError::InvalidArgs)
+        };
+        Ok(u8::try_from(tdp).unwrap_or_default())
     }
 
     fn set_tdp(&self, tdp_index: u8, tdp_value: u8) -> IoctlResult<()> {
-        todo!()
+        let tdp_value = tdp_value as u32;
+        match tdp_index {
+            0 => write::uw::tdp_0(&self.file, tdp_value)?,
+            1 => write::uw::tdp_1(&self.file, tdp_value)?,
+            2 => write::uw::tdp_2(&self.file, tdp_value)?,
+            _ => return Err(IoctlError::InvalidArgs)
+        }
+        Ok(())
     }
 
     fn get_tdp(&self, tdp_index: u8) -> IoctlResult<u8> {
-        todo!()
+        let tdp = match tdp_index {
+            0 => read::uw::tdp_0(&self.file)?,
+            1 => read::uw::tdp_1(&self.file)?,
+            2 => read::uw::tdp_2(&self.file)?,
+            _ => return Err(IoctlError::InvalidArgs)
+        };
+        Ok(u8::try_from(tdp).unwrap_or_default())
     }
 }

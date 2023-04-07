@@ -40,8 +40,8 @@ pub trait WebcamDevice {
 }
 
 pub trait TdpDevice {
-    fn get_number_tdps(&self) -> IoctlResult<u8>;
-    fn get_tdp_descriptors(&self) -> IoctlResult<Vec<String>>;
+    fn get_number_tdps(&self) -> u8;
+    fn get_tdp_descriptors(&self) -> Vec<String>;
     fn get_tdp_min(&self, tdp_index: u8) -> IoctlResult<u8>;
     fn get_tdp_max(&self, tdp_index: u8) -> IoctlResult<u8>;
     fn set_tdp(&self, tdp_index: u8, tdp_value: u8) -> IoctlResult<()>;
