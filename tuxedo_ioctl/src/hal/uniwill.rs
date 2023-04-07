@@ -9,7 +9,7 @@ const PERF_PROF_BALANCED: &str = "power_save";
 const PERF_PROF_ENTHUSIAST: &str = "enthusiast";
 const PERF_PROF_OVERBOOST: &str = "overboost";
 
-const PERF_PROFILE_MAP: [(&'static str, u8); 3] = [
+const PERF_PROFILE_MAP: [(&str, u8); 3] = [
     (PERF_PROF_BALANCED, 0x01),
     (PERF_PROF_ENTHUSIAST, 0x02),
     (PERF_PROF_OVERBOOST, 0x03),

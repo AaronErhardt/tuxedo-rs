@@ -10,7 +10,7 @@ const PERF_PROF_POWERSAVE: &str = "power_saving";
 const PERF_PROF_PERFORMANCE: &str = "performance";
 const PERF_PROF_ENTERTAINMENT: &str = "entertainment";
 
-const PERF_PROFILE_MAP: [(&'static str, u8); 4] = [
+const PERF_PROFILE_MAP: [(&str, u8); 4] = [
     (PERF_PROF_QUIET, 0x00),
     (PERF_PROF_POWERSAVE, 0x01),
     (PERF_PROF_PERFORMANCE, 0x02),
