@@ -1,4 +1,4 @@
-use std::{time::Duration, future::pending};
+use std::{future::pending, time::Duration};
 
 use futures_lite::StreamExt;
 use tokio::sync::broadcast;

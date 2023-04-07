@@ -61,7 +61,7 @@ impl KeyboardRuntime {
                     }
                 }
             }
-            // TODO(uniwill) There is no(?) keyboard support for uniwill, should we just 
+            // TODO(uniwill) There is no(?) keyboard support for uniwill, should we just
             // prevent this function to run or is it expected to read from the channel?
             Hw::Uniwill => loop {
                 tokio::select! {

@@ -80,8 +80,8 @@ pub struct IoInterface {
 impl IoInterface {
     pub fn new() -> Result<Self, std::io::Error> {
         let file = open_device_file()?;
-        let hw = Hw::new()?; 
-        Ok(Self{file, hw})
+        let hw = Hw::new()?;
+        Ok(Self { file, hw })
     }
 
     fn set_fan_speed_percent_clevo(
