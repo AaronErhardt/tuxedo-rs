@@ -16,7 +16,6 @@ pub trait HardwareDevice: Sized {
         Ok(())
     }
 
-
     // Get the amount of available fans
     fn get_number_fans(&self) -> u8;
 

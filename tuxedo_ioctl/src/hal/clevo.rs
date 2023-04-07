@@ -111,7 +111,10 @@ impl HardwareDevice for ClevoHardware {
     }
 
     fn set_odm_performance_profile(&self, performance_profile: String) -> IoctlResult<()> {
-        if let Some((_, id)) = PERF_PROFILE_MAP.iter().find(|(name, _)| name == &performance_profile) {
+        if let Some((_, id)) = PERF_PROFILE_MAP
+            .iter()
+            .find(|(name, _)| name == &performance_profile)
+        {
             write::cl::perf_profile(&self.file, *id as u32)
         } else {
             Err(IoctlError::InvalidArgs)

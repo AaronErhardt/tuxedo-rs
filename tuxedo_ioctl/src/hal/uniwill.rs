@@ -117,7 +117,10 @@ impl HardwareDevice for UniwillHardware {
     }
 
     fn set_odm_performance_profile(&self, performance_profile: String) -> IoctlResult<()> {
-        if let Some((_, id)) = PERF_PROFILE_MAP.iter().find(|(name, _)| name == &performance_profile) {
+        if let Some((_, id)) = PERF_PROFILE_MAP
+            .iter()
+            .find(|(name, _)| name == &performance_profile)
+        {
             write::uw::perf_prof(&self.file, *id as u32)
         } else {
             Err(IoctlError::InvalidArgs)
@@ -155,10 +158,10 @@ impl TdpDevice for UniwillHardware {
         let mut descriptors = Vec::new();
         for idx in 0..self.get_number_tdps() {
             match idx {
-                 0 => descriptors.push("pl1".to_string()),
-                 1 => descriptors.push("pl2".to_string()),
-                 2 => descriptors.push("pl4".to_string()),
-                 _ => {}
+                0 => descriptors.push("pl1".to_string()),
+                1 => descriptors.push("pl2".to_string()),
+                2 => descriptors.push("pl4".to_string()),
+                _ => {}
             }
         }
         descriptors
@@ -169,7 +172,7 @@ impl TdpDevice for UniwillHardware {
             0 => read::uw::tdp_min_0(&self.file)?,
             1 => read::uw::tdp_min_1(&self.file)?,
             2 => read::uw::tdp_min_2(&self.file)?,
-            _ => return Err(IoctlError::InvalidArgs)
+            _ => return Err(IoctlError::InvalidArgs),
         };
         Ok(u8::try_from(tdp).unwrap_or_default())
     }
@@ -179,7 +182,7 @@ impl TdpDevice for UniwillHardware {
             0 => read::uw::tdp_max_0(&self.file)?,
             1 => read::uw::tdp_max_1(&self.file)?,
             2 => read::uw::tdp_max_2(&self.file)?,
-            _ => return Err(IoctlError::InvalidArgs)
+            _ => return Err(IoctlError::InvalidArgs),
         };
         Ok(u8::try_from(tdp).unwrap_or_default())
     }
@@ -190,7 +193,7 @@ impl TdpDevice for UniwillHardware {
             0 => write::uw::tdp_0(&self.file, tdp_value)?,
             1 => write::uw::tdp_1(&self.file, tdp_value)?,
             2 => write::uw::tdp_2(&self.file, tdp_value)?,
-            _ => return Err(IoctlError::InvalidArgs)
+            _ => return Err(IoctlError::InvalidArgs),
         }
         Ok(())
     }
@@ -200,7 +203,7 @@ impl TdpDevice for UniwillHardware {
             0 => read::uw::tdp_0(&self.file)?,
             1 => read::uw::tdp_1(&self.file)?,
             2 => read::uw::tdp_2(&self.file)?,
-            _ => return Err(IoctlError::InvalidArgs)
+            _ => return Err(IoctlError::InvalidArgs),
         };
         Ok(u8::try_from(tdp).unwrap_or_default())
     }
