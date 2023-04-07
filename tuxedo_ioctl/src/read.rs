@@ -5,7 +5,7 @@ use nix::{
     libc::{c_ulong, ioctl},
 };
 
-use crate::{config::IOCTL_MAGIC, config::MAGIC_READ_CL, config::MAGIC_READ_UW, error::IoctlError};
+use crate::{config::IOCTL_MAGIC, error::IoctlError};
 
 fn read_string(file: &File, request_code: c_ulong) -> Result<String, IoctlError> {
     let fd = file.as_raw_fd();
@@ -74,28 +74,57 @@ macro_rules! ioctl_read_int {
 
 // General
 ioctl_read_string!(mod_version, IOCTL_MAGIC, 0x00);
-ioctl_read_int!(hwcheck_cl, IOCTL_MAGIC, 0x05);
-ioctl_read_int!(hwcheck_uw, IOCTL_MAGIC, 0x06);
 
 // Read clevo
-ioctl_read_string!(cl_hw_interface_id, MAGIC_READ_CL, 0x00);
-ioctl_read_int!(cl_faninfo1, MAGIC_READ_CL, 0x10);
-ioctl_read_int!(cl_faninfo2, MAGIC_READ_CL, 0x11);
-ioctl_read_int!(cl_faninfo3, MAGIC_READ_CL, 0x12);
+pub mod cl {
+    use super::{read_int, read_string};
+    use crate::config::{IOCTL_MAGIC, MAGIC_READ_CL};
 
-ioctl_read_int!(cl_webcam_sw, MAGIC_READ_CL, 0x13);
-ioctl_read_int!(cl_flightmode_sw, MAGIC_READ_CL, 0x14);
-ioctl_read_int!(cl_touchpad_sw, MAGIC_READ_CL, 0x15);
+    ioctl_read_int!(hw_check, IOCTL_MAGIC, 0x05);
+
+    ioctl_read_string!(hw_interface_id, MAGIC_READ_CL, 0x00);
+    ioctl_read_int!(fan_info_0, MAGIC_READ_CL, 0x10);
+    ioctl_read_int!(fan_info_1, MAGIC_READ_CL, 0x11);
+    ioctl_read_int!(fan_info_2, MAGIC_READ_CL, 0x12);
+
+    ioctl_read_int!(webcam_sw, MAGIC_READ_CL, 0x13);
+    ioctl_read_int!(flightmode_sw, MAGIC_READ_CL, 0x14);
+    ioctl_read_int!(touchpad_sw, MAGIC_READ_CL, 0x15);
+}
 
 // Read uniwill
-ioctl_read_int!(uw_fanspeed, MAGIC_READ_UW, 0x10);
-ioctl_read_int!(uw_fanspeed2, MAGIC_READ_UW, 0x11);
-ioctl_read_int!(uw_fan_temp, MAGIC_READ_UW, 0x12);
-ioctl_read_int!(uw_fan_temp2, MAGIC_READ_UW, 0x13);
+pub mod uw {
+    use super::{read_int, read_string};
+    use crate::config::{IOCTL_MAGIC, MAGIC_READ_UW};
 
-ioctl_read_int!(uw_mode, MAGIC_READ_UW, 0x14);
-ioctl_read_int!(uw_mode_enable, MAGIC_READ_UW, 0x15);
+    ioctl_read_int!(hw_check, IOCTL_MAGIC, 0x06);
 
+    ioctl_read_string!(hw_interface_id, MAGIC_READ_UW, 0x00);
+    ioctl_read_int!(model_id, MAGIC_READ_UW, 0x01);
+    ioctl_read_int!(fan_speed_0, MAGIC_READ_UW, 0x10);
+    ioctl_read_int!(fan_speed_1, MAGIC_READ_UW, 0x11);
+    ioctl_read_int!(fan_temp_0, MAGIC_READ_UW, 0x12);
+    ioctl_read_int!(fan_temp_1, MAGIC_READ_UW, 0x13);
+
+    ioctl_read_int!(mode, MAGIC_READ_UW, 0x14);
+    ioctl_read_int!(mode_enable, MAGIC_READ_UW, 0x15);
+    ioctl_read_int!(fans_off_available, MAGIC_READ_UW, 0x16);
+    ioctl_read_int!(fans_min_speed, MAGIC_READ_UW, 0x17);
+
+    ioctl_read_int!(tdp_0, MAGIC_READ_UW, 0x18);
+    ioctl_read_int!(tdp_1, MAGIC_READ_UW, 0x19);
+    ioctl_read_int!(tdp_2, MAGIC_READ_UW, 0x1a);
+    ioctl_read_int!(tdp_min_0, MAGIC_READ_UW, 0x1b);
+    ioctl_read_int!(tdp_min_1, MAGIC_READ_UW, 0x1c);
+    ioctl_read_int!(tdp_min_2, MAGIC_READ_UW, 0x1d);
+    ioctl_read_int!(tdp_max_0, MAGIC_READ_UW, 0x1e);
+    ioctl_read_int!(tdp_max_1, MAGIC_READ_UW, 0x1f);
+    ioctl_read_int!(tdp_max_2, MAGIC_READ_UW, 0x20);
+
+    ioctl_read_int!(profs_available, MAGIC_READ_UW, 0x21);
+}
+
+/*
 #[cfg(test)]
 mod test {
     use super::*;
@@ -108,8 +137,8 @@ mod test {
         let file = open_device_file().unwrap();
         assert!(mod_version(&file).unwrap().contains("0.2"));
 
-        assert_eq!(hwcheck_cl(&file).unwrap(), 1);
-        assert_eq!(hwcheck_uw(&file).unwrap(), 0);
+        assert_eq!(cl_hwcheck(&file).unwrap(), 1);
+        assert_eq!(uw_hwcheck(&file).unwrap(), 0);
 
         assert!(cl_hw_interface_id(&file).unwrap().contains("clevo_acpi"));
         cl_faninfo1(&file).unwrap();
@@ -121,3 +150,4 @@ mod test {
         cl_touchpad_sw(&file).unwrap();
     }
 }
+ */

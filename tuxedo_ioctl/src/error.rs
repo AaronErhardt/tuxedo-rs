@@ -10,4 +10,6 @@ pub enum IoctlError {
     Read(#[from] Errno),
     #[error("Device not available")]
     DevNotAvailable,
+    #[error("Invalid args")]
+    InvalidArgs,
 }
