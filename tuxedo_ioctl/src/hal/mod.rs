@@ -14,6 +14,7 @@ mod uniwill;
 
 pub type IoctlResult<T> = Result<T, IoctlError>;
 
+#[derive(Debug)]
 pub struct IoInterface {
     pub module_version: String,
     pub device: Arc<dyn HardwareDevice>,

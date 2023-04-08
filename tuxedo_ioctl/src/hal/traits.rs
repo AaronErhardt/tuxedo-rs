@@ -1,6 +1,8 @@
+use std::fmt::Debug;
+
 use super::IoctlResult;
 
-pub trait HardwareDevice {
+pub trait HardwareDevice: Debug {
     fn device_interface_id_str(&self) -> IoctlResult<String>;
     fn device_model_id_str(&self) -> IoctlResult<String>;
     fn set_enable_mode_set(&self, enabled: bool) -> IoctlResult<()>;
@@ -28,12 +30,12 @@ pub trait HardwareDevice {
     fn get_default_odm_performance_profile(&self) -> IoctlResult<String>;
 }
 
-pub trait WebcamDevice {
+pub trait WebcamDevice: Debug {
     fn set_webcam(&self, status: bool) -> IoctlResult<()>;
     fn get_webcam(&self) -> IoctlResult<bool>;
 }
 
-pub trait TdpDevice {
+pub trait TdpDevice: Debug {
     fn get_number_tdps(&self) -> IoctlResult<u8>;
     fn get_tdp_descriptors(&self) -> IoctlResult<Vec<String>>;
     fn get_tdp_min(&self, tdp_index: u8) -> IoctlResult<i32>;

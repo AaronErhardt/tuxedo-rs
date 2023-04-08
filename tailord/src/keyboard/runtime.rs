@@ -2,12 +2,12 @@ use std::{future::pending, time::Duration};
 
 use tailor_api::{Color, ColorPoint, ColorProfile, ColorTransition};
 use tokio::sync::{broadcast, mpsc};
-use tuxedo_sysfs::keyboard::KeyboardController;
+// use tuxedo_sysfs::keyboard::KeyboardController;
 
 use crate::suspend::process_suspend;
 
 pub struct KeyboardRuntime {
-    io: KeyboardController,
+    // io: KeyboardController,
     profile: ColorProfile,
     suspend_receiver: broadcast::Receiver<bool>,
 }
@@ -15,7 +15,7 @@ pub struct KeyboardRuntime {
 impl KeyboardRuntime {
     pub async fn new(profile: ColorProfile, suspend_receiver: broadcast::Receiver<bool>) -> Self {
         Self {
-            io: KeyboardController::new().await.unwrap(),
+            // io: KeyboardController::new().await.unwrap(),
             profile,
             suspend_receiver,
         }
@@ -27,64 +27,72 @@ impl KeyboardRuntime {
         mut color_receiver: mpsc::Receiver<Color>,
     ) {
         loop {
+            // TODO(clevo) - Keyboard is currently broken, so we just run the tokio select and
+            // suspend.
             tokio::select! {
-                new_colors = keyboard_receiver.recv() => {
-                    if let Some(colors) = new_colors {
-                        self.profile = colors;
-                    }
-                }
-                // Override the current color value for 1s
-                override_color = color_receiver.recv() => {
-                    if let Some(mut color) = override_color {
-                        loop {
-                            if let Err(err) = self.io.set_color_left(&color).await {
-                                tracing::error!("Failed to update keyboard color: `{}`", err.to_string());
-                                break;
-                            }
-                            tokio::select! {
-                                override_color = color_receiver.recv() => {
-                                    if let Some(new_color) = override_color {
-                                        color = new_color
-                                    }
-                                }
-                                _ = tokio::time::sleep(Duration::from_millis(1000)) => break,
-                            }
-                        }
-                    }
-                }
-                _ = self.update_colors() => {}
-            }
-        }
-    }
-
-    pub async fn update_colors(&mut self) {
-        match &self.profile {
-            ColorProfile::None => pending().await,
-            ColorProfile::Single(color) => {
-                self.io.set_color_all(color).await.unwrap();
-                pending().await
-            }
-            ColorProfile::Multiple(colors) => {
-                let color_steps = calculate_color_animation_steps(colors);
-                self.run_color_animation(&color_steps).await;
-            }
-        }
-    }
-
-    /// Infinitely run a color animation and
-    /// stop the animation while suspended.
-    async fn run_color_animation(&mut self, color_steps: &[(Color, u32)]) {
-        for step in color_steps.iter().cycle() {
-            if let Err(err) = self.io.set_color_left(&step.0).await {
-                tracing::error!("Failed setting keyboard colors: `{err}`")
-            }
-
-            tokio::select! {
-                _ = tokio::time::sleep(Duration::from_millis(step.1 as u64)) => {}
+                _ = tokio::time::sleep(Duration::from_millis(1000)) => {}
                 _ = process_suspend(&mut self.suspend_receiver) => {}
             }
+            // tokio::select! {
+            //     new_colors = keyboard_receiver.recv() => {
+            //         if let Some(colors) = new_colors {
+            //             self.profile = colors;
+            //         }
+            //     }
+            //     // Override the current color value for 1s
+            //     override_color = color_receiver.recv() => {
+            //         if let Some(mut color) = override_color {
+            //             loop {
+            //                 if let Err(err) = self.io.set_color_left(&color).await {
+            //                     tracing::error!("Failed to update keyboard color: `{}`", err.to_string());
+            //                     break;
+            //                 }
+            //                 tokio::select! {
+            //                     override_color = color_receiver.recv() => {
+            //                         if let Some(new_color) = override_color {
+            //                             color = new_color
+            //                         }
+            //                     }
+            //                     _ = tokio::time::sleep(Duration::from_millis(1000)) => break,
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     _ = self.update_colors() => {}
+            // }
         }
     }
+
+    // TODO(clevo)
+    // pub async fn update_colors(&mut self) {
+    //     match &self.profile {
+    //         ColorProfile::None => pending().await,
+    //         ColorProfile::Single(color) => {
+    //             self.io.set_color_all(color).await.unwrap();
+    //             pending().await
+    //         }
+    //         ColorProfile::Multiple(colors) => {
+    //             let color_steps = calculate_color_animation_steps(colors);
+    //             self.run_color_animation(&color_steps).await;
+    //         }
+    //     }
+    // }
+
+    // TODO(clevo)
+    // /// Infinitely run a color animation and
+    // /// stop the animation while suspended.
+    // async fn run_color_animation(&mut self, color_steps: &[(Color, u32)]) {
+    //     for step in color_steps.iter().cycle() {
+    //         if let Err(err) = self.io.set_color_left(&step.0).await {
+    //             tracing::error!("Failed setting keyboard colors: `{err}`")
+    //         }
+
+    //         tokio::select! {
+    //             _ = tokio::time::sleep(Duration::from_millis(step.1 as u64)) => {}
+    //             _ = process_suspend(&mut self.suspend_receiver) => {}
+    //         }
+    //     }
+    // }
 }
 
 fn calculate_color_animation_steps(colors: &[ColorPoint]) -> Vec<(Color, u32)> {

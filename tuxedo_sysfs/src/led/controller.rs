@@ -49,39 +49,42 @@ impl Controller {
             ..
         } = self;
 
-        if let Some(intensities) = intensities_file {
-            write_string(intensities, color.sysfs_rgb_string(*max_brightness)).await
-        } else {
-            write_string(
-                brightness_file,
-                color.sysfs_monochrome_string(*max_brightness),
-            )
-            .await
-        }
+        // TODO(clevo) - color.sysfs_monochrome_string is not defined.
+        // if let Some(intensities) = intensities_file {
+        //     write_string(intensities, color.sysfs_rgb_string(*max_brightness)).await
+        // } else {
+        //     write_string(
+        //         brightness_file,
+        //         color.sysfs_monochrome_string(*max_brightness),
+        //     )
+        //     .await
+        // }
+        Ok(())
     }
 
-    pub async fn get_color(&mut self) -> Result<Color, io::Error> {
-        let Self {
-            max_brightness,
-            brightness_file,
-            intensities_file,
-            ..
-        } = self;
+    // TODO(clevo) - color.from_sysfs_rgb_value is not defined.
+    // pub async fn get_color(&mut self) -> Result<Color, io::Error> {
+    //     let Self {
+    //         max_brightness,
+    //         brightness_file,
+    //         intensities_file,
+    //         ..
+    //     } = self;
 
-        if let Some(intensities) = intensities_file {
-            let values = read_int_list(intensities).await?;
-            let values: [u32; 3] = values.try_into().map_err(|_| {
-                io::Error::new(io::ErrorKind::InvalidData, "Invalid number of values")
-            })?;
-            Ok(Color::from_sysfs_rgb_value(values, *max_brightness))
-        } else {
-            let value = read_int_list(brightness_file).await?[0];
-            Ok(Color::from_sysfs_rgb_value(
-                [value, value, value],
-                *max_brightness,
-            ))
-        }
-    }
+    //     if let Some(intensities) = intensities_file {
+    //         let values = read_int_list(intensities).await?;
+    //         let values: [u32; 3] = values.try_into().map_err(|_| {
+    //             io::Error::new(io::ErrorKind::InvalidData, "Invalid number of values")
+    //         })?;
+    //         Ok(Color::from_sysfs_rgb_value(values, *max_brightness))
+    //     } else {
+    //         let value = read_int_list(brightness_file).await?[0];
+    //         Ok(Color::from_sysfs_rgb_value(
+    //             [value, value, value],
+    //             *max_brightness,
+    //         ))
+    //     }
+    // }
 
     pub fn device_name(&self) -> &str {
         &self.device_name
