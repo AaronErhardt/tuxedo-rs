@@ -35,37 +35,56 @@ impl UniwillHardware {
 }
 
 impl HardwareDevice for UniwillHardware {
+    #[tracing::instrument(level = "trace", skip(self))]
     fn device_interface_id_str(&self) -> IoctlResult<String> {
-        read::uw::hw_interface_id(&self.file)
+        let hw_interface_id = read::uw::hw_interface_id(&self.file)?;
+        tracing::trace!("Hardware interface ID: {hw_interface_id}");
+        Ok(hw_interface_id)
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn device_model_id_str(&self) -> IoctlResult<String> {
-        read::uw::model_id(&self.file).map(|id| id.to_string())
+        let device_model_id = read::uw::model_id(&self.file).map(|id| id.to_string())?;
+        tracing::trace!("Device model ID: {device_model_id}");
+        Ok(device_model_id)
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn set_enable_mode_set(&self, enabled: bool) -> IoctlResult<()> {
-        write::uw::mode_enable(&self.file, i32::from(enabled))
+        write::uw::mode_enable(&self.file, i32::from(enabled))?;
+        tracing::trace!("Set enable mode to {enabled}");
+        Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn get_number_fans(&self) -> u8 {
+        tracing::trace!("Available number of fans: {}", self.num_of_fans);
         self.num_of_fans
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn set_fans_auto(&self) -> IoctlResult<()> {
-        write::uw::fan_auto(&self.file, 0)
+        write::uw::fan_auto(&self.file, 0)?;
+        tracing::trace!("Set fan mode to auto");
+        Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn set_fan_speed_percent(&self, fan: u8, fan_speed_percent: u8) -> IoctlResult<()> {
         let fan_speed_raw =
             (MAX_FAN_SPEED as f64 * fan_speed_percent as f64 / 100.0).round() as i32;
 
+
         match fan {
-            0 => write::uw::fan_speed_0(&self.file, fan_speed_raw),
-            1 => write::uw::fan_speed_1(&self.file, fan_speed_raw),
-            _ => Err(IoctlError::DevNotAvailable),
+            0 => write::uw::fan_speed_0(&self.file, fan_speed_raw)?,
+            1 => write::uw::fan_speed_1(&self.file, fan_speed_raw)?,
+            _ => return Err(IoctlError::DevNotAvailable),
         }
+        tracing::trace!("Set fan {fan} speed percentage to {fan_speed_percent}, fan speed raw: {fan_speed_raw}");
+        Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn get_fan_speed_percent(&self, fan: u8) -> IoctlResult<u8> {
         let fan_speed_raw = match fan {
             0 => read::uw::fan_speed_0(&self.file),
@@ -73,9 +92,12 @@ impl HardwareDevice for UniwillHardware {
             _ => Err(IoctlError::DevNotAvailable),
         }?;
 
-        Ok((fan_speed_raw as f64 * 100.0 / MAX_FAN_SPEED as f64).round() as u8)
+        let speed = (fan_speed_raw as f64 * 100.0 / MAX_FAN_SPEED as f64).round() as u8;
+        tracing::trace!("Fan {fan} speed percentage is {speed}, fan speed raw: {fan_speed_raw}");
+        Ok(speed)
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn get_fan_temperature(&self, fan: u8) -> IoctlResult<u8> {
         let temp = match fan {
             0 => read::uw::fan_temp_0(&self.file),
@@ -87,22 +109,29 @@ impl HardwareDevice for UniwillHardware {
         if temp == 0 {
             Err(IoctlError::DevNotAvailable)
         } else {
+            tracing::trace!("Fan {fan} temperature is {temp} C");
             Ok(temp as u8)
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn get_fans_min_speed(&self) -> IoctlResult<u8> {
         let speed = read::uw::fans_min_speed(&self.file)?;
+        tracing::trace!("Minumum fan speed is {speed}");
         Ok(u8::try_from(speed).unwrap_or_default())
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn get_fans_off_available(&self) -> IoctlResult<bool> {
-        read::uw::fans_off_available(&self.file).map(|res| res == 1)
+        let is_off = read::uw::fans_off_available(&self.file).map(|res| res == 1)?;
+        tracing::trace!("Fan off switch available: {is_off}");
+        Ok(is_off)
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn get_available_odm_performance_profiles(&self) -> IoctlResult<Vec<String>> {
         let available_profs = read::uw::profs_available(&self.file)?;
-        Ok(match available_profs {
+        let profiles = match available_profs {
             2 => {
                 vec![PERF_PROF_BALANCED.into(), PERF_PROF_ENTHUSIAST.into()]
             }
@@ -116,31 +145,39 @@ impl HardwareDevice for UniwillHardware {
             _ => {
                 return Err(IoctlError::DevNotAvailable);
             }
-        })
+        };
+        tracing::trace!("Available performance profiles: {profiles:?}");
+        Ok(profiles)
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn set_odm_performance_profile(&self, performance_profile: &str) -> IoctlResult<()> {
         if let Some((_, id)) = PERF_PROFILE_MAP
             .iter()
             .find(|(name, _)| name == &performance_profile)
         {
-            write::uw::perf_profile(&self.file, *id as i32)
+            write::uw::perf_profile(&self.file, *id as i32)?;
+            tracing::trace!("Set performance profiles: {performance_profile}");
+            Ok(())
         } else {
             Err(IoctlError::InvalidArgs)
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn get_default_odm_performance_profile(&self) -> IoctlResult<String> {
         let available_profiles = read::uw::profs_available(&self.file)?;
         if available_profiles > 0 {
             let nr_tdps = self.get_number_tdps()?;
-            Ok(if nr_tdps > 0 {
+            let profile = if nr_tdps > 0 {
                 // LEDs only case (default to LEDs off)
                 PERF_PROF_OVERBOOST
             } else {
                 PERF_PROF_ENTHUSIAST
             }
-            .to_owned())
+            .to_owned();
+            tracing::trace!("Default performance profiles: {profile}");
+            Ok(profile)
         } else {
             Err(IoctlError::DevNotAvailable)
         }

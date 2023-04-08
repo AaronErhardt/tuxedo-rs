@@ -78,6 +78,7 @@ impl FanRuntime {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     /// Adds entries to history ring buffer.
     fn update_temp(&mut self) -> u8 {
         match self.io.device.get_fan_temperature(0) {
@@ -92,6 +93,7 @@ impl FanRuntime {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     fn set_speed(&mut self, new_speed: u8) {
         if self.fan_speed != new_speed {
             self.fan_speed = new_speed;
