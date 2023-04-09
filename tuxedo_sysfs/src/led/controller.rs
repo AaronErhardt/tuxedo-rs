@@ -50,13 +50,13 @@ impl Controller {
         } = self;
 
         if let Some(intensities) = intensities_file {
-             write_string(intensities, color.sysfs_rgb_string(*max_brightness)).await
+            write_string(intensities, color.sysfs_rgb_string(*max_brightness)).await
         } else {
-             write_string(
-                 brightness_file,
-                 color.sysfs_monochrome_string(*max_brightness),
-             )
-             .await
+            write_string(
+                brightness_file,
+                color.sysfs_monochrome_string(*max_brightness),
+            )
+            .await
         }
     }
 

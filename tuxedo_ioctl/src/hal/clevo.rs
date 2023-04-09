@@ -26,10 +26,17 @@ pub struct ClevoHardware {
 impl ClevoHardware {
     pub fn init(file: std::fs::File) -> IoctlResult<Self> {
         if read::cl::hw_check(&file)? == 1 {
-            Ok(Self {
+            let mut this = Self {
                 file,
-                num_of_fans: 3,
-            })
+                num_of_fans: 0,
+            };
+
+            // Only show actually available fans
+            while this.get_fan_temperature(this.num_of_fans).is_ok() {
+                this.num_of_fans += 1;
+            }
+
+            Ok(this)
         } else {
             Err(IoctlError::DevNotAvailable)
         }
