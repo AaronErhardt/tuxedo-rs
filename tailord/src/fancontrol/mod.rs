@@ -80,7 +80,6 @@ impl FanRuntime {
                     if let Some(config) = new_config {
                         self.data.profile = config;
                     } else {
-                        tracing::error!("Fan {}: Shutting down runtime due to an internal error (profile receiver)", self.data.fan_idx);
                         break;
                     }
                 },
@@ -102,13 +101,15 @@ impl FanRuntime {
                             }
                         }
                     } else {
-                        tracing::error!("Fan {}: Shutting down runtime due to an internal error (speed receiver)", self.data.fan_idx);
                         break;
                     }
                 }
                 _ = self.data.fan_control_loop() => {},
             }
         }
+        tracing::error!("Fan {}: Shutting down runtime due to an internal error (handle dropped)", self.data.fan_idx);
+        // Set fans to automatic mode again
+        self.data.io.set_fans_auto().ok();
     }
 }
 
