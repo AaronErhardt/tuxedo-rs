@@ -26,7 +26,7 @@ impl FanInterface {
             for (idx, handle) in self.handles.iter().enumerate() {
                 handle
                     .profile_sender
-                    .send(info.fan.get(idx).cloned().unwrap_or_default())
+                    .send(info.fans.get(idx).cloned().unwrap_or_default())
                     .await
                     .unwrap();
             }

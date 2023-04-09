@@ -74,10 +74,10 @@ impl ProfileInterface {
     }
 
     async fn reload(&mut self) -> fdo::Result<()> {
-        let Profile { fan, led } = Profile::load();
+        let Profile { fans, leds } = Profile::load();
 
         for (idx, fan_handle) in self.fan_handles.iter().enumerate() {
-            let profile = fan.get(idx).cloned().unwrap_or_default();
+            let profile = fans.get(idx).cloned().unwrap_or_default();
             fan_handle
                 .profile_sender
                 .send(profile)
@@ -86,7 +86,7 @@ impl ProfileInterface {
         }
 
         for led_handle in &self.led_handles {
-            let profile = led.get(&led_handle.info).cloned().unwrap_or_default();
+            let profile = leds.get(&led_handle.info).cloned().unwrap_or_default();
             led_handle
                 .profile_sender
                 .send(profile)

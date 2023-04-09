@@ -5,11 +5,10 @@ use tokio::sync::broadcast;
 
 pub fn setup() -> broadcast::Receiver<()> {
     // Setup shutdown
-    tracing::info!("Starting tailord");
     let (shutdown_sender, shutdown_receiver) = broadcast::channel(1);
 
     let signals = Signals::new([SIGTERM, SIGINT, SIGQUIT]).unwrap();
-    tracing::debug!("Starting signal handler background loop");
+    tracing::debug!("Starting signal handler runtime");
     tokio_uring::spawn(handle_signals(signals, shutdown_sender));
 
     shutdown_receiver

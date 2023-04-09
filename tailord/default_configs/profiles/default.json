@@ -1,4 +1,4 @@
 {
-    "fan": ["default"],
-    "led": []
+    "fans": ["default"],
+    "leds": []
 }

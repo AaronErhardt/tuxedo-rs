@@ -3,7 +3,7 @@ use once_cell::sync::Lazy;
 use tokio::sync::broadcast;
 use zbus::{dbus_proxy, Connection};
 
-use std::{time::Duration, future::pending};
+use std::{future::pending, time::Duration};
 
 static SUSPEND_CHANNEL: Lazy<(broadcast::Sender<bool>, broadcast::Receiver<bool>)> =
     Lazy::new(|| broadcast::channel(1));

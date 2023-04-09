@@ -70,21 +70,21 @@ impl LedDeviceInfo {
 
 #[derive(Debug, Default)]
 pub struct Profile {
-    pub fan: Vec<FanProfile>,
-    pub led: HashMap<LedDeviceInfo, ColorProfile>,
+    pub fans: Vec<FanProfile>,
+    pub leds: HashMap<LedDeviceInfo, ColorProfile>,
 }
 
 impl Profile {
     pub fn load() -> Self {
         init_paths();
 
-        let profile_info = Self::get_active_profile_info().unwrap_or_else(|_| {
-            tracing::error!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`");
+        let profile_info = Self::get_active_profile_info().unwrap_or_else(|err| {
+            tracing::warn!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`: {err:?}");
             ProfileInfo::default()
         });
 
         let mut led = HashMap::new();
-        for data in profile_info.led {
+        for data in profile_info.leds {
             let LedProfile {
                 device_name,
                 function,
@@ -124,7 +124,10 @@ impl Profile {
             })
             .collect();
 
-        Self { fan, led }
+        Self {
+            fans: fan,
+            leds: led,
+        }
     }
 
     pub async fn set_active_profile_name(name: &str) -> fdo::Result<()> {

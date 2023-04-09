@@ -33,7 +33,7 @@ pub struct FanRuntimeData {
 }
 
 pub struct FanRuntime {
-    fan_receiver: mpsc::Receiver<FanProfile>,
+    profile_receiver: mpsc::Receiver<FanProfile>,
     fan_speed_receiver: mpsc::Receiver<u8>,
     data: FanRuntimeData,
 }
@@ -49,14 +49,14 @@ impl FanRuntime {
         let temp = io.get_fan_temperature(fan_idx).unwrap();
         let temp_history = TemperatureBuffer::new(temp);
 
-        let (fan_sender, fan_receiver) = mpsc::channel(1);
+        let (profile_sender, profile_receiver) = mpsc::channel(1);
         let (fan_speed_sender, fan_speed_receiver) = mpsc::channel(1);
         let suspend_receiver = get_suspend_receiver();
 
         (
             FanRuntimeHandle {
                 fan_speed_sender,
-                profile_sender: fan_sender,
+                profile_sender,
             },
             FanRuntime {
                 data: FanRuntimeData {
@@ -67,7 +67,7 @@ impl FanRuntime {
                     fan_idx,
                     suspend_receiver,
                 },
-                fan_receiver,
+                profile_receiver,
                 fan_speed_receiver,
             },
         )
@@ -76,9 +76,12 @@ impl FanRuntime {
     pub async fn run(mut self) {
         loop {
             tokio::select! {
-                new_config = self.fan_receiver.recv() => {
+                new_config = self.profile_receiver.recv() => {
                     if let Some(config) = new_config {
                         self.data.profile = config;
+                    } else {
+                        tracing::error!("Fan {}: Shutting down runtime due to an internal error (profile receiver)", self.data.fan_idx);
+                        break;
                     }
                 },
                 // Override the fan speed for 1s
@@ -98,6 +101,9 @@ impl FanRuntime {
                                 _ = tokio::time::sleep(Duration::from_millis(1000)) => break,
                             }
                         }
+                    } else {
+                        tracing::error!("Fan {}: Shutting down runtime due to an internal error (speed receiver)", self.data.fan_idx);
+                        break;
                     }
                 }
                 _ = self.data.fan_control_loop() => {},

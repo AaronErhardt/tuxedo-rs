@@ -21,11 +21,11 @@ impl LedInterface {
 
         // Reload if the keyboard profile is part of the active global profile
         let info = Profile::get_active_profile_info()?;
-        if info.led.iter().any(|prof| prof.profile == name) {
+        if info.leds.iter().any(|prof| prof.profile == name) {
             let info = Profile::load();
             for handle in &self.handles {
                 let profile = info
-                    .led
+                    .leds
                     .iter()
                     .find_map(|(info, profile)| {
                         if info == &handle.info {
@@ -65,7 +65,7 @@ impl LedInterface {
                 let mut data = util::read_json::<ProfileInfo>(PROFILE_DIR, &profile).await?;
                 let mut changed = false;
 
-                for led in &mut data.led {
+                for led in &mut data.leds {
                     if led.profile == from {
                         led.profile = to.to_owned();
                         changed = true;

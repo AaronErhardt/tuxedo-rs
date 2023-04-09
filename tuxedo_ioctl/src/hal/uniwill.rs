@@ -114,7 +114,7 @@ impl HardwareDevice for UniwillHardware {
         }?;
 
         // Also use known set value (0x00) from tccwmi to detect no temp/fan
-        if temp == 0 {
+        if temp <= 0 {
             Err(IoctlError::DevNotAvailable)
         } else {
             tracing::trace!("Fan {fan} temperature is {temp} C");

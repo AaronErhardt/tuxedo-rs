@@ -38,6 +38,8 @@ fn main() {
 
 #[tracing::instrument]
 async fn start_runtime() {
+    tracing::info!("Starting tailord");
+
     // Setup shutdown
     let mut shutdown_receiver = shutdown::setup();
 
@@ -66,7 +68,7 @@ async fn start_runtime() {
         let available_fans = device.get_number_fans();
         for fan_idx in 0..available_fans {
             let profile = profile
-                .fan
+                .fans
                 .get(fan_idx as usize)
                 .cloned()
                 .unwrap_or_default();
@@ -86,7 +88,7 @@ async fn start_runtime() {
     let mut led_runtimes = Vec::new();
     for led_device in led_devices {
         let profile = profile
-            .led
+            .leds
             .iter()
             .find_map(|(info, profile)| {
                 if info.device_name == led_device.device_name
@@ -136,7 +138,7 @@ async fn start_runtime() {
         .await
         .unwrap();
 
-    tracing::debug!("Starting wait_for_suspend() background loop");
+    tracing::debug!("Starting suspend watcher runtime");
     tokio_uring::spawn(suspend::wait_for_suspend());
 
     tracing::debug!("Starting {} led runtime(s)", led_runtimes.len());
@@ -144,7 +146,7 @@ async fn start_runtime() {
         tokio_uring::spawn(runtime.run());
     }
 
-    tracing::debug!("Starting {} fans runtimes", fan_runtimes.len());
+    tracing::debug!("Starting {} fans runtime(s)", fan_runtimes.len());
     for runtime in fan_runtimes {
         tokio_uring::spawn(runtime.run());
     }

@@ -30,8 +30,8 @@ impl FanRuntimeData {
             let delay = suitable_delay(&self.temp_history, fan_diff);
 
             tracing::debug!(
-                "Current temperature is {current_temp}°C, fan speed: {}%, target fan speed: {target_fan_speed} \
-                fan diff: {fan_diff}, fan increment {fan_increment}, delay: {delay:?}", self.fan_speed
+                "Fan {}: Current temperature is {current_temp}°C, fan speed: {}%, target fan speed: {target_fan_speed} \
+                fan diff: {fan_diff}, fan increment {fan_increment}, delay: {delay:?}", self.fan_idx, self.fan_speed
             );
 
             tokio::select! {
