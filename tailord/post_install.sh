@@ -13,13 +13,13 @@ mv tailord2.service tailord.service
 # Without this, systemd doesn't want to run the executable,
 # probably due to SELinux
 cd $2
-cp tux-tailord tux-tailord2
-rm tux-tailord
+cp tailord tailord2
+rm tailord
 
-cp tux-tailord2 tux-tailord
-rm tux-tailord2
+cp tailord2 tailord
+rm tailord2
 
-chmod +x tux-tailord
+chmod +x tailord
 
 cd $3
 cp com.tux.Tailor.conf tmp.conf

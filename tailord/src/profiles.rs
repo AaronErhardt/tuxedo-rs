@@ -1,7 +1,7 @@
-use std::path::Component;
+use std::{collections::HashMap, path::Component};
 
 use crate::fancontrol::profile::FanProfile;
-use tailor_api::{ColorProfile, ProfileInfo};
+use tailor_api::{ColorProfile, LedProfile, ProfileInfo};
 use zbus::fdo;
 
 use super::util;
@@ -19,29 +19,59 @@ fn init_paths() {
         })
 }
 
-fn keyboard_path(info: &ProfileInfo) -> fdo::Result<String> {
-    util::normalize_json_path(KEYBOARD_DIR, &info.keyboard)
+fn led_profile_path(name: &str) -> fdo::Result<String> {
+    util::normalize_json_path(KEYBOARD_DIR, name)
 }
 
-fn fan_path(info: &ProfileInfo) -> fdo::Result<String> {
-    util::normalize_json_path(FAN_DIR, &info.fan)
+fn fan_path(name: &str) -> fdo::Result<String> {
+    util::normalize_json_path(FAN_DIR, name)
 }
 
-fn load_keyboard_profile(info: &ProfileInfo) -> fdo::Result<ColorProfile> {
-    let color_profile_data =
-        std::fs::read(keyboard_path(info)?).map_err(|err| fdo::Error::IOError(err.to_string()))?;
+fn load_led_profile(name: &str) -> fdo::Result<ColorProfile> {
+    let color_profile_data = std::fs::read(led_profile_path(name)?)
+        .map_err(|err| fdo::Error::IOError(err.to_string()))?;
     serde_json::from_slice(&color_profile_data)
         .map_err(|err| fdo::Error::InvalidFileContent(err.to_string()))
 }
 
-fn load_fan_profile(info: &ProfileInfo) -> fdo::Result<FanProfile> {
-    FanProfile::load_config(fan_path(info)?)
+fn load_fan_profile(name: &str) -> fdo::Result<FanProfile> {
+    FanProfile::load_config(fan_path(name)?)
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct LedDeviceInfo {
+    pub device_name: String,
+    pub function: String,
+}
+
+impl From<LedProfile> for LedDeviceInfo {
+    fn from(value: LedProfile) -> Self {
+        let LedProfile {
+            device_name,
+            function,
+            ..
+        } = value;
+        Self {
+            device_name,
+            function,
+        }
+    }
+}
+
+impl LedDeviceInfo {
+    fn device_id(&self) -> String {
+        let Self {
+            device_name,
+            function,
+        } = self;
+        format!("{device_name}::{function}")
+    }
 }
 
 #[derive(Debug, Default)]
 pub struct Profile {
-    pub fan: FanProfile,
-    pub keyboard: ColorProfile,
+    pub fan: Vec<FanProfile>,
+    pub led: HashMap<LedDeviceInfo, ColorProfile>,
 }
 
 impl Profile {
@@ -53,31 +83,48 @@ impl Profile {
             ProfileInfo::default()
         });
 
-        let keyboard = match load_keyboard_profile(&profile_info) {
-            Ok(keyboard) => keyboard,
-            Err(err) => {
-                tracing::error!(
-                    "Failed to load keyboard color profile called `{}`: `{}`",
-                    profile_info.keyboard,
-                    err.to_string(),
-                );
-                ColorProfile::default()
-            }
-        };
+        let mut led = HashMap::new();
+        for data in profile_info.led {
+            let LedProfile {
+                device_name,
+                function,
+                profile,
+            } = data;
+            let info = LedDeviceInfo {
+                device_name,
+                function,
+            };
+            let profile = match load_led_profile(&profile) {
+                Ok(keyboard) => keyboard,
+                Err(err) => {
+                    tracing::warn!(
+                        "Failed to load keyboard color profile called `{}`: `{}`",
+                        info.device_id(),
+                        err.to_string(),
+                    );
+                    ColorProfile::default()
+                }
+            };
+            led.insert(info, profile);
+        }
 
-        let fan = match load_fan_profile(&profile_info) {
-            Ok(fan) => fan,
-            Err(err) => {
-                tracing::error!(
-                    "Failed to load fan color profile called `{}`: `{}`",
-                    profile_info.fan,
-                    err.to_string(),
-                );
-                FanProfile::default()
-            }
-        };
+        let fan = profile_info
+            .fans
+            .iter()
+            .map(|fan_profile| match load_fan_profile(fan_profile) {
+                Ok(fan) => fan,
+                Err(err) => {
+                    tracing::error!(
+                        "Failed to load fan color profile called `{}`: `{}`",
+                        fan_profile,
+                        err.to_string(),
+                    );
+                    FanProfile::default()
+                }
+            })
+            .collect();
 
-        Self { fan, keyboard }
+        Self { fan, led }
     }
 
     pub async fn set_active_profile_name(name: &str) -> fdo::Result<()> {
@@ -114,13 +161,5 @@ impl Profile {
         let data = std::fs::read(ACTIVE_PROFILE_PATH)
             .map_err(|err| fdo::Error::IOError(err.to_string()))?;
         serde_json::from_slice(&data).map_err(|err| fdo::Error::InvalidFileContent(err.to_string()))
-    }
-
-    pub fn reload() -> fdo::Result<Self> {
-        let profile_info: ProfileInfo = Self::get_active_profile_info()?;
-        let keyboard = load_keyboard_profile(&profile_info)?;
-        let fan = load_fan_profile(&profile_info)?;
-
-        Ok(Self { fan, keyboard })
     }
 }

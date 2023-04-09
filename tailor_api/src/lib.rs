@@ -1,7 +1,7 @@
+mod color;
 mod fan;
-mod keyboard;
 mod profile;
 
+pub use color::{Color, ColorPoint, ColorProfile, ColorTransition};
 pub use fan::FanProfilePoint;
-pub use keyboard::{Color, ColorPoint, ColorProfile, ColorTransition};
-pub use profile::ProfileInfo;
+pub use profile::{LedProfile, ProfileInfo};

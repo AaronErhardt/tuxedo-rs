@@ -1,5 +1,5 @@
 [package]
-name = "tux-tailord"
+name = "tailord"
 authors = ["Aaron Erhardt <aaron.erhardt@t-online.de>"]
 version = "0.1.0"
 edition = "2021"
@@ -26,3 +26,4 @@ zbus = { version = "3", default-features = false, features = ["tokio"] }
 tailor_api = { path = "../tailor_api" }
 tuxedo_ioctl = { path = "../tuxedo_ioctl" }
 tuxedo_sysfs = { path = "../tuxedo_sysfs" }
+once_cell = "1.17.1"

@@ -1,10 +1,10 @@
 use crate::suspend::process_suspend;
 
-use super::{buffer::TemperatureBuffer, FanRuntime};
+use super::{buffer::TemperatureBuffer, FanRuntimeData};
 
 use std::time::Duration;
 
-impl FanRuntime {
+impl FanRuntimeData {
     #[tracing::instrument(level = "debug", skip(self))]
     pub async fn fan_control_loop(&mut self) {
         loop {

@@ -74,13 +74,14 @@ impl HardwareDevice for UniwillHardware {
         let fan_speed_raw =
             (MAX_FAN_SPEED as f64 * fan_speed_percent as f64 / 100.0).round() as i32;
 
-
         match fan {
             0 => write::uw::fan_speed_0(&self.file, fan_speed_raw)?,
             1 => write::uw::fan_speed_1(&self.file, fan_speed_raw)?,
             _ => return Err(IoctlError::DevNotAvailable),
         }
-        tracing::trace!("Set fan {fan} speed percentage to {fan_speed_percent}, fan speed raw: {fan_speed_raw}");
+        tracing::trace!(
+            "Set fan {fan} speed percentage to {fan_speed_percent}, fan speed raw: {fan_speed_raw}"
+        );
         Ok(())
     }
 

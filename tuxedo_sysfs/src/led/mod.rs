@@ -10,8 +10,8 @@ pub struct Collection {
 /// led color management.
 #[derive(Debug)]
 pub struct Controller {
-    device_name: String,
-    function: String,
+    pub device_name: String,
+    pub function: String,
     max_brightness: u32,
     brightness_file: tokio_uring::fs::File,
     intensities_file: Option<tokio_uring::fs::File>,
