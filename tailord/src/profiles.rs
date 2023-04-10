@@ -52,6 +52,7 @@ impl Profile {
             tracing::warn!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`: {err:?}");
             ProfileInfo::default()
         });
+        tracing::info!("Loaded profile at `{ACTIVE_PROFILE_PATH}`: {profile_info:?}");
 
         let mut led = HashMap::new();
         for data in profile_info.leds {
