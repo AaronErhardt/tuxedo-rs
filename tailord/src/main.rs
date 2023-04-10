@@ -24,7 +24,7 @@ const DBUS_PATH: &str = "/com/tux/Tailor";
 
 fn main() {
     if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "trace");
+        std::env::set_var("RUST_LOG", "info");
     }
 
     tracing_subscriber::fmt()
