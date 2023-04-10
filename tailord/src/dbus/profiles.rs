@@ -1,10 +1,10 @@
-use tailor_api::ProfileInfo;
+use tailor_api::{ProfileInfo, LedDeviceInfo};
 use zbus::{dbus_interface, fdo};
 
 use crate::{
     fancontrol::FanRuntimeHandle,
     led::LedRuntimeHandle,
-    profiles::{LedDeviceInfo, Profile, PROFILE_DIR},
+    profiles::{Profile, PROFILE_DIR},
     util,
 };
 

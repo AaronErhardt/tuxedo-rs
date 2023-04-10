@@ -16,5 +16,5 @@ trait Fan {
 
     async fn rename_profile(&self, from: &str, to: &str) -> fdo::Result<Vec<String>>;
 
-    async fn override_speed(&self, speed: u8) -> fdo::Result<()>;
+    async fn override_speed(&self, fan_idx: u8, speed: u8) -> fdo::Result<()>;
 }

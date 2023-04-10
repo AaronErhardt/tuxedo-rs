@@ -4,7 +4,7 @@ mod dbus;
 mod error;
 
 pub use error::ClientError;
-use tailor_api::{Color, ColorProfile, FanProfilePoint, ProfileInfo};
+use tailor_api::{Color, ColorProfile, FanProfilePoint, ProfileInfo, LedDeviceInfo};
 use zbus::Connection;
 
 pub type ClientResult<T> = Result<T, ClientError>;
@@ -12,7 +12,7 @@ pub type ClientResult<T> = Result<T, ClientError>;
 #[derive(Debug, Clone)]
 pub struct TailorConnection<'a> {
     profiles: dbus::ProfilesProxy<'a>,
-    keyboard: dbus::KeyboardProxy<'a>,
+    led: dbus::LedProxy<'a>,
     fan: dbus::FanProxy<'a>,
 }
 
@@ -21,52 +21,52 @@ impl<'a> TailorConnection<'a> {
         let connection = Connection::system().await?;
 
         let profiles = dbus::ProfilesProxy::new(&connection).await?;
-        let keyboard = dbus::KeyboardProxy::new(&connection).await?;
+        let keyboard = dbus::LedProxy::new(&connection).await?;
         let fan = dbus::FanProxy::new(&connection).await?;
 
         Ok(Self {
             profiles,
-            keyboard,
+            led: keyboard,
             fan,
         })
     }
 }
 
 impl<'a> TailorConnection<'a> {
-    pub async fn add_keyboard_profile(
+    pub async fn add_led_profile(
         &self,
         name: &str,
         profile: &ColorProfile,
     ) -> ClientResult<()> {
         let value = serde_json::to_string(profile)?;
-        Ok(self.keyboard.add_profile(name, &value).await?)
+        Ok(self.led.add_profile(name, &value).await?)
     }
 
-    pub async fn get_keyboard_profile(&self, name: &str) -> ClientResult<ColorProfile> {
-        let profile_data = self.keyboard.get_profile(name).await?;
+    pub async fn get_led_profile(&self, name: &str) -> ClientResult<ColorProfile> {
+        let profile_data = self.led.get_profile(name).await?;
         Ok(serde_json::from_str(&profile_data)?)
     }
 
-    pub async fn list_keyboard_profiles(&self) -> ClientResult<Vec<String>> {
-        Ok(self.keyboard.list_profiles().await?)
+    pub async fn list_led_profiles(&self) -> ClientResult<Vec<String>> {
+        Ok(self.led.list_profiles().await?)
     }
 
-    pub async fn copy_keyboard_profile(&self, from: &str, to: &str) -> ClientResult<()> {
-        let profile = self.get_keyboard_profile(from).await?;
-        self.add_keyboard_profile(to, &profile).await
+    pub async fn copy_led_profile(&self, from: &str, to: &str) -> ClientResult<()> {
+        let profile = self.get_led_profile(from).await?;
+        self.add_led_profile(to, &profile).await
     }
 
-    pub async fn rename_keyboard_profile(&self, from: &str, to: &str) -> ClientResult<Vec<String>> {
-        Ok(self.keyboard.rename_profile(from, to).await?)
+    pub async fn rename_led_profile(&self, from: &str, to: &str) -> ClientResult<Vec<String>> {
+        Ok(self.led.rename_profile(from, to).await?)
     }
 
-    pub async fn remove_keyboard_profile(&self, name: &str) -> ClientResult<()> {
-        Ok(self.keyboard.remove_profile(name).await?)
+    pub async fn remove_led_profile(&self, name: &str) -> ClientResult<()> {
+        Ok(self.led.remove_profile(name).await?)
     }
 
-    pub async fn override_keyboard_color(&self, color: &Color) -> ClientResult<()> {
+    pub async fn override_led_colors(&self, color: &Color) -> ClientResult<()> {
         let value = serde_json::to_string(color)?;
-        Ok(self.keyboard.override_color(&value).await?)
+        Ok(self.led.override_color(&value).await?)
     }
 }
 
@@ -102,8 +102,8 @@ impl<'a> TailorConnection<'a> {
         Ok(self.fan.remove_profile(name).await?)
     }
 
-    pub async fn override_fan_speed(&self, speed: u8) -> ClientResult<()> {
-        Ok(self.fan.override_speed(speed).await?)
+    pub async fn override_fan_speed(&self, fan_idx: u8, speed: u8) -> ClientResult<()> {
+        Ok(self.fan.override_speed(fan_idx, speed).await?)
     }
 }
 
@@ -141,6 +141,15 @@ impl<'a> TailorConnection<'a> {
 
     pub async fn set_active_global_profile_name(&self, name: &str) -> ClientResult<()> {
         Ok(self.profiles.set_active_profile_name(name).await?)
+    }
+
+    pub async fn get_number_of_fans(&self) -> ClientResult<u8> {
+        Ok(self.profiles.get_number_of_fans().await?)
+    }
+
+    pub async fn get_led_devices(&self) -> ClientResult<Vec<LedDeviceInfo>> {
+        let data = self.profiles.get_led_devices().await?;
+        Ok(serde_json::from_str(&data)?)
     }
 
     pub async fn reload(&self) -> ClientResult<()> {

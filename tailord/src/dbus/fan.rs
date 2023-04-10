@@ -55,7 +55,11 @@ impl FanInterface {
             let profiles = util::get_profiles(PROFILE_DIR).await?;
 
             for profile in profiles {
-                let mut data = util::read_json::<ProfileInfo>(PROFILE_DIR, &profile).await?;
+                let mut data = if let Ok(data) = util::read_json::<ProfileInfo>(PROFILE_DIR, &profile).await {
+                    data
+                } else {
+                    continue;
+                };
                 let mut changed = false;
 
                 for fan in &mut data.fans {

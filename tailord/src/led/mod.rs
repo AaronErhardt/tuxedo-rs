@@ -1,8 +1,6 @@
-use tailor_api::{Color, ColorProfile};
+use tailor_api::{Color, ColorProfile, LedDeviceInfo};
 use tokio::sync::mpsc;
 use tuxedo_sysfs::led::Controller;
-
-use crate::profiles::LedDeviceInfo;
 
 pub mod runtime;
 

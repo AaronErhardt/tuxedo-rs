@@ -1,7 +1,7 @@
 use std::{collections::HashMap, path::Component};
 
 use crate::fancontrol::profile::FanProfile;
-use tailor_api::{ColorProfile, LedProfile, ProfileInfo};
+use tailor_api::{ColorProfile, LedProfile, ProfileInfo, LedDeviceInfo};
 use zbus::fdo;
 
 use super::util;
@@ -36,36 +36,6 @@ fn load_led_profile(name: &str) -> fdo::Result<ColorProfile> {
 
 fn load_fan_profile(name: &str) -> fdo::Result<FanProfile> {
     FanProfile::load_config(fan_path(name)?)
-}
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct LedDeviceInfo {
-    pub device_name: String,
-    pub function: String,
-}
-
-impl From<LedProfile> for LedDeviceInfo {
-    fn from(value: LedProfile) -> Self {
-        let LedProfile {
-            device_name,
-            function,
-            ..
-        } = value;
-        Self {
-            device_name,
-            function,
-        }
-    }
-}
-
-impl LedDeviceInfo {
-    fn device_id(&self) -> String {
-        let Self {
-            device_name,
-            function,
-        } = self;
-        format!("{device_name}::{function}")
-    }
 }
 
 #[derive(Debug, Default)]
