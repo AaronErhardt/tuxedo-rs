@@ -124,7 +124,7 @@ async fn start_runtime() {
     };
 
     tracing::debug!("Connecting to DBUS as {DBUS_NAME}");
-    let _ = ConnectionBuilder::system()
+    let _conn = ConnectionBuilder::system()
         .unwrap()
         .name(DBUS_NAME)
         .unwrap()

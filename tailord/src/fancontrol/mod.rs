@@ -107,7 +107,10 @@ impl FanRuntime {
                 _ = self.data.fan_control_loop() => {},
             }
         }
-        tracing::error!("Fan {}: Shutting down runtime due to an internal error (handle dropped)", self.data.fan_idx);
+        tracing::error!(
+            "Fan {}: Shutting down runtime due to an internal error (handle dropped)",
+            self.data.fan_idx
+        );
         // Set fans to automatic mode again
         self.data.io.set_fans_auto().ok();
     }
