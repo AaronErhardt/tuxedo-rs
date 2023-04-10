@@ -1,13 +1,15 @@
 use adw::prelude::{ExpanderRowExt, PreferencesRowExt};
-use gtk::prelude::{ButtonExt, CheckButtonExt, ListBoxRowExt, ObjectExt, WidgetExt};
+use gtk::prelude::{ButtonExt, CheckButtonExt, ObjectExt, WidgetExt};
 use once_cell::unsync::Lazy;
-use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView};
-use relm4::{adw, factory, gtk, Component, ComponentController, Controller, RelmWidgetExt};
-use relm4_components::simple_combo_box::SimpleComboBox;
-use tailor_api::ProfileInfo;
+use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryVecDeque};
+use relm4::{adw, factory, gtk};
+use relm4_icons::icon_name;
+use tailor_api::{LedDeviceInfo, LedProfile, ProfileInfo};
 
+use super::profile_item_fan::{ProfileItemFan, ProfileItemFanInit};
+use super::profile_item_led::{ProfileItemLed, ProfileItemLedInit};
 use crate::components::profiles::ProfilesInput;
-use crate::state::{TailorStateMsg, STATE};
+use crate::state::{hardware_capabilities, TailorStateMsg, STATE};
 
 thread_local! {
     static RADIO_GROUP: Lazy<gtk::CheckButton> = Lazy::new(gtk::CheckButton::default);
@@ -18,8 +20,8 @@ pub struct Profile {
     pub name: String,
     pub info: ProfileInfo,
     pub active: bool,
-    pub keyboard_combo_box: Controller<SimpleComboBox<String>>,
-    pub fan_combo_box: Controller<SimpleComboBox<String>>,
+    pub leds: FactoryVecDeque<ProfileItemLed>,
+    pub fans: FactoryVecDeque<ProfileItemFan>,
 }
 
 #[derive(Debug)]
@@ -27,7 +29,7 @@ pub struct ProfileInit {
     pub name: String,
     pub info: ProfileInfo,
     pub active: bool,
-    pub keyboard_profiles: Vec<String>,
+    pub led_profiles: Vec<String>,
     pub fan_profiles: Vec<String>,
 }
 
@@ -47,8 +49,9 @@ impl FactoryComponent for Profile {
     type ParentWidget = adw::PreferencesGroup;
 
     view! {
-        adw::ExpanderRow {
+        self.leds.widget().clone() -> adw::ExpanderRow {
             set_title: &self.name,
+            set_hexpand: true,
 
             #[chain(build())]
             bind_property: ("expanded", &delete_button, "visible"),
@@ -66,8 +69,8 @@ impl FactoryComponent for Profile {
                         if btn.is_active() {
                             sender.input(ProfileInput::Enabled);
                             sender.output(ProfilesInput::Enabled(index.clone()));
-                        }
-                    }
+                       }
+                    },
                 },
             },
 
@@ -77,8 +80,8 @@ impl FactoryComponent for Profile {
 
                 #[name = "delete_button"]
                 gtk::Button {
+                    set_icon_name: icon_name::CROSS_FILLED,
                     add_css_class: "destructive-action",
-                    set_icon_name: "remove",
                     set_visible: false,
                     #[watch]
                     set_sensitive: !self.active,
@@ -87,97 +90,87 @@ impl FactoryComponent for Profile {
                     }
                 }
             },
-
-            add_row = &gtk::ListBoxRow {
-                set_activatable: false,
-
-                gtk::Box {
-                    set_margin_all: 5,
-
-                    #[name = "keyboard_label"]
-                    gtk::Label {
-                        set_label: "Keyboard profile",
-                    },
-                    gtk::Box {
-                        set_hexpand: true,
-                    },
-                    #[local_ref]
-                    keyboard_box -> gtk::ComboBoxText {},
-                }
-            },
-
-            add_row = &gtk::ListBoxRow {
-                set_activatable: false,
-
-                gtk::Box {
-                    set_margin_all: 5,
-
-                    #[name = "fan_label"]
-                    gtk::Label {
-                        set_label: "Fan profile"
-                    },
-                    gtk::Box {
-                        set_hexpand: true,
-                    },
-                    #[local_ref]
-                    fan_box -> gtk::ComboBoxText {},
-                }
-            }
         }
     }
 
-    fn output_to_parent_input(output: Self::Output) -> Option<ProfilesInput> {
+    fn forward_to_parent(output: Self::Output) -> Option<ProfilesInput> {
         Some(output)
-    }
-
-    fn init_widgets(
-        &mut self,
-        index: &DynamicIndex,
-        root: &Self::Root,
-        _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
-        sender: FactorySender<Self>,
-    ) -> Self::Widgets {
-        let keyboard_box = self.keyboard_combo_box.widget();
-        let fan_box = self.fan_combo_box.widget();
-
-        let widgets = view_output!();
-
-        widgets
     }
 
     fn init_model(init: Self::Init, _index: &DynamicIndex, sender: FactorySender<Self>) -> Self {
         let ProfileInit {
             name,
-            info,
+            mut info,
             active,
-            keyboard_profiles,
+            led_profiles,
             fan_profiles,
         } = init;
 
-        let active_index = keyboard_profiles
-            .iter()
-            .position(|profile| profile == &info.keyboard);
-        let keyboard_combo_box = SimpleComboBox::builder()
-            .launch(SimpleComboBox {
-                variants: keyboard_profiles,
-                active_index,
-            })
-            .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile);
+        let factory_widget = adw::ExpanderRow::new();
 
-        let active_index = fan_profiles.iter().position(|profile| profile == &info.fan);
-        let fan_combo_box = SimpleComboBox::builder()
-            .launch(SimpleComboBox {
-                variants: fan_profiles,
-                active_index,
-            })
-            .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile);
+        let capabilities = hardware_capabilities().unwrap();
+
+        if info.fans.len() as u8 != capabilities.num_of_fans {
+            info.fans
+                .resize(capabilities.num_of_fans as usize, "default".to_owned());
+        }
+
+        let mut additional_led_profiles = Vec::new();
+        for device in &capabilities.led_devices {
+            if !info.leds.iter().any(|profile| {
+                profile.device_name == device.device_name && profile.function == device.function
+            }) {
+                additional_led_profiles.push(LedProfile {
+                    device_name: device.device_name.clone(),
+                    function: device.function.clone(),
+                    profile: "default".to_owned(),
+                })
+            }
+        }
+        info.leds.extend(additional_led_profiles);
+
+        let mut leds = FactoryVecDeque::new(factory_widget.clone(), sender.input_sender());
+        {
+            let mut guard = leds.guard();
+            for profile in &info.leds {
+                let device_info = LedDeviceInfo {
+                    device_name: profile.device_name.clone(),
+                    function: profile.function.clone(),
+                };
+                let index = led_profiles
+                    .iter()
+                    .position(|name| name == &profile.profile)
+                    .unwrap_or_default();
+                guard.push_back(ProfileItemLedInit {
+                    device_info,
+                    led_profiles: led_profiles.clone(),
+                    index,
+                });
+            }
+        }
+
+        let mut fans = FactoryVecDeque::new(factory_widget, sender.input_sender());
+        {
+            let mut guard = fans.guard();
+            for (idx, profile) in info.fans.iter().enumerate() {
+                let index = fan_profiles
+                    .iter()
+                    .position(|name| name == profile)
+                    .unwrap_or_default();
+                guard.push_back(ProfileItemFanInit {
+                    fan_idx: idx as u8,
+                    fan_profiles: fan_profiles.clone(),
+                    index,
+                });
+            }
+        }
 
         Self {
             name,
             info,
             active,
-            keyboard_combo_box,
-            fan_combo_box,
+            leds,
+            fans,
         }
     }
 
@@ -193,30 +186,16 @@ impl FactoryComponent for Profile {
                 }
             }
             ProfileInput::UpdateProfile => {
-                let keyboard = self
-                    .keyboard_combo_box
-                    .state()
-                    .get()
-                    .model
-                    .get_active_elem()
-                    .unwrap()
-                    .clone();
+                let leds = self.leds.iter().map(|led| led.get_profile()).collect();
 
-                let fan = self
-                    .fan_combo_box
-                    .state()
-                    .get()
-                    .model
-                    .get_active_elem()
-                    .unwrap()
-                    .clone();
+                let fans = self.fans.iter().map(|fan| fan.get_profile_name()).collect();
 
-                self.info = ProfileInfo { keyboard, fan };
+                self.info = ProfileInfo { leds, fans };
 
                 let profile = self.info.clone();
 
                 sender.oneshot_command(async move {
-                    STATE.emit(TailorStateMsg::AddProfile(name, profile));
+                    STATE.emit(TailorStateMsg::AddProfile { name, profile });
                 });
             }
         }

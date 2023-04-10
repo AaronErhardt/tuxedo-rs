@@ -5,6 +5,7 @@ use gtk::glib;
 use gtk::prelude::{BoxExt, ButtonExt, EditableExt, ObjectExt, OrientableExt, WidgetExt};
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender};
 use relm4::{adw, factory, gtk, RelmWidgetExt};
+use relm4_icons::icon_name;
 
 pub trait ListMsg {
     fn ty() -> &'static str;
@@ -59,14 +60,13 @@ where
                 set_valign: gtk::Align::Center,
 
                 gtk::Button {
-                    add_css_class: "destructive-action",
-                    set_icon_name: "remove",
+                    set_icon_name: icon_name::CROSS_FILLED,
                     connect_clicked[sender, index, name = self.name.clone()] => move |btn| {
                         let window = btn.toplevel_window().unwrap();
                         let dialog = adw::MessageDialog::builder()
                             .modal(true)
                             .transient_for(&window)
-                            .heading(&format!("Delete {} profile \"{name}\"?", Msg::ty()))
+                            .heading(format!("Delete {} profile \"{name}\"?", Msg::ty()))
                             .body("This change is not reversible.")
                             .default_response("cancel")
                             .close_response("cancel")
@@ -92,7 +92,7 @@ where
         }
     }
 
-    fn output_to_parent_input(output: Self::Output) -> Option<Msg> {
+    fn forward_to_parent(output: Self::Output) -> Option<Msg> {
         Some(output)
     }
 

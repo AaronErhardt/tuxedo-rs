@@ -2,7 +2,7 @@ use gettextrs::{gettext, LocaleCategory};
 use gtk::{gdk, gio, glib};
 use relm4::gtk;
 
-use crate::config::{APP_ID, GETTEXT_PACKAGE, ICON_RESOURCES_FILE, LOCALEDIR, RESOURCES_FILE};
+use crate::config::{APP_ID, GETTEXT_PACKAGE, LOCALEDIR, RESOURCES_FILE};
 
 pub fn setup() {
     // Initialize GTK
@@ -13,9 +13,6 @@ pub fn setup() {
     glib::set_application_name(&gettext("Tailor"));
 
     let res = gio::Resource::load(RESOURCES_FILE).expect("Could not load gresource file");
-    gio::resources_register(&res);
-
-    let res = gio::Resource::load(ICON_RESOURCES_FILE).expect("Could not load gresource file");
     gio::resources_register(&res);
 
     setup_css();

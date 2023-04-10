@@ -6,6 +6,7 @@ use relm4::{
     adw, component, gtk, Component, ComponentController, ComponentParts, ComponentSender,
     Controller,
 };
+use relm4_icons::icon_name;
 
 use super::factories::list_item::{ListItem, ListMsg};
 use super::fan_edit::{FanEdit, FanEditInput};
@@ -77,7 +78,7 @@ impl Component for FanList {
                                 set_hexpand: true,
                             },
                             gtk::Button {
-                                set_icon_name: "plus",
+                                set_icon_name: icon_name::PLUS,
                                 connect_clicked => FanListInput::Add,
                             }
                         },
@@ -156,7 +157,10 @@ impl Component for FanList {
                 if current_name != &name {
                     let count = self.profiles.iter().filter(|p| p.name == name).count();
                     if count == 0 {
-                        STATE.emit(TailorStateMsg::RenameFanProfile(current_name.clone(), name));
+                        STATE.emit(TailorStateMsg::RenameFanProfile {
+                            from: current_name.clone(),
+                            to: name,
+                        });
                     } else {
                         self.profiles.guard()[index].name = current_name.clone();
                         self.set_toast(Some(adw::Toast::new("Name already exists")));
@@ -185,7 +189,10 @@ impl Component for FanList {
                 relm4::spawn_local(async move {
                     if let Some(NewEntryOutput { name, based_of }) = new_entry.next().await.unwrap()
                     {
-                        STATE.emit(TailorStateMsg::CopyFanProfile(based_of, name));
+                        STATE.emit(TailorStateMsg::CopyFanProfile {
+                            from: based_of,
+                            to: name,
+                        });
                     }
                 });
             }

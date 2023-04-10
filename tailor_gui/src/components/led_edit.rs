@@ -7,6 +7,7 @@ use relm4::{
     Controller, RelmWidgetExt,
 };
 use relm4_components::simple_combo_box::{SimpleComboBox, SimpleComboBoxMsg};
+use relm4_icons::icon_name;
 use tailor_api::{Color, ColorPoint, ColorProfile, ColorTransition};
 
 use super::color_button::{ColorButton, ColorButtonInput};
@@ -33,7 +34,7 @@ impl std::fmt::Display for ColorProfileType {
     }
 }
 
-pub struct KeyboardEdit {
+pub struct LedEdit {
     profile_name: Option<String>,
     color_profile_type: ColorProfileType,
     colors: FactoryVecDeque<ColorRow>,
@@ -43,7 +44,7 @@ pub struct KeyboardEdit {
 }
 
 #[derive(Debug)]
-pub enum KeyboardEditInput {
+pub enum LedEditInput {
     Load(String),
     SetType(ColorProfileType),
     Up(DynamicIndex),
@@ -55,10 +56,10 @@ pub enum KeyboardEditInput {
 }
 
 #[component(pub)]
-impl Component for KeyboardEdit {
+impl Component for LedEdit {
     type CommandOutput = ColorProfile;
     type Init = ();
-    type Input = KeyboardEditInput;
+    type Input = LedEditInput;
     type Output = ();
 
     view! {
@@ -77,13 +78,13 @@ impl Component for KeyboardEdit {
                             add_css_class: "title-4",
                             set_margin_all: 12,
                             #[watch]
-                            set_label: &format!("Edit keyboard profile '{}'", model.profile_name.as_deref().unwrap_or_default()),
+                            set_label: &format!("Edit LED profile '{}'", model.profile_name.as_deref().unwrap_or_default()),
                         },
 
                         #[local_ref]
                         #[wrap(Some)]
                         set_start_widget = type_selector_widget -> gtk::ComboBoxText {
-                            set_margin_start: 12,
+                            set_margin_start: 6,
                             set_valign: gtk::Align::Center,
                         },
                     },
@@ -104,7 +105,7 @@ impl Component for KeyboardEdit {
                             },
                             ColorProfileType::None => {
                                 gtk::Label {
-                                    set_label: "Disable the keyboard lights",
+                                    set_label: "Disable the LED lights",
                                 }
                             },
                             ColorProfileType::Single => {
@@ -130,9 +131,9 @@ impl Component for KeyboardEdit {
                                             set_hexpand: true,
                                         },
                                         gtk::Button {
-                                            set_icon_name: "plus",
+                                            set_icon_name: icon_name::PLUS,
                                             set_halign: gtk::Align::End,
-                                            connect_clicked => KeyboardEditInput::Add,
+                                            connect_clicked => LedEditInput::Add,
                                         }
                                     },
 
@@ -153,11 +154,11 @@ impl Component for KeyboardEdit {
                 templates::MsgDialogButtons {
                     #[template_child]
                     cancel_button -> gtk::Button {
-                        connect_clicked => KeyboardEditInput::Cancel,
+                        connect_clicked => LedEditInput::Cancel,
                     },
                     #[template_child]
                     save_button -> gtk::Button {
-                        connect_clicked => KeyboardEditInput::Apply,
+                        connect_clicked => LedEditInput::Apply,
                     },
                 }
             }
@@ -197,7 +198,7 @@ impl Component for KeyboardEdit {
                 ],
             })
             .forward(sender.input_sender(), |idx| {
-                KeyboardEditInput::SetType(match idx {
+                LedEditInput::SetType(match idx {
                     0 => ColorProfileType::None,
                     1 => ColorProfileType::Single,
                     _ => ColorProfileType::Multiple,
@@ -250,33 +251,33 @@ impl Component for KeyboardEdit {
 
     fn update(&mut self, input: Self::Input, sender: ComponentSender<Self>, _root: &Self::Root) {
         match input {
-            KeyboardEditInput::Load(name) => {
+            LedEditInput::Load(name) => {
                 self.profile_name = Some(name.clone());
 
                 let connection = tailor_connection().unwrap();
                 sender.oneshot_command(async move {
-                    if let Ok(color_profile) = connection.get_keyboard_profile(&name).await {
+                    if let Ok(color_profile) = connection.get_led_profile(&name).await {
                         color_profile
                     } else {
-                        tracing::error!("Couldn't load keyboard profile");
+                        tracing::error!("Couldn't load LED profile");
                         ColorProfile::None
                     }
                 });
             }
-            KeyboardEditInput::SetType(ty) => {
+            LedEditInput::SetType(ty) => {
                 self.color_profile_type = ty;
             }
-            KeyboardEditInput::Apply => {
-                STATE.emit(TailorStateMsg::AddKeyboardProfile(
-                    self.profile_name.clone().unwrap(),
-                    self.compile(),
-                ));
+            LedEditInput::Apply => {
+                STATE.emit(TailorStateMsg::AddLedProfile {
+                    name: self.profile_name.clone().unwrap(),
+                    profile: self.compile(),
+                });
                 self.visible = false;
             }
-            KeyboardEditInput::Cancel => {
+            LedEditInput::Cancel => {
                 self.visible = false;
             }
-            KeyboardEditInput::Add => {
+            LedEditInput::Add => {
                 let last_elem = self
                     .colors
                     .back()
@@ -292,13 +293,13 @@ impl Component for KeyboardEdit {
                     });
                 self.colors.guard().push_back(last_elem);
             }
-            KeyboardEditInput::Up(index) => {
+            LedEditInput::Up(index) => {
                 let index = index.current_index();
                 if index != 0 {
                     self.colors.guard().move_to(index, index.saturating_sub(1));
                 }
             }
-            KeyboardEditInput::Down(index) => {
+            LedEditInput::Down(index) => {
                 let index = index.current_index();
                 let last_idx = self.colors.len().saturating_sub(1);
                 if index != last_idx {
@@ -307,7 +308,7 @@ impl Component for KeyboardEdit {
                         .move_to(index, (index + 1).min(last_idx));
                 }
             }
-            KeyboardEditInput::Remove(index) => {
+            LedEditInput::Remove(index) => {
                 let index = index.current_index();
                 self.colors.guard().remove(index);
             }
@@ -315,7 +316,7 @@ impl Component for KeyboardEdit {
     }
 }
 
-impl KeyboardEdit {
+impl LedEdit {
     fn compile(&self) -> ColorProfile {
         match self.color_profile_type {
             ColorProfileType::Loading | ColorProfileType::None => ColorProfile::None,

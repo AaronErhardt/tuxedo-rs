@@ -4,16 +4,17 @@ use gtk::prelude::ButtonExt;
 use relm4::factory::FactoryVecDeque;
 use relm4::prelude::DynamicIndex;
 use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender, WidgetRef};
+use relm4_icons::icon_name;
 
 use super::factories::profile::{Profile, ProfileInit};
-use super::new_profile::{NewProfileDialog, NewProfileInit};
+use super::new_entry::{NewEntryDialog, NewEntryInit, NewEntryOutput};
 use crate::app::FullProfileInfo;
 use crate::state::{TailorStateMsg, STATE};
 use crate::templates;
 
 pub struct Profiles {
     profiles: FactoryVecDeque<Profile>,
-    keyboard: Vec<String>,
+    led: Vec<String>,
     fan: Vec<String>,
 }
 
@@ -23,7 +24,7 @@ pub enum ProfilesInput {
         profiles: Vec<FullProfileInfo>,
         active_profile: String,
         fan_profiles: Vec<String>,
-        keyboard_profiles: Vec<String>,
+        led_profiles: Vec<String>,
     },
     Enabled(DynamicIndex),
     Remove(DynamicIndex),
@@ -47,7 +48,7 @@ impl Component for Profiles {
                     set_title: "Profiles",
                     #[wrap(Some)]
                     set_header_suffix = &gtk::Button {
-                        set_icon_name: "plus",
+                        set_icon_name: icon_name::PLUS,
                         connect_clicked => ProfilesInput::Add,
                     }
                 },
@@ -66,7 +67,7 @@ impl Component for Profiles {
                 profiles: state.profiles.clone(),
                 active_profile: state.active_profile_name.clone(),
                 fan_profiles: state.fan_profiles.clone(),
-                keyboard_profiles: state.keyboard_profiles.clone(),
+                led_profiles: state.led_profiles.clone(),
             }
         });
 
@@ -75,7 +76,7 @@ impl Component for Profiles {
 
         let model = Self {
             profiles,
-            keyboard: Vec::new(),
+            led: Vec::new(),
             fan: Vec::new(),
         };
 
@@ -89,7 +90,7 @@ impl Component for Profiles {
             ProfilesInput::UpdateProfiles {
                 profiles,
                 active_profile,
-                keyboard_profiles,
+                led_profiles,
                 fan_profiles,
             } => {
                 // Repopulate the profiles
@@ -100,12 +101,12 @@ impl Component for Profiles {
                     guard.push_back(ProfileInit {
                         name: profile.name,
                         info: profile.data,
-                        keyboard_profiles: keyboard_profiles.clone(),
+                        led_profiles: led_profiles.clone(),
                         fan_profiles: fan_profiles.clone(),
                         active,
                     });
                 }
-                self.keyboard = keyboard_profiles;
+                self.led = led_profiles;
                 self.fan = fan_profiles;
             }
             ProfilesInput::Enabled(index) => {
@@ -122,19 +123,21 @@ impl Component for Profiles {
             }
             ProfilesInput::Add => {
                 let profiles = self.profiles.iter().map(|i| i.name.to_string()).collect();
-                let fan = self.fan.clone();
-                let keyboard = self.keyboard.clone();
-                let mut new_profile = NewProfileDialog::builder()
+                let mut new_profile = NewEntryDialog::builder()
                     .transient_for(root.widget_ref())
-                    .launch(NewProfileInit {
+                    .launch(NewEntryInit {
                         profiles,
-                        keyboard,
-                        fan,
+                        info: "Add profile".to_string(),
                     })
                     .into_stream();
                 relm4::spawn_local(async move {
-                    if let Some(info) = new_profile.next().await.unwrap() {
-                        STATE.emit(TailorStateMsg::AddProfile(info.name, info.data));
+                    if let Some(NewEntryOutput { name, based_of }) =
+                        new_profile.next().await.unwrap()
+                    {
+                        STATE.emit(TailorStateMsg::CopyProfile {
+                            from: based_of,
+                            to: name,
+                        });
                     }
                 });
             }

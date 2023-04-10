@@ -10,10 +10,12 @@ use relm4::{
     adw, gtk, main_application, Component, ComponentController, ComponentParts, ComponentSender,
     Controller,
 };
+use relm4_icons::icon_name;
 use tailor_api::ProfileInfo;
 
 use crate::components::fan_list::FanList;
-use crate::components::keyboard_list::KeyboardList;
+use crate::components::hardware_info::HardwareInfo;
+use crate::components::led_list::LedList;
 use crate::components::profiles::Profiles;
 use crate::config::{APP_ID, PROFILE};
 use crate::modals::about::AboutDialog;
@@ -47,7 +49,7 @@ pub(super) struct App {
 
 #[derive(Debug)]
 pub(super) enum Command {
-    SetInitializedState(bool),
+    SetInitializedState { error: Option<String> },
 }
 
 #[derive(Debug)]
@@ -60,6 +62,7 @@ relm4::new_action_group!(pub(super) WindowActionGroup, "win");
 relm4::new_stateless_action!(PreferencesAction, WindowActionGroup, "preferences");
 relm4::new_stateless_action!(pub(super) ShortcutsAction, WindowActionGroup, "show-help-overlay");
 relm4::new_stateless_action!(AboutAction, WindowActionGroup, "about");
+relm4::new_stateless_action!(HardwareInfoAction, WindowActionGroup, "hw-info");
 
 #[relm4::component(pub)]
 impl Component for App {
@@ -72,7 +75,8 @@ impl Component for App {
         primary_menu: {
             section! {
                 "_Preferences" => PreferencesAction,
-                "_Keyboard" => ShortcutsAction,
+                "_Keyboard Shortcuts" => ShortcutsAction,
+                "_Hardware information" => HardwareInfoAction,
                 "_About Tailor" => AboutAction,
             }
         }
@@ -126,7 +130,7 @@ impl Component for App {
                         },
 
                         pack_end = &gtk::MenuButton {
-                            set_icon_name: "open-menu",
+                            set_icon_name: icon_name::MENU_LARGE,
                             set_menu_model: Some(&primary_menu),
                         }
                     },
@@ -145,15 +149,15 @@ impl Component for App {
 
                                     #[local_ref]
                                     add_titled[Some("profiles"), "Profiles"] = profile_widget -> gtk::ScrolledWindow {} -> {
-                                        set_icon_name: Some("profile-settings"),
+                                        set_icon_name: Some(icon_name::SETTINGS),
                                     },
                                     #[local_ref]
-                                    add_titled[Some("keyboard"), "Keyboard"] = keyboard_list_widget -> gtk::ScrolledWindow {} -> {
-                                        set_icon_name: Some("keyboard-color"),
+                                    add_titled[Some("led"), "LED"] = led_list_widget -> gtk::ScrolledWindow {} -> {
+                                        set_icon_name: Some(icon_name::COLOR),
                                     },
                                     #[local_ref]
                                     add_titled[Some("fan"), "Fan control"] = fan_list -> gtk::ScrolledWindow {} -> {
-                                        set_icon_name: Some("fan-speed"),
+                                        set_icon_name: Some(icon_name::SPEEDOMETER),
                                     },
                                 },
                                 #[name = "view_bar"]
@@ -240,9 +244,9 @@ impl Component for App {
             .launch(())
             .detach();
 
-        let mut keyboard_list = KeyboardList::builder().launch(()).detach();
-        keyboard_list.detach_runtime();
-        let keyboard_list_widget = &**keyboard_list.widget();
+        let mut led_list = LedList::builder().launch(()).detach();
+        led_list.detach_runtime();
+        let led_list_widget = &**led_list.widget();
 
         let mut fan_list = FanList::builder().launch(()).detach();
         fan_list.detach_runtime();
@@ -272,6 +276,16 @@ impl Component for App {
             })
         };
 
+        let hardware_action = {
+            let window = widgets.main_window.clone();
+            RelmAction::<HardwareInfoAction>::new_stateless(move |_| {
+                HardwareInfo::builder()
+                    .transient_for(&window)
+                    .launch(())
+                    .detach();
+            })
+        };
+
         let about_action = {
             let sender = model.about_dialog.sender().clone();
             RelmAction::<AboutAction>::new_stateless(move |_| {
@@ -282,6 +296,7 @@ impl Component for App {
         let mut actions = RelmActionGroup::<WindowActionGroup>::new();
         actions.add_action(shortcuts_action);
         actions.add_action(about_action);
+        actions.add_action(hardware_action);
         actions.register_for_widget(&widgets.main_window);
 
         widgets.load_window_size();
@@ -307,12 +322,13 @@ impl Component for App {
         _root: &Self::Root,
     ) {
         match message {
-            Command::SetInitializedState(initialized) => {
-                if initialized {
-                    self.connection_state = ConnectionState::Ok;
-                } else {
+            Command::SetInitializedState { error } => {
+                if let Some(error) = error {
                     self.connection_state = ConnectionState::Error;
-                    Self::initialize_connection(&sender, Some(Duration::from_secs(1)));
+                    self.error = Some(adw::Toast::new(&error));
+                    Self::initialize_connection(&sender, Some(Duration::from_secs(5)));
+                } else {
+                    self.connection_state = ConnectionState::Ok;
                 }
             }
         }
@@ -357,7 +373,9 @@ impl App {
             if let Some(delay) = delay {
                 tokio::time::sleep(delay).await;
             }
-            Command::SetInitializedState(initialize_tailor_state().await.is_ok())
+            Command::SetInitializedState {
+                error: initialize_tailor_state().await.err(),
+            }
         });
     }
 }

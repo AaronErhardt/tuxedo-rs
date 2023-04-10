@@ -47,7 +47,7 @@ impl Collection {
             } else {
                 let device_modalias_path = path.join(DEVICE_MODALIAS);
                 if let Ok(name) = read_path_to_string(device_modalias_path).await {
-                    name
+                    name.trim().to_owned()
                 } else {
                     tracing::warn!("Could not find LED device name: {:?}", file_name);
                     continue;

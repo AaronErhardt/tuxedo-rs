@@ -2,10 +2,11 @@ use gtk::prelude::{OrientableExt, WidgetExt};
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView};
 use relm4::gtk::traits::{BoxExt, ButtonExt};
 use relm4::{factory, gtk, Component, ComponentController, Controller};
+use relm4_icons::icon_name;
 use tailor_api::{Color, ColorPoint};
 
 use crate::components::color_button::ColorButton;
-use crate::components::keyboard_edit::KeyboardEditInput;
+use crate::components::led_edit::LedEditInput;
 
 pub struct ColorRow {
     pub inner: ColorPoint,
@@ -31,7 +32,7 @@ impl FactoryComponent for ColorRow {
     type Init = ColorPoint;
     type Input = ColorInput;
     type Output = ColorOutput;
-    type ParentInput = KeyboardEditInput;
+    type ParentInput = LedEditInput;
     type ParentWidget = gtk::ListBox;
 
     view! {
@@ -69,19 +70,19 @@ impl FactoryComponent for ColorRow {
                     set_spacing: 6,
 
                     gtk::Button {
-                        set_icon_name: "go-up",
+                        set_icon_name: icon_name::UP,
                         connect_clicked[sender, index] => move |_| {
                             sender.output(ColorOutput::Up(index.clone()));
                         }
                     },
                     gtk::Button {
-                        set_icon_name: "go-down",
+                        set_icon_name: icon_name::DOWN,
                         connect_clicked[sender, index] => move |_| {
                             sender.output(ColorOutput::Down(index.clone()));
                         }
                     },
                     gtk::Button {
-                        set_icon_name: "remove",
+                        set_icon_name: icon_name::CROSS_FILLED,
                         add_css_class: "destructive-action",
                         connect_clicked[sender, index] => move |_| {
                             sender.output(ColorOutput::Remove(index.clone()));
@@ -92,11 +93,11 @@ impl FactoryComponent for ColorRow {
         }
     }
 
-    fn output_to_parent_input(output: Self::Output) -> Option<KeyboardEditInput> {
+    fn forward_to_parent(output: Self::Output) -> Option<LedEditInput> {
         Some(match output {
-            ColorOutput::Up(index) => KeyboardEditInput::Up(index),
-            ColorOutput::Down(index) => KeyboardEditInput::Down(index),
-            ColorOutput::Remove(index) => KeyboardEditInput::Remove(index),
+            ColorOutput::Up(index) => LedEditInput::Up(index),
+            ColorOutput::Down(index) => LedEditInput::Down(index),
+            ColorOutput::Remove(index) => LedEditInput::Remove(index),
         })
     }
 

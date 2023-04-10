@@ -8,10 +8,14 @@ use gtk::prelude::{
     BoxExt, ButtonExt, DrawingAreaExt, GestureDragExt, OrientableExt, StyleContextExt, WidgetExt,
 };
 use relm4::drawing::DrawHandler;
-use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender, RelmWidgetExt};
+use relm4::{
+    adw, component, gtk, Component, ComponentController, ComponentParts, ComponentSender,
+    Controller, RelmWidgetExt,
+};
+use relm4_components::simple_combo_box::{SimpleComboBox, SimpleComboBoxMsg};
 use tailor_api::FanProfilePoint;
 
-use crate::state::{tailor_connection, TailorStateMsg, STATE};
+use crate::state::{hardware_capabilities, tailor_connection, TailorStateMsg, STATE};
 use crate::templates;
 
 struct Colors {
@@ -46,6 +50,7 @@ pub struct FanEdit {
     drag_into_danger_zone: bool,
     visible: bool,
     last_override_event: Option<SourceId>,
+    preview_fan: Controller<SimpleComboBox<String>>,
 }
 
 #[derive(Debug)]
@@ -80,11 +85,21 @@ impl Component for FanEdit {
                 // This must be moved in the next libadwaita release due to stylesheet changes
                 add_css_class: "response-area",
 
-                gtk::Label {
-                    add_css_class: "title-4",
-                    set_margin_all: 12,
-                    #[watch]
-                    set_label: &format!("Edit fan profile '{}'", model.profile_name.as_deref().unwrap_or_default()),
+                gtk::CenterBox {
+                    #[local_ref]
+                    #[wrap(Some)]
+                    set_start_widget = fan_selection -> gtk::ComboBoxText {
+                        set_margin_all: 6,
+                        set_tooltip: "Select the fan for instant feedback",
+                    },
+
+                    #[wrap(Some)]
+                    set_center_widget = &gtk::Label {
+                        add_css_class: "title-4",
+                        set_margin_all: 12,
+                        #[watch]
+                        set_label: &format!("Edit fan profile '{}'", model.profile_name.as_deref().unwrap_or_default()),
+                    },
                 },
 
                 gtk::Overlay {
@@ -167,6 +182,13 @@ impl Component for FanEdit {
     ) -> ComponentParts<Self> {
         let colors = Colors::new(root);
 
+        let preview_fan = SimpleComboBox::builder()
+            .launch(SimpleComboBox {
+                variants: Vec::new(),
+                active_index: None,
+            })
+            .detach();
+
         let model = Self {
             profile_name: None,
             profile: Vec::new(),
@@ -178,9 +200,12 @@ impl Component for FanEdit {
             selection: None,
             visible: false,
             last_override_event: None,
+            preview_fan,
         };
 
         let drawing_area = model.drawing_handler.drawing_area();
+
+        let fan_selection = model.preview_fan.widget();
         let widgets = view_output!();
 
         ComponentParts { model, widgets }
@@ -190,6 +215,20 @@ impl Component for FanEdit {
         match input {
             FanEditInput::Load(name) => {
                 self.profile_name = Some(name.clone());
+
+                let capabilities = hardware_capabilities().unwrap();
+                if capabilities.num_of_fans <= 1 {
+                    // If we just have one fan, there's nothing to select
+                    self.preview_fan.widget().set_visible(false);
+                } else {
+                    self.preview_fan
+                        .emit(SimpleComboBoxMsg::UpdateData(SimpleComboBox {
+                            variants: (0..capabilities.num_of_fans)
+                                .map(|idx| format!("Fan {}", idx + 1))
+                                .collect(),
+                            active_index: Some(0),
+                        }));
+                }
 
                 let connection = tailor_connection().unwrap();
                 sender.oneshot_command(async move {
@@ -205,7 +244,7 @@ impl Component for FanEdit {
                 self.visible = false;
                 if let Some(name) = self.profile_name.clone() {
                     let profile = self.profile.drain(..).collect();
-                    STATE.emit(TailorStateMsg::AddFanProfile(name, profile));
+                    STATE.emit(TailorStateMsg::AddFanProfile { name, profile });
                 }
             }
             FanEditInput::Cancel => {
@@ -503,10 +542,20 @@ impl FanEdit {
             }
 
             // Don't override the value immediately, but wait a bit for other events to arrive.
+            let fan_idx = self
+                .preview_fan
+                .state()
+                .get()
+                .model
+                .active_index
+                .unwrap_or_default() as u8;
             self.last_override_event = Some(timeout_add_local_once(
                 Duration::from_millis(60),
                 move || {
-                    STATE.emit(TailorStateMsg::OverwriteFanSpeed(fan));
+                    STATE.emit(TailorStateMsg::OverwriteFanSpeed {
+                        speed: fan,
+                        fan_idx,
+                    });
                 },
             ));
         }
