@@ -1,16 +1,14 @@
 use tailor_api::{FanProfilePoint, ProfileInfo};
-use tokio::sync::mpsc;
 use zbus::{dbus_interface, fdo};
 
 use crate::{
-    fancontrol::profile::FanProfile,
+    fancontrol::FanRuntimeHandle,
     profiles::{Profile, FAN_DIR, PROFILE_DIR},
     util,
 };
 
 pub struct FanInterface {
-    pub fan_speed_sender: mpsc::Sender<u8>,
-    pub fan_sender: mpsc::Sender<FanProfile>,
+    pub handles: Vec<FanRuntimeHandle>,
 }
 
 #[dbus_interface(name = "com.tux.Tailor.Fan")]
@@ -23,9 +21,15 @@ impl FanInterface {
 
         // Reload if the fan profile is part of the active global profile
         let info = Profile::get_active_profile_info()?;
-        if info.fan == name {
-            let info = Profile::reload()?;
-            self.fan_sender.send(info.fan).await.unwrap();
+        if info.fans.iter().any(|info| info == name) {
+            let info = Profile::load();
+            for (idx, handle) in self.handles.iter().enumerate() {
+                handle
+                    .profile_sender
+                    .send(info.fans.get(idx).cloned().unwrap_or_default())
+                    .await
+                    .unwrap();
+            }
         }
         Ok(())
     }
@@ -51,9 +55,21 @@ impl FanInterface {
             let profiles = util::get_profiles(PROFILE_DIR).await?;
 
             for profile in profiles {
-                let mut data = util::read_json::<ProfileInfo>(PROFILE_DIR, &profile).await?;
-                if data.fan == from {
-                    data.fan = to.to_string();
+                let mut data = if let Ok(data) = util::read_json::<ProfileInfo>(PROFILE_DIR, &profile).await {
+                    data
+                } else {
+                    continue;
+                };
+                let mut changed = false;
+
+                for fan in &mut data.fans {
+                    if fan == from {
+                        *fan = to.to_owned();
+                        changed = true;
+                    }
+                }
+
+                if changed {
                     util::write_json(PROFILE_DIR, &profile, &data).await?;
                 }
             }
@@ -64,10 +80,17 @@ impl FanInterface {
         }
     }
 
-    async fn override_speed(&mut self, speed: u8) -> fdo::Result<()> {
-        self.fan_speed_sender
-            .send(speed)
-            .await
-            .map_err(|err| fdo::Error::Failed(format!("Internal error: `{err}`")))
+    async fn override_speed(&mut self, fan_idx: u8, speed: u8) -> fdo::Result<()> {
+        if let Some(handle) = self.handles.get(fan_idx as usize) {
+            handle
+                .fan_speed_sender
+                .send(speed)
+                .await
+                .map_err(|err| fdo::Error::Failed(format!("Internal error: `{err}`")))
+        } else {
+            Err(fdo::Error::InvalidArgs(
+                "No fan found at requested index".to_owned(),
+            ))
+        }
     }
 }

@@ -35,6 +35,54 @@ pub struct Color {
     pub b: u8,
 }
 
+impl Color {
+    pub fn sysfs_rgb_string(&self, max_brightness: u32) -> String {
+        let Color { r, g, b } = *self;
+        if max_brightness == 255 {
+            format!("{r} {g} {b}")
+        } else {
+            let max = max_brightness as f32;
+            let scale = |value: u8| -> u32 { (value as f32 / 255.0 * max).clamp(0.0, max) as u32 };
+            format!("{} {} {}", scale(r), scale(g), scale(b))
+        }
+    }
+
+    pub fn sysfs_monochrome_string(&self, max_brightness: u32) -> String {
+        let Color { r, g, b } = *self;
+        let average = [r, g, b].into_iter().map(u16::from).sum::<u16>() / 3;
+        if max_brightness == 255 {
+            average.to_string()
+        } else {
+            let max = max_brightness as f32;
+            let value = (average as f32 / 255.0 * max).clamp(0.0, max) as u32;
+            value.to_string()
+        }
+    }
+
+    pub fn from_sysfs_rgb_value(values: [u32; 3], max_brightness: u32) -> Self {
+        if max_brightness == 255 {
+            let values: Vec<u8> = values
+                .into_iter()
+                .map(u8::try_from)
+                .map(Result::unwrap_or_default)
+                .collect();
+            Self {
+                r: values[0],
+                g: values[1],
+                b: values[2],
+            }
+        } else {
+            let max = max_brightness as f32;
+            let scale = |value: u32| -> u8 { (value as f32 / max * 255.0).clamp(0.0, 255.0) as u8 };
+            Self {
+                r: scale(values[0]),
+                g: scale(values[1]),
+                b: scale(values[2]),
+            }
+        }
+    }
+}
+
 impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "0x{:02X}{:02X}{:02X}", self.r, self.g, self.b)
@@ -73,7 +121,7 @@ impl FromStr for Color {
 
 #[cfg(test)]
 mod test {
-    use crate::keyboard::Color;
+    use crate::color::Color;
     use std::str::FromStr;
 
     #[test]

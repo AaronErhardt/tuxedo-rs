@@ -1,14 +1,16 @@
 [package]
 name = "tuxedo_ioctl"
-version = "0.1.0"
+authors = ["Aaron Erhardt <aaron.erhardt@t-online.de>"]
+version = "0.2.0"
 edition = "2021"
 license = "GPL-2.0+"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Tuxedo ioctl interface (part of tuxedo-rs)"
+repository = "https://github.com/AaronErhardt/tuxedo-rs"
 
 [dependencies]
-nix = { version = "0.25.0", features = ["ioctl"] }
+nix = { version = "0.26", features = ["ioctl"] }
 thiserror = "1"
+tracing = "0.1"
 
 [dev-dependencies]
 sudo = "0.6"

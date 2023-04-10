@@ -20,5 +20,9 @@ trait Profiles {
 
     async fn get_active_profile_name(&self) -> fdo::Result<String>;
 
+    async fn get_number_of_fans(&self) -> fdo::Result<u8>;
+
+    async fn get_led_devices(&self) -> fdo::Result<String>;
+
     async fn reload(&self) -> fdo::Result<()>;
 }

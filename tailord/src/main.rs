@@ -1,23 +1,25 @@
 mod dbus;
 mod fancontrol;
-pub mod keyboard;
+pub mod led;
 mod profiles;
+pub mod shutdown;
 mod suspend;
 pub mod util;
 
 use std::future::pending;
 
-use dbus::{FanInterface, KeyboardInterface, ProfileInterface};
-use fancontrol::FanRuntime;
-use futures::StreamExt;
+use dbus::{FanInterface, ProfileInterface};
 use profiles::Profile;
-use signal_hook::consts::{SIGINT, SIGQUIT, SIGTERM};
-use signal_hook_tokio::Signals;
-use tokio::sync::{broadcast, mpsc};
+use tuxedo_ioctl::hal::IoInterface;
 use zbus::ConnectionBuilder;
 
-use crate::keyboard::runtime::KeyboardRuntime;
+use crate::{
+    dbus::LedInterface,
+    fancontrol::FanRuntime,
+    led::{LedRuntime, LedRuntimeData},
+};
 
+const DBUS_NAME: &str = "com.tux.Tailor";
 const DBUS_PATH: &str = "/com/tux/Tailor";
 
 fn main() {
@@ -34,39 +36,99 @@ fn main() {
     tokio_uring::start(start_runtime());
 }
 
+#[tracing::instrument]
 async fn start_runtime() {
-    let (suspend_sender, suspend_receiver) = broadcast::channel(1);
-    let (shutdown_sender, mut shutdown_receiver) = broadcast::channel(1);
+    tracing::info!("Starting tailord");
 
-    let (keyboard_sender, keyboard_receiver) = mpsc::channel(1);
-    let (fan_sender, fan_receiver) = mpsc::channel(1);
+    // Setup shutdown
+    let mut shutdown_receiver = shutdown::setup();
 
-    let (color_sender, color_receiver) = mpsc::channel(1);
-    let (fan_speed_sender, fan_speed_receiver) = mpsc::channel(1);
+    let profile = Profile::load();
 
-    let signals = Signals::new([SIGTERM, SIGINT, SIGQUIT]).unwrap();
-    tokio_uring::spawn(handle_signals(signals, shutdown_sender));
+    let (device, _webcam, _tdp) = match IoInterface::new() {
+        Ok(interface) => {
+            let IoInterface {
+                device,
+                webcam,
+                tdp,
+                module_version,
+            } = interface;
+            tracing::info!("Connected to Tuxedo ioctl interface with version {module_version}");
+            (Some(device), webcam, tdp)
+        }
+        Err(err) => {
+            tracing::warn!("No tuxedo ioctl interface available: {err}");
+            (None, None, None)
+        }
+    };
 
-    let keyboard_interface = KeyboardInterface {
-        color_sender,
-        keyboard_sender: keyboard_sender.clone(),
+    let mut fan_handles = Vec::new();
+    let mut fan_runtimes = Vec::new();
+    if let Some(device) = &device {
+        let available_fans = device.get_number_fans();
+        for fan_idx in 0..available_fans {
+            let profile = profile
+                .fans
+                .get(fan_idx as usize)
+                .cloned()
+                .unwrap_or_default();
+            let (handle, runtime) = FanRuntime::new(fan_idx, device.clone(), profile);
+
+            fan_handles.push(handle);
+            fan_runtimes.push(runtime);
+        }
+    }
+
+    let led_devices = tuxedo_sysfs::led::Collection::new()
+        .await
+        .map(|c| c.into_inner())
+        .unwrap_or_default();
+
+    let mut led_handles = Vec::new();
+    let mut led_runtimes = Vec::new();
+    for led_device in led_devices {
+        let profile = profile
+            .leds
+            .iter()
+            .find_map(|(info, profile)| {
+                if info.device_name == led_device.device_name
+                    && info.function == led_device.function
+                {
+                    Some(profile.clone())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_default();
+
+        let (handle, runtime) = LedRuntime::new(LedRuntimeData {
+            controller: led_device,
+            profile,
+        });
+
+        led_handles.push(handle);
+        led_runtimes.push(runtime);
+    }
+
+    let profile_interface = ProfileInterface {
+        led_handles: led_handles.clone(),
+        fan_handles: fan_handles.clone(),
+    };
+
+    let led_interface = LedInterface {
+        handles: led_handles,
     };
 
     let fan_interface = FanInterface {
-        fan_speed_sender,
-        fan_sender: fan_sender.clone(),
+        handles: fan_handles,
     };
 
-    let profile_interface = ProfileInterface {
-        keyboard_sender,
-        fan_sender,
-    };
-
-    let _ = ConnectionBuilder::system()
+    tracing::debug!("Connecting to DBUS as {DBUS_NAME}");
+    let _conn = ConnectionBuilder::system()
         .unwrap()
-        .name("com.tux.Tailor")
+        .name(DBUS_NAME)
         .unwrap()
-        .serve_at(DBUS_PATH, keyboard_interface)
+        .serve_at(DBUS_PATH, led_interface)
         .unwrap()
         .serve_at(DBUS_PATH, fan_interface)
         .unwrap()
@@ -76,35 +138,27 @@ async fn start_runtime() {
         .await
         .unwrap();
 
-    let Profile { fan, keyboard } = Profile::load();
+    tracing::debug!("Starting suspend watcher runtime");
+    tokio_uring::spawn(suspend::wait_for_suspend());
 
-    let keyboard_rt = KeyboardRuntime::new(keyboard, suspend_receiver).await;
-    let fan_rt = FanRuntime::new(fan, suspend_sender.subscribe());
+    tracing::debug!("Starting {} led runtime(s)", led_runtimes.len());
+    for runtime in led_runtimes {
+        tokio_uring::spawn(runtime.run());
+    }
 
-    tokio_uring::spawn(suspend::wait_for_suspend(suspend_sender));
-    tokio_uring::spawn(keyboard_rt.run(keyboard_receiver, color_receiver));
-    tokio_uring::spawn(fan_rt.run(fan_receiver, fan_speed_receiver));
+    tracing::debug!("Starting {} fans runtime(s)", fan_runtimes.len());
+    for runtime in fan_runtimes {
+        tokio_uring::spawn(runtime.run());
+    }
 
+    tracing::info!("Tailord started");
     tokio::select! {
-        _ = pending() => {}
+        _ = pending() => {
+            tracing::debug!("Pending main thread");
+        }
         _ = shutdown_receiver.recv() => {
             tracing::info!("Shutting down, bye!");
             std::process::abort()
-        }
-    }
-}
-
-async fn handle_signals(mut signals: Signals, shutdown_sender: broadcast::Sender<()>) {
-    while let Some(signal) = signals.next().await {
-        match signal {
-            SIGTERM | SIGINT | SIGQUIT => {
-                // It's ok to panic here if a send error occurs.
-                // The application is terminated anyway and
-                // an error at this point can't be recovered.
-                tracing::info!("Received a shutdown signal");
-                shutdown_sender.send(()).unwrap();
-            }
-            _ => unreachable!(),
         }
     }
 }

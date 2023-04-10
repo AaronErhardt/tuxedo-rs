@@ -1,18 +1,17 @@
 use crate::suspend::process_suspend;
 
-use super::{buffer::TemperatureBuffer, FanRuntime};
+use super::{buffer::TemperatureBuffer, FanRuntimeData};
 
 use std::time::Duration;
 
-impl FanRuntime {
+impl FanRuntimeData {
+    #[tracing::instrument(level = "debug", skip(self))]
     pub async fn fan_control_loop(&mut self) {
         loop {
             // Add the current temperature to history
             let current_temp = self.update_temp();
 
             let target_fan_speed = self.profile.calc_target_fan_speed(current_temp);
-            tracing::debug!("Current temperature is {current_temp}°C at {}% fan speed and {target_fan_speed}% target fan speed", self.fan_speed);
-
             let fan_diff = self.fan_speed.abs_diff(target_fan_speed);
 
             // Make small steps to decrease or increase fan speed.
@@ -29,6 +28,11 @@ impl FanRuntime {
             });
 
             let delay = suitable_delay(&self.temp_history, fan_diff);
+
+            tracing::debug!(
+                "Fan {}: Current temperature is {current_temp}°C, fan speed: {}%, target fan speed: {target_fan_speed} \
+                fan diff: {fan_diff}, fan increment {fan_increment}, delay: {delay:?}", self.fan_idx, self.fan_speed
+            );
 
             tokio::select! {
                 _ = tokio::time::sleep(delay) => {},

@@ -1,16 +1,16 @@
-use tailor_api::{ColorProfile, ProfileInfo};
-use tokio::sync::mpsc;
+use tailor_api::{ProfileInfo, LedDeviceInfo};
 use zbus::{dbus_interface, fdo};
 
 use crate::{
-    fancontrol::profile::FanProfile,
+    fancontrol::FanRuntimeHandle,
+    led::LedRuntimeHandle,
     profiles::{Profile, PROFILE_DIR},
     util,
 };
 
 pub struct ProfileInterface {
-    pub fan_sender: mpsc::Sender<FanProfile>,
-    pub keyboard_sender: mpsc::Sender<ColorProfile>,
+    pub fan_handles: Vec<FanRuntimeHandle>,
+    pub led_handles: Vec<LedRuntimeHandle>,
 }
 
 #[dbus_interface(name = "com.tux.Tailor.Profiles")]
@@ -60,16 +60,40 @@ impl ProfileInterface {
         Profile::get_active_profile_name().await
     }
 
+    async fn get_number_of_fans(&self) -> fdo::Result<u8> {
+        Ok(self.fan_handles.len() as u8)
+    }
+
+    async fn get_led_devices(&self) -> fdo::Result<String> {
+        let devices: Vec<LedDeviceInfo> = self
+            .led_handles
+            .iter()
+            .map(|handle| handle.info.clone())
+            .collect();
+        Ok(serde_json::to_string(&devices).unwrap())
+    }
+
     async fn reload(&mut self) -> fdo::Result<()> {
-        let Profile { fan, keyboard } = Profile::reload()?;
-        let res1 = self
-            .keyboard_sender
-            .send(keyboard)
-            .await
-            .map_err(|e| e.to_string());
-        let res2 = self.fan_sender.send(fan).await.map_err(|e| e.to_string());
-        res1.and(res2)
-            .map_err(|err| fdo::Error::Failed(format!("Internal error: `{err}`")))?;
+        let Profile { fans, leds } = Profile::load();
+
+        for (idx, fan_handle) in self.fan_handles.iter().enumerate() {
+            let profile = fans.get(idx).cloned().unwrap_or_default();
+            fan_handle
+                .profile_sender
+                .send(profile)
+                .await
+                .map_err(|err| fdo::Error::Failed(err.to_string()))?;
+        }
+
+        for led_handle in &self.led_handles {
+            let profile = leds.get(&led_handle.info).cloned().unwrap_or_default();
+            led_handle
+                .profile_sender
+                .send(profile)
+                .await
+                .map_err(|err| fdo::Error::Failed(err.to_string()))?;
+        }
+
         Ok(())
     }
 }

@@ -10,6 +10,9 @@ async fn test_profiles() {
     let fan_rename = "__test_fan_rename";
     let keyboard_rename = "__test_keyboard_rename";
 
+    connection.get_number_of_fans().await.unwrap();
+    connection.get_led_devices().await.unwrap();
+
     let active_name = connection.get_active_global_profile_name().await.unwrap();
     let active_profile = connection.get_global_profile(&active_name).await.unwrap();
 
@@ -37,25 +40,25 @@ async fn test_profiles() {
 
     // Test rename
     connection
-        .rename_fan_profile(&active_profile.fan, fan_rename)
+        .rename_fan_profile(&active_profile.fans[0], fan_rename)
         .await
         .unwrap();
     connection
-        .rename_keyboard_profile(&active_profile.keyboard, keyboard_rename)
+        .rename_led_profile(&active_profile.leds[0].profile, keyboard_rename)
         .await
         .unwrap();
 
     let profile_after_rename = connection.get_global_profile(name).await.unwrap();
-    assert_eq!(profile_after_rename.fan, fan_rename);
-    assert_eq!(profile_after_rename.keyboard, keyboard_rename);
+    assert_eq!(profile_after_rename.fans[0], fan_rename);
+    assert_eq!(profile_after_rename.leds[0].profile, keyboard_rename);
 
     // Undo rename
     connection
-        .rename_fan_profile(fan_rename, &active_profile.fan)
+        .rename_fan_profile(fan_rename, &active_profile.fans[0])
         .await
         .unwrap();
     connection
-        .rename_keyboard_profile(keyboard_rename, &active_profile.keyboard)
+        .rename_led_profile(keyboard_rename, &active_profile.leds[0].profile)
         .await
         .unwrap();
 
@@ -199,67 +202,67 @@ async fn test_keyboard() {
 
     // Add profile
     connection
-        .add_keyboard_profile(name, &profile)
+        .add_led_profile(name, &profile)
         .await
         .unwrap();
     // Overwrite profile
     connection
-        .add_keyboard_profile(name, &profile)
+        .add_led_profile(name, &profile)
         .await
         .unwrap();
     // Get profile
     assert_eq!(
-        connection.get_keyboard_profile(name).await.unwrap(),
+        connection.get_led_profile(name).await.unwrap(),
         profile
     );
     // List should contain name
     assert!(connection
-        .list_keyboard_profiles()
+        .list_led_profiles()
         .await
         .unwrap()
         .contains(&name.to_owned()));
 
     // Rename profile
     connection
-        .rename_keyboard_profile(name, second_name)
+        .rename_led_profile(name, second_name)
         .await
         .unwrap();
     // List should contain new name
     assert!(connection
-        .list_keyboard_profiles()
+        .list_led_profiles()
         .await
         .unwrap()
         .contains(&second_name.to_owned()));
     // List should not contain old name
     assert!(!connection
-        .list_keyboard_profiles()
+        .list_led_profiles()
         .await
         .unwrap()
         .contains(&name.to_owned()));
     // Rename profile again (should fail)
     connection
-        .rename_keyboard_profile(name, second_name)
+        .rename_led_profile(name, second_name)
         .await
         .unwrap_err();
     // Remove with old name (should fail)
-    connection.remove_keyboard_profile(name).await.unwrap_err();
+    connection.remove_led_profile(name).await.unwrap_err();
 
     // Copy profile to old name
     connection
-        .copy_keyboard_profile(second_name, name)
+        .copy_led_profile(second_name, name)
         .await
         .unwrap();
     // Remove with old name
-    connection.remove_keyboard_profile(name).await.unwrap();
+    connection.remove_led_profile(name).await.unwrap();
 
     // Remove profile
     connection
-        .remove_keyboard_profile(second_name)
+        .remove_led_profile(second_name)
         .await
         .unwrap();
     // Remove profile again (should fail)
     connection
-        .remove_keyboard_profile(second_name)
+        .remove_led_profile(second_name)
         .await
         .unwrap_err();
 }

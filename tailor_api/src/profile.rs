@@ -1,14 +1,12 @@
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ProfileInfo {
-    pub fan: String,
-    pub keyboard: String,
+    pub fans: Vec<String>,
+    pub leds: Vec<LedProfile>,
 }
 
-impl Default for ProfileInfo {
-    fn default() -> Self {
-        Self {
-            fan: "default".to_string(),
-            keyboard: "default".to_string(),
-        }
-    }
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct LedProfile {
+    pub device_name: String,
+    pub function: String,
+    pub profile: String,
 }
