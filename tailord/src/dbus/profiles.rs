@@ -62,6 +62,17 @@ impl ProfileInterface {
         Profile::get_active_profile_name().await
     }
 
+    async fn get_active_performance_profile_name(&self) -> fdo::Result<String> {
+        Ok(self
+            .performance_profile_handle
+            .as_ref()
+            .ok_or(fdo::Error::Failed(
+                "No performance profile handler available".to_string(),
+            ))?
+            .performance_profile
+            .to_string())
+    }
+
     async fn get_number_of_fans(&self) -> fdo::Result<u8> {
         Ok(self.fan_handles.len() as u8)
     }

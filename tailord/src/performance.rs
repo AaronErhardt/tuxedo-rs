@@ -23,6 +23,7 @@ impl PerformanceProfile {
 #[derive(Clone)]
 pub struct PerformanceProfileRuntimeHandle {
     pub profile_sender: mpsc::Sender<String>,
+    pub performance_profile: String,
 }
 
 pub struct PerformanceProfileRuntime {
@@ -42,16 +43,17 @@ impl PerformanceProfileRuntime {
         default_performance_profile: String,
     ) -> (PerformanceProfileRuntimeHandle, PerformanceProfileRuntime) {
         let (profile_sender, profile_receiver) = mpsc::channel(1);
-        match performance_profile {
-            Some(profile) => io
-                .set_odm_performance_profile(&profile.to_string())
-                .unwrap(),
-            None => io
-                .set_odm_performance_profile(&default_performance_profile)
-                .unwrap(),
-        }
+        let performance_profile = match performance_profile {
+            Some(profile) => profile.to_string(),
+            None => default_performance_profile.to_string(),
+        };
+        io.set_odm_performance_profile(&performance_profile)
+            .unwrap();
         (
-            PerformanceProfileRuntimeHandle { profile_sender },
+            PerformanceProfileRuntimeHandle {
+                profile_sender,
+                performance_profile,
+            },
             PerformanceProfileRuntime {
                 profile_receiver,
                 io,
