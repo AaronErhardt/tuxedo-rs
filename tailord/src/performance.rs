@@ -1,9 +1,7 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
-use tokio::sync::{broadcast, mpsc};
+use tokio::sync::mpsc;
 use tuxedo_ioctl::hal::traits::HardwareDevice;
-
-use crate::suspend::get_suspend_receiver;
 
 #[derive(Debug)]
 pub struct PerformanceProfile(String);
@@ -24,13 +22,15 @@ impl PerformanceProfile {
 pub struct PerformanceProfileRuntimeHandle {
     pub profile_sender: mpsc::Sender<String>,
     pub performance_profile: String,
+    pub available_performance_profiles: Vec<String>,
 }
 
+#[allow(unused)]
 pub struct PerformanceProfileRuntime {
     profile_receiver: mpsc::Receiver<String>,
     /// Device i/o interface.
     io: Arc<dyn HardwareDevice>,
-    /// Default profile
+    /// Default profile.
     default_performance_profile: String,
 }
 
@@ -49,10 +49,12 @@ impl PerformanceProfileRuntime {
         };
         io.set_odm_performance_profile(&performance_profile)
             .unwrap();
+        let available_performance_profiles = io.get_available_odm_performance_profiles().unwrap();
         (
             PerformanceProfileRuntimeHandle {
                 profile_sender,
                 performance_profile,
+                available_performance_profiles,
             },
             PerformanceProfileRuntime {
                 profile_receiver,
@@ -65,16 +67,12 @@ impl PerformanceProfileRuntime {
     #[tracing::instrument(skip(self))]
     pub async fn run(mut self) {
         loop {
-            tokio::select! {
-                new_profile = self.profile_receiver.recv() => {
-                    if let Some(profile) = new_profile {
-                        tracing::info!("Loading performance profile {profile}");
-                        self.io.set_odm_performance_profile(&profile).unwrap();
-                    } else {
-                        break;
-                    }
-                },
-                _ = tokio::time::sleep(Duration::from_millis(1000)) => {},
+            if let Some(profile) = self.profile_receiver.recv().await {
+                tracing::info!("Loading performance profile {profile}");
+                self.io.set_odm_performance_profile(&profile).unwrap();
+            } else {
+                tracing::warn!("Received empty performance profile, stopping runtime");
+                break;
             }
         }
     }

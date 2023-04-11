@@ -128,7 +128,7 @@ async fn start_runtime() {
     let profile_interface = ProfileInterface {
         led_handles: led_handles.clone(),
         fan_handles: fan_handles.clone(),
-        performance_profile_handle: performance_profile_handle.clone(),
+        performance_profile_handle,
     };
 
     let led_interface = LedInterface {

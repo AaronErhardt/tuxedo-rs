@@ -4,7 +4,7 @@ mod dbus;
 mod error;
 
 pub use error::ClientError;
-use tailor_api::{Color, ColorProfile, FanProfilePoint, ProfileInfo, LedDeviceInfo};
+use tailor_api::{Color, ColorProfile, FanProfilePoint, LedDeviceInfo, ProfileInfo};
 use zbus::Connection;
 
 pub type ClientResult<T> = Result<T, ClientError>;
@@ -33,11 +33,7 @@ impl<'a> TailorConnection<'a> {
 }
 
 impl<'a> TailorConnection<'a> {
-    pub async fn add_led_profile(
-        &self,
-        name: &str,
-        profile: &ColorProfile,
-    ) -> ClientResult<()> {
+    pub async fn add_led_profile(&self, name: &str, profile: &ColorProfile) -> ClientResult<()> {
         let value = serde_json::to_string(profile)?;
         Ok(self.led.add_profile(name, &value).await?)
     }
@@ -137,6 +133,17 @@ impl<'a> TailorConnection<'a> {
 
     pub async fn get_active_global_profile_name(&self) -> ClientResult<String> {
         Ok(self.profiles.get_active_profile_name().await?)
+    }
+
+    pub async fn get_active_performance_profile_name(&self) -> ClientResult<String> {
+        Ok(self.profiles.get_active_performance_profile_name().await?)
+    }
+
+    pub async fn get_available_performance_profile_names(&self) -> ClientResult<Vec<String>> {
+        Ok(self
+            .profiles
+            .get_available_performance_profile_names()
+            .await?)
     }
 
     pub async fn set_active_global_profile_name(&self, name: &str) -> ClientResult<()> {

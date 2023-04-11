@@ -73,6 +73,17 @@ impl ProfileInterface {
             .to_string())
     }
 
+    async fn get_available_performance_profile_names(&self) -> fdo::Result<Vec<String>> {
+        Ok(self
+            .performance_profile_handle
+            .as_ref()
+            .ok_or(fdo::Error::Failed(
+                "No performance profile handler available".to_string(),
+            ))?
+            .available_performance_profiles
+            .clone())
+    }
+
     async fn get_number_of_fans(&self) -> fdo::Result<u8> {
         Ok(self.fan_handles.len() as u8)
     }
