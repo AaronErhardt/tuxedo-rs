@@ -1,7 +1,7 @@
 use std::{collections::HashMap, path::Component};
 
-use crate::fancontrol::profile::FanProfile;
-use tailor_api::{ColorProfile, LedProfile, ProfileInfo, LedDeviceInfo};
+use crate::{fancontrol::profile::FanProfile, performance::PerformanceProfile};
+use tailor_api::{ColorProfile, LedDeviceInfo, LedProfile, ProfileInfo};
 use zbus::fdo;
 
 use super::util;
@@ -38,10 +38,11 @@ fn load_fan_profile(name: &str) -> fdo::Result<FanProfile> {
     FanProfile::load_config(fan_path(name)?)
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Profile {
     pub fans: Vec<FanProfile>,
     pub leds: HashMap<LedDeviceInfo, ColorProfile>,
+    pub performance_profile: Option<PerformanceProfile>,
 }
 
 impl Profile {
@@ -95,9 +96,14 @@ impl Profile {
             })
             .collect();
 
+        let performance_profile = profile_info
+            .performance_profile
+            .map(PerformanceProfile::new);
+
         Self {
             fans: fan,
             leds: led,
+            performance_profile,
         }
     }
 

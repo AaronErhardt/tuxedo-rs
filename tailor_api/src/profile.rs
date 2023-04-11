@@ -2,6 +2,7 @@
 pub struct ProfileInfo {
     pub fans: Vec<String>,
     pub leds: Vec<LedProfile>,
+    pub performance_profile: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
