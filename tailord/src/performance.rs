@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use tokio::sync::mpsc;
-use tuxedo_ioctl::hal::traits::HardwareDevice;
+use tuxedo_ioctl::hal::{traits::HardwareDevice, IoctlResult};
 
 #[derive(Debug)]
 pub struct PerformanceProfile(String);
@@ -18,11 +18,26 @@ impl PerformanceProfile {
     }
 }
 
+#[allow(unused)]
 #[derive(Clone)]
 pub struct PerformanceProfileRuntimeHandle {
     pub profile_sender: mpsc::Sender<String>,
-    pub performance_profile: String,
-    pub available_performance_profiles: Vec<String>,
+    /// Device i/o interface.
+    io: Arc<dyn HardwareDevice>,
+    /// Current profile.
+    performance_profile: String,
+}
+
+impl PerformanceProfileRuntimeHandle {
+    pub fn get_availables_performance_profiles(&self) -> IoctlResult<Vec<String>> {
+        self.io.get_available_odm_performance_profiles()
+    }
+    pub fn set_active_performance_profile(&mut self, name: &str) {
+        self.performance_profile = name.to_string();
+    }
+    pub fn get_active_performance_profile(&self) -> &str {
+        &self.performance_profile
+    }
 }
 
 #[allow(unused)]
@@ -30,8 +45,6 @@ pub struct PerformanceProfileRuntime {
     profile_receiver: mpsc::Receiver<String>,
     /// Device i/o interface.
     io: Arc<dyn HardwareDevice>,
-    /// Default profile.
-    default_performance_profile: String,
 }
 
 impl PerformanceProfileRuntime {
@@ -49,17 +62,15 @@ impl PerformanceProfileRuntime {
         };
         io.set_odm_performance_profile(&performance_profile)
             .unwrap();
-        let available_performance_profiles = io.get_available_odm_performance_profiles().unwrap();
         (
             PerformanceProfileRuntimeHandle {
                 profile_sender,
+                io: io.clone(),
                 performance_profile,
-                available_performance_profiles,
             },
             PerformanceProfileRuntime {
                 profile_receiver,
                 io,
-                default_performance_profile,
             },
         )
     }

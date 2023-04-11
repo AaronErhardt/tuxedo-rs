@@ -15,6 +15,26 @@ pub struct ProfileInterface {
     pub performance_profile_handle: Option<PerformanceProfileRuntimeHandle>,
 }
 
+impl ProfileInterface {
+    fn performance_profile_handle(&self) -> fdo::Result<&PerformanceProfileRuntimeHandle> {
+        self.performance_profile_handle
+            .as_ref()
+            .ok_or(fdo::Error::Failed(
+                "No performance profile handler available".to_string(),
+            ))
+    }
+
+    fn performance_profile_handle_mut(
+        &mut self,
+    ) -> fdo::Result<&mut PerformanceProfileRuntimeHandle> {
+        self.performance_profile_handle
+            .as_mut()
+            .ok_or(fdo::Error::Failed(
+                "No performance profile handler available".to_string(),
+            ))
+    }
+}
+
 #[dbus_interface(name = "com.tux.Tailor.Profiles")]
 impl ProfileInterface {
     async fn add_profile(&self, name: &str, value: &str) -> fdo::Result<()> {
@@ -62,26 +82,28 @@ impl ProfileInterface {
         Profile::get_active_profile_name().await
     }
 
+    async fn set_active_performance_profile_name(&mut self, name: &str) -> fdo::Result<()> {
+        self.performance_profile_handle()?
+            .profile_sender
+            .send(name.to_string())
+            .await
+            .map_err(|err| fdo::Error::Failed(err.to_string()))?;
+        Ok(self
+            .performance_profile_handle_mut()?
+            .set_active_performance_profile(name))
+    }
+
     async fn get_active_performance_profile_name(&self) -> fdo::Result<String> {
         Ok(self
-            .performance_profile_handle
-            .as_ref()
-            .ok_or(fdo::Error::Failed(
-                "No performance profile handler available".to_string(),
-            ))?
-            .performance_profile
+            .performance_profile_handle()?
+            .get_active_performance_profile()
             .to_string())
     }
 
     async fn get_available_performance_profile_names(&self) -> fdo::Result<Vec<String>> {
-        Ok(self
-            .performance_profile_handle
-            .as_ref()
-            .ok_or(fdo::Error::Failed(
-                "No performance profile handler available".to_string(),
-            ))?
-            .available_performance_profiles
-            .clone())
+        self.performance_profile_handle()?
+            .get_availables_performance_profiles()
+            .map_err(|err| fdo::Error::Failed(err.to_string()))
     }
 
     async fn get_number_of_fans(&self) -> fdo::Result<u8> {

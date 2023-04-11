@@ -22,6 +22,8 @@ trait Profiles {
 
     async fn get_active_performance_profile_name(&self) -> fdo::Result<String>;
 
+    async fn set_active_performance_profile_name(&self, name: &str) -> fdo::Result<()>;
+
     async fn get_available_performance_profile_names(&self) -> fdo::Result<Vec<String>>;
 
     async fn get_number_of_fans(&self) -> fdo::Result<u8>;
