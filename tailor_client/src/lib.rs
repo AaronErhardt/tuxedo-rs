@@ -14,6 +14,7 @@ pub struct TailorConnection<'a> {
     profiles: dbus::ProfilesProxy<'a>,
     led: dbus::LedProxy<'a>,
     fan: dbus::FanProxy<'a>,
+    performance: dbus::PerformanceProxy<'a>,
 }
 
 impl<'a> TailorConnection<'a> {
@@ -23,11 +24,13 @@ impl<'a> TailorConnection<'a> {
         let profiles = dbus::ProfilesProxy::new(&connection).await?;
         let keyboard = dbus::LedProxy::new(&connection).await?;
         let fan = dbus::FanProxy::new(&connection).await?;
+        let performance = dbus::PerformanceProxy::new(&connection).await?;
 
         Ok(Self {
             profiles,
             led: keyboard,
             fan,
+            performance,
         })
     }
 }
@@ -135,17 +138,6 @@ impl<'a> TailorConnection<'a> {
         Ok(self.profiles.get_active_profile_name().await?)
     }
 
-    pub async fn get_active_performance_profile_name(&self) -> ClientResult<String> {
-        Ok(self.profiles.get_active_performance_profile_name().await?)
-    }
-
-    pub async fn set_active_performance_profile_name(&self, name: &str) -> ClientResult<()> {
-        Ok(self
-            .profiles
-            .set_active_performance_profile_name(name)
-            .await?)
-    }
-
     pub async fn get_available_performance_profile_names(&self) -> ClientResult<Vec<String>> {
         Ok(self
             .profiles
@@ -168,5 +160,22 @@ impl<'a> TailorConnection<'a> {
 
     pub async fn reload(&self) -> ClientResult<()> {
         Ok(self.profiles.reload().await?)
+    }
+}
+
+impl<'a> TailorConnection<'a> {
+    pub async fn set_performance_profile(&self, name: &str, value: &str) -> ClientResult<()> {
+        Ok(self
+            .performance
+            .set_performance_profile(name, value)
+            .await?)
+    }
+
+    pub async fn get_performance_profile(&self, name: &str) -> ClientResult<String> {
+        Ok(self.performance.get_performance_profile(name).await?)
+    }
+
+    pub async fn list_performance_profiles(&self) -> ClientResult<Vec<String>> {
+        Ok(self.performance.list_performance_profiles().await?)
     }
 }
