@@ -8,11 +8,11 @@ use zbus::{dbus_proxy, fdo};
 trait Performance {
     /// Temporarily override the performance profile. Please note that this will not survive a
     /// restart as the performance profile is handled by the overall profile configuration.
-    async fn set_performance_profile(&self, name: &str, value: &str) -> fdo::Result<()>;
+    async fn set_profile(&self, name: &str, value: &str) -> fdo::Result<()>;
 
     /// Read the current performance profile.
-    async fn get_performance_profile(&self, name: &str) -> fdo::Result<String>;
+    async fn get_profile(&self, name: &str) -> fdo::Result<String>;
 
     /// Read the list of supported performance profiles.
-    async fn list_performance_profiles(&self) -> fdo::Result<Vec<String>>;
+    async fn list_profiles(&self) -> fdo::Result<Vec<String>>;
 }
