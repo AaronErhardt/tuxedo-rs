@@ -201,20 +201,11 @@ async fn test_keyboard() {
     ]);
 
     // Add profile
-    connection
-        .add_led_profile(name, &profile)
-        .await
-        .unwrap();
+    connection.add_led_profile(name, &profile).await.unwrap();
     // Overwrite profile
-    connection
-        .add_led_profile(name, &profile)
-        .await
-        .unwrap();
+    connection.add_led_profile(name, &profile).await.unwrap();
     // Get profile
-    assert_eq!(
-        connection.get_led_profile(name).await.unwrap(),
-        profile
-    );
+    assert_eq!(connection.get_led_profile(name).await.unwrap(), profile);
     // List should contain name
     assert!(connection
         .list_led_profiles()
@@ -256,10 +247,7 @@ async fn test_keyboard() {
     connection.remove_led_profile(name).await.unwrap();
 
     // Remove profile
-    connection
-        .remove_led_profile(second_name)
-        .await
-        .unwrap();
+    connection.remove_led_profile(second_name).await.unwrap();
     // Remove profile again (should fail)
     connection
         .remove_led_profile(second_name)

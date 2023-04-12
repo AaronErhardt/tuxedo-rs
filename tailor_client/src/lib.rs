@@ -4,7 +4,7 @@ mod dbus;
 mod error;
 
 pub use error::ClientError;
-use tailor_api::{Color, ColorProfile, FanProfilePoint, ProfileInfo, LedDeviceInfo};
+use tailor_api::{Color, ColorProfile, FanProfilePoint, LedDeviceInfo, ProfileInfo};
 use zbus::Connection;
 
 pub type ClientResult<T> = Result<T, ClientError>;
@@ -14,6 +14,7 @@ pub struct TailorConnection<'a> {
     profiles: dbus::ProfilesProxy<'a>,
     led: dbus::LedProxy<'a>,
     fan: dbus::FanProxy<'a>,
+    performance: dbus::PerformanceProxy<'a>,
 }
 
 impl<'a> TailorConnection<'a> {
@@ -23,21 +24,19 @@ impl<'a> TailorConnection<'a> {
         let profiles = dbus::ProfilesProxy::new(&connection).await?;
         let keyboard = dbus::LedProxy::new(&connection).await?;
         let fan = dbus::FanProxy::new(&connection).await?;
+        let performance = dbus::PerformanceProxy::new(&connection).await?;
 
         Ok(Self {
             profiles,
             led: keyboard,
             fan,
+            performance,
         })
     }
 }
 
 impl<'a> TailorConnection<'a> {
-    pub async fn add_led_profile(
-        &self,
-        name: &str,
-        profile: &ColorProfile,
-    ) -> ClientResult<()> {
+    pub async fn add_led_profile(&self, name: &str, profile: &ColorProfile) -> ClientResult<()> {
         let value = serde_json::to_string(profile)?;
         Ok(self.led.add_profile(name, &value).await?)
     }
@@ -154,5 +153,23 @@ impl<'a> TailorConnection<'a> {
 
     pub async fn reload(&self) -> ClientResult<()> {
         Ok(self.profiles.reload().await?)
+    }
+}
+
+impl<'a> TailorConnection<'a> {
+    /// Temporarily override the performance profile. Please note that this will not survive a
+    /// restart as the performance profile is handled by the overall profile configuration.
+    pub async fn set_performance_profile(&self, name: &str, value: &str) -> ClientResult<()> {
+        Ok(self.performance.set_profile(name, value).await?)
+    }
+
+    /// Read the current performance profile.
+    pub async fn get_performance_profile(&self, name: &str) -> ClientResult<String> {
+        Ok(self.performance.get_profile(name).await?)
+    }
+
+    /// Read the list of supported performance profiles.
+    pub async fn list_performance_profiles(&self) -> ClientResult<Vec<String>> {
+        Ok(self.performance.list_profiles().await?)
     }
 }

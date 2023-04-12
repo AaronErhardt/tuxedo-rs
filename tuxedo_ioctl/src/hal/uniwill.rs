@@ -176,7 +176,8 @@ impl HardwareDevice for UniwillHardware {
     fn get_default_odm_performance_profile(&self) -> IoctlResult<String> {
         let available_profiles = read::uw::profs_available(&self.file)?;
         if available_profiles > 0 {
-            let nr_tdps = self.get_number_tdps()?;
+            // TODO(uniwill) - get_number_tdps() always return -19 on my Pulse 15 Gen1
+            let nr_tdps = self.get_number_tdps().unwrap_or_default();
             let profile = if nr_tdps > 0 {
                 // LEDs only case (default to LEDs off)
                 PERF_PROF_OVERBOOST

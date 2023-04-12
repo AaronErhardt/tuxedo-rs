@@ -1,9 +1,10 @@
-use tailor_api::{ProfileInfo, LedDeviceInfo};
+use tailor_api::{LedDeviceInfo, ProfileInfo};
 use zbus::{dbus_interface, fdo};
 
 use crate::{
     fancontrol::FanRuntimeHandle,
     led::LedRuntimeHandle,
+    performance::PerformanceProfileRuntimeHandle,
     profiles::{Profile, PROFILE_DIR},
     util,
 };
@@ -11,6 +12,7 @@ use crate::{
 pub struct ProfileInterface {
     pub fan_handles: Vec<FanRuntimeHandle>,
     pub led_handles: Vec<LedRuntimeHandle>,
+    pub performance_profile_handle: Option<PerformanceProfileRuntimeHandle>,
 }
 
 #[dbus_interface(name = "com.tux.Tailor.Profiles")]
@@ -74,7 +76,11 @@ impl ProfileInterface {
     }
 
     async fn reload(&mut self) -> fdo::Result<()> {
-        let Profile { fans, leds } = Profile::load();
+        let Profile {
+            fans,
+            leds,
+            performance_profile,
+        } = Profile::load();
 
         for (idx, fan_handle) in self.fan_handles.iter().enumerate() {
             let profile = fans.get(idx).cloned().unwrap_or_default();
@@ -92,6 +98,17 @@ impl ProfileInterface {
                 .send(profile)
                 .await
                 .map_err(|err| fdo::Error::Failed(err.to_string()))?;
+        }
+
+        if let Some(perf_handle) = self.performance_profile_handle.as_mut() {
+            if let Some(performance_profile) = performance_profile {
+                perf_handle
+                    .profile_sender
+                    .send(performance_profile.to_string())
+                    .await
+                    .map_err(|err| fdo::Error::Failed(err.to_string()))?;
+                perf_handle.set_active_performance_profile(&performance_profile.to_string());
+            }
         }
 
         Ok(())
