@@ -20,8 +20,6 @@ trait Profiles {
 
     async fn get_active_profile_name(&self) -> fdo::Result<String>;
 
-    async fn get_available_performance_profile_names(&self) -> fdo::Result<Vec<String>>;
-
     async fn get_number_of_fans(&self) -> fdo::Result<u8>;
 
     async fn get_led_devices(&self) -> fdo::Result<String>;
