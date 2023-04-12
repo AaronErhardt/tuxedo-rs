@@ -36,6 +36,14 @@ pub(crate) async fn read_to_string(file: &mut fs::File) -> Result<String, io::Er
     String::from_utf8(buffer).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))
 }
 
+pub(crate) async fn read_to_int(file: &mut fs::File) -> Result<u32, io::Error> {
+    let content = read_to_string(file).await?;
+    let value: u32 = content.trim()
+        .parse()
+        .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?;
+    Ok(value)
+}
+
 pub(crate) async fn read_int_list(file: &mut fs::File) -> Result<Vec<u32>, io::Error> {
     let content = read_to_string(file).await?;
 
@@ -55,7 +63,7 @@ pub(crate) async fn read_int_list(file: &mut fs::File) -> Result<Vec<u32>, io::E
     }
 }
 
-async fn write_buffer<V>(file: &mut fs::File, value: V) -> Result<(), io::Error>
+pub(crate) async fn write_buffer<V>(file: &mut fs::File, value: V) -> Result<(), io::Error>
 where
     V: tokio_uring::buf::IoBuf,
 {
