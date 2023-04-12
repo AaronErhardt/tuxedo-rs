@@ -1,9 +1,9 @@
 mod fan;
 mod led;
-mod profiles;
 mod performance;
+mod profiles;
 
 pub(crate) use fan::FanProxy;
 pub(crate) use led::LedProxy;
-pub(crate) use profiles::ProfilesProxy;
 pub(crate) use performance::PerformanceProxy;
+pub(crate) use profiles::ProfilesProxy;

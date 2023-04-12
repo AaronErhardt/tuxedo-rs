@@ -164,18 +164,19 @@ impl<'a> TailorConnection<'a> {
 }
 
 impl<'a> TailorConnection<'a> {
-    pub async fn set_performance_profile(&self, name: &str, value: &str) -> ClientResult<()> {
-        Ok(self
-            .performance
-            .set_performance_profile(name, value)
-            .await?)
+    /// Temporarily override the performance profile. Please note that this will not survive a
+    /// restart as the performance profile is handled by the overall profile configuration.
+    pub async fn set_profile(&self, name: &str, value: &str) -> ClientResult<()> {
+        Ok(self.performance.set_profile(name, value).await?)
     }
 
-    pub async fn get_performance_profile(&self, name: &str) -> ClientResult<String> {
-        Ok(self.performance.get_performance_profile(name).await?)
+    /// Read the current performance profile.
+    pub async fn get_profile(&self, name: &str) -> ClientResult<String> {
+        Ok(self.performance.get_profile(name).await?)
     }
 
-    pub async fn list_performance_profiles(&self) -> ClientResult<Vec<String>> {
-        Ok(self.performance.list_performance_profiles().await?)
+    /// Read the list of supported performance profiles.
+    pub async fn list_profiles(&self) -> ClientResult<Vec<String>> {
+        Ok(self.performance.list_profiles().await?)
     }
 }

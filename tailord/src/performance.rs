@@ -82,7 +82,9 @@ impl PerformanceProfileRuntime {
                 tracing::info!("Loading performance profile {profile}");
                 self.io.set_odm_performance_profile(&profile).unwrap();
             } else {
-                tracing::warn!("Stopping runtime, the performance profile channel sender has probably dropped");
+                tracing::warn!(
+                    "Stopping runtime, the performance profile channel sender has probably dropped"
+                );
                 break;
             }
         }

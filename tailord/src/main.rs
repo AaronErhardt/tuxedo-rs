@@ -9,7 +9,7 @@ pub mod util;
 
 use std::future::pending;
 
-use dbus::{FanInterface, ProfileInterface, PerformanceInterface};
+use dbus::{FanInterface, PerformanceInterface, ProfileInterface};
 use profiles::Profile;
 use tuxedo_ioctl::hal::IoInterface;
 use zbus::ConnectionBuilder;
@@ -139,8 +139,8 @@ async fn start_runtime() {
         handles: fan_handles,
     };
 
-    let performance_profile_interface = PerformanceInterface{
-        handler: performance_profile_handle
+    let performance_profile_interface = PerformanceInterface {
+        handler: performance_profile_handle,
     };
 
     tracing::debug!("Connecting to DBUS as {DBUS_NAME}");
