@@ -157,7 +157,7 @@ impl Component for App {
                                     },
                                     #[local_ref]
                                     add_titled[Some("fan"), "Fan control"] = fan_list -> gtk::ScrolledWindow {} -> {
-                                        set_icon_name: Some(icon_name::SPEEDOMETER),
+                                        set_icon_name: Some(icon_name::DATA_BAR_VERTICAL_ASCENDING_FILLED),
                                     },
                                 },
                                 #[name = "view_bar"]

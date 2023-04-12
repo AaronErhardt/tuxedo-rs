@@ -2,7 +2,8 @@ use std::f64::consts::PI;
 use std::time::Duration;
 
 use gtk::cairo::Operator;
-use gtk::gdk::{self, RGBA};
+use gtk::gdk;
+use gtk::gdk::RGBA;
 use gtk::glib::{timeout_add_local_once, MainContext, SourceId};
 use gtk::prelude::{
     BoxExt, ButtonExt, DrawingAreaExt, GestureDragExt, OrientableExt, StyleContextExt, WidgetExt,

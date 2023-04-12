@@ -23,6 +23,7 @@ pub fn hardware_capabilities() -> Option<&'static HardwareCapabilities> {
 pub struct HardwareCapabilities {
     pub num_of_fans: u8,
     pub led_devices: Vec<LedDeviceInfo>,
+    pub performance_profiles: Vec<String>,
 }
 
 pub enum TailorState {
@@ -381,10 +382,15 @@ pub async fn initialize_tailor_state() -> Result<(), String> {
         .get_led_devices()
         .await
         .map_err(|err| err.to_string())?;
+    let performance_profiles = connection
+        .list_performance_profiles()
+        .await
+        .map_err(|err| err.to_string())?;
 
     let capabilities = HardwareCapabilities {
         num_of_fans,
         led_devices,
+        performance_profiles,
     };
 
     let active_profile_name = connection
