@@ -1,12 +1,11 @@
 use relm4::factory::FactoryView;
-use relm4::gtk::traits::{ListBoxRowExt, OrientableExt, WidgetExt};
-use relm4::gtk::{self};
 use relm4::prelude::{DynamicIndex, FactoryComponent};
-use relm4::{adw, Component, ComponentController, Controller, FactorySender, RelmWidgetExt};
+use relm4::{adw, gtk, Component, ComponentController, Controller, FactorySender};
 use relm4_components::simple_combo_box::SimpleComboBox;
 use relm4_icons::icon_name;
 
 use super::profile::ProfileInput;
+use crate::templates;
 
 #[derive(Debug)]
 pub struct ProfileItemFan {
@@ -31,25 +30,20 @@ impl FactoryComponent for ProfileItemFan {
 
     view! {
         #[root]
-        gtk::ListBoxRow {
-            set_activatable: false,
+        #[template]
+        templates::ProfileListItem {
+            #[template_child]
+            image -> gtk::Image {
+                set_icon_name: Some(icon_name::DATA_BAR_VERTICAL_ASCENDING_FILLED),
+            },
 
-            gtk::Box {
-                set_orientation: gtk::Orientation::Horizontal,
-                set_margin_all: 6,
+            #[template_child]
+            label -> gtk::Label {
+                set_label: &format!("Fan {}", self.fan_idx + 1),
+            },
 
-                gtk::Image {
-                    set_icon_name: Some(icon_name::SPEEDOMETER),
-                    set_margin_all: 6,
-                },
-
-                gtk::Label {
-                    set_label: &format!("Fan {}", self.fan_idx + 1),
-                    set_margin_all: 6,
-                },
-                gtk::Box {
-                    set_hexpand: true,
-                },
+            #[template_child]
+            row -> gtk::Box {
                 #[local_ref]
                 fan_box -> gtk::ComboBoxText {},
             }

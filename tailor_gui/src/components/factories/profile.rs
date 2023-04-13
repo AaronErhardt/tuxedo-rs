@@ -1,8 +1,9 @@
 use adw::prelude::{ExpanderRowExt, PreferencesRowExt};
-use gtk::prelude::{ButtonExt, CheckButtonExt, ObjectExt, WidgetExt};
+use gtk::prelude::{BoxExt, ButtonExt, CheckButtonExt, ObjectExt, WidgetExt};
 use once_cell::unsync::Lazy;
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryVecDeque};
-use relm4::{adw, factory, gtk};
+use relm4::{adw, factory, gtk, Component, ComponentController, Controller};
+use relm4_components::simple_combo_box::SimpleComboBox;
 use relm4_icons::icon_name;
 use tailor_api::{LedDeviceInfo, LedProfile, ProfileInfo};
 
@@ -10,6 +11,7 @@ use super::profile_item_fan::{ProfileItemFan, ProfileItemFanInit};
 use super::profile_item_led::{ProfileItemLed, ProfileItemLedInit};
 use crate::components::profiles::ProfilesInput;
 use crate::state::{hardware_capabilities, TailorStateMsg, STATE};
+use crate::templates;
 
 thread_local! {
     static RADIO_GROUP: Lazy<gtk::CheckButton> = Lazy::new(gtk::CheckButton::default);
@@ -22,6 +24,7 @@ pub struct Profile {
     pub active: bool,
     pub leds: FactoryVecDeque<ProfileItemLed>,
     pub fans: FactoryVecDeque<ProfileItemFan>,
+    pub performance: Controller<SimpleComboBox<String>>,
 }
 
 #[derive(Debug)]
@@ -90,6 +93,24 @@ impl FactoryComponent for Profile {
                     }
                 }
             },
+
+            #[template]
+            add_row = &templates::ProfileListItem {
+                #[template_child]
+                image -> gtk::Image {
+                    set_icon_name: Some(icon_name::SPEEDOMETER),
+                },
+
+                #[template_child]
+                label -> gtk::Label {
+                    set_label: "performance profile"
+                },
+
+                #[template_child]
+                row -> gtk::Box {
+                    append: self.performance.widget(),
+                }
+            }
         }
     }
 
@@ -165,12 +186,26 @@ impl FactoryComponent for Profile {
             }
         }
 
+        let active_index = info.performance_profile.as_ref().and_then(|profile| {
+            capabilities
+                .performance_profiles
+                .iter()
+                .position(|name| name == profile)
+        });
+        let performance = SimpleComboBox::builder()
+            .launch(SimpleComboBox {
+                variants: capabilities.performance_profiles.clone(),
+                active_index,
+            })
+            .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile);
+
         Self {
             name,
             info,
             active,
             leds,
             fans,
+            performance,
         }
     }
 
@@ -190,7 +225,19 @@ impl FactoryComponent for Profile {
 
                 let fans = self.fans.iter().map(|fan| fan.get_profile_name()).collect();
 
-                self.info = ProfileInfo { leds, fans };
+                let performance_profile = self
+                    .performance
+                    .state()
+                    .get()
+                    .model
+                    .get_active_elem()
+                    .cloned();
+
+                self.info = ProfileInfo {
+                    leds,
+                    fans,
+                    performance_profile,
+                };
 
                 let profile = self.info.clone();
 

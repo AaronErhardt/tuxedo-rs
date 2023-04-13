@@ -1,13 +1,12 @@
 use relm4::factory::FactoryView;
-use relm4::gtk::traits::{ListBoxRowExt, OrientableExt, WidgetExt};
-use relm4::gtk::{self};
 use relm4::prelude::{DynamicIndex, FactoryComponent};
-use relm4::{adw, Component, ComponentController, Controller, FactorySender, RelmWidgetExt};
+use relm4::{adw, gtk, Component, ComponentController, Controller, FactorySender};
 use relm4_components::simple_combo_box::SimpleComboBox;
 use relm4_icons::icon_name;
 use tailor_api::{LedDeviceInfo, LedProfile};
 
 use super::profile::ProfileInput;
+use crate::templates;
 
 #[derive(Debug)]
 pub struct ProfileItemLed {
@@ -32,25 +31,20 @@ impl FactoryComponent for ProfileItemLed {
 
     view! {
         #[root]
-        gtk::ListBoxRow {
-            set_activatable: false,
+        #[template]
+        templates::ProfileListItem {
+            #[template_child]
+            image -> gtk::Image {
+                set_icon_name: Some(icon_name::COLOR),
+            },
 
-            gtk::Box {
-                set_orientation: gtk::Orientation::Horizontal,
-                set_margin_all: 6,
+            #[template_child]
+            label -> gtk::Label {
+                set_label: &format!("{}: {}", self.device_info.device_name, self.device_info.function),
+            },
 
-                gtk::Image {
-                    set_icon_name: Some(icon_name::COLOR),
-                    set_margin_all: 6,
-                },
-
-                gtk::Label {
-                    set_label: &format!("{}: {}", self.device_info.device_name.trim(), self.device_info.function),
-                    set_margin_all: 6,
-                },
-                gtk::Box {
-                    set_hexpand: true,
-                },
+            #[template_child]
+            row -> gtk::Box {
                 #[local_ref]
                 led_box -> gtk::ComboBoxText {},
             }

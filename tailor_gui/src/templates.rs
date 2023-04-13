@@ -1,7 +1,6 @@
 use gtk::prelude::{ButtonExt, OrientableExt, WidgetExt};
-use relm4::gtk::traits::GtkWindowExt;
-use relm4::gtk::{self};
-use relm4::{adw, RelmWidgetExt, WidgetTemplate};
+use relm4::gtk::traits::{GtkWindowExt, ListBoxRowExt};
+use relm4::{adw, gtk, RelmWidgetExt, WidgetTemplate};
 
 #[relm4::widget_template(pub)]
 impl WidgetTemplate for CustomClamp {
@@ -74,5 +73,39 @@ impl WidgetTemplate for DialogWindow {
 impl AsRef<gtk::Window> for DialogWindow {
     fn as_ref(&self) -> &gtk::Window {
         self.window.as_ref()
+    }
+}
+
+#[relm4::widget_template(pub)]
+impl WidgetTemplate for ProfileListItem {
+    view! {
+        gtk::ListBoxRow {
+            set_activatable: false,
+
+            #[name = "row"]
+            gtk::Box {
+                set_orientation: gtk::Orientation::Horizontal,
+                set_margin_all: 6,
+
+                #[name = "image"]
+                gtk::Image {
+                    set_margin_all: 6,
+                },
+
+                #[name = "label"]
+                gtk::Label {
+                    set_margin_all: 6,
+                },
+                gtk::Box {
+                    set_hexpand: true,
+                },
+            }
+        }
+    }
+}
+
+impl AsRef<gtk::Widget> for ProfileListItem {
+    fn as_ref(&self) -> &gtk::Widget {
+        (**self).as_ref()
     }
 }

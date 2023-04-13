@@ -2,12 +2,10 @@ use relm4::gtk::prelude::{GridExt, OrientableExt, WidgetExt};
 use relm4::gtk::traits::{ButtonExt, GtkWindowExt};
 use relm4::{gtk, ComponentParts, ComponentSender, RelmWidgetExt, SimpleComponent};
 
-use crate::state::{hardware_capabilities, HardwareCapabilities};
+use crate::state::hardware_capabilities;
 use crate::templates;
 
-pub struct HardwareInfo {
-    info: HardwareCapabilities,
-}
+pub struct HardwareInfo;
 
 #[relm4::component(pub)]
 impl SimpleComponent for HardwareInfo {
@@ -37,9 +35,9 @@ impl SimpleComponent for HardwareInfo {
                 },
 
                 gtk::Grid {
-                    set_margin_all: 12,
-                    set_row_spacing: 6,
-                    set_column_spacing: 6,
+                    set_margin_all: 18,
+                    set_row_spacing: 12,
+                    set_column_spacing: 12,
                     set_halign: gtk::Align::Center,
                     set_vexpand: true,
 
@@ -47,17 +45,25 @@ impl SimpleComponent for HardwareInfo {
                         set_halign: gtk::Align::Start,
                         set_label: "Fans",
                     },
+                    attach[1, 0, 1, 1] = &gtk::Label {
+                        set_halign: gtk::Align::Start,
+                        set_label: &info.num_of_fans.to_string(),
+                    },
                     attach[0, 1, 1, 1] = &gtk::Label {
                         set_halign: gtk::Align::Start,
                         set_label: "LED devices",
                     },
-                    attach[1, 0, 1, 1] = &gtk::Label {
-                        set_halign: gtk::Align::Start,
-                        set_label: &model.info.num_of_fans.to_string(),
-                    },
                     attach[1, 1, 1, 1] = &gtk::Label {
                         set_halign: gtk::Align::Start,
-                        set_label: led_info.trim_end_matches(", "),
+                        set_label: &led_info,
+                    },
+                    attach[0, 2, 1, 1] = &gtk::Label {
+                        set_halign: gtk::Align::Start,
+                        set_label: "Performance profiles",
+                    },
+                    attach[1, 2, 1, 1] = &gtk::Label {
+                        set_halign: gtk::Align::Start,
+                        set_label: &performance_info,
                     },
                 },
 
@@ -87,16 +93,21 @@ impl SimpleComponent for HardwareInfo {
         root: &Self::Root,
         _sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let model = HardwareInfo {
-            info: hardware_capabilities().unwrap().clone(),
-        };
-        let led_info: String = model
-            .info
-            .led_devices
-            .iter()
-            .map(|d| format!("{}, ", d.device_id()))
-            .collect();
+        let model = HardwareInfo;
+
+        let info = hardware_capabilities().unwrap().clone();
+
+        let led_info: String = comma_list(info.led_devices.iter().map(|d| d.device_id()));
+        let performance_info = comma_list(info.performance_profiles.iter().cloned());
         let widgets = view_output!();
         ComponentParts { model, widgets }
     }
+}
+
+fn comma_list<I>(iter: I) -> String
+where
+    I: Iterator<Item = String>,
+{
+    let value: String = iter.map(|string| format!("{}, ", string)).collect();
+    value.trim_end_matches(", ").to_owned()
 }

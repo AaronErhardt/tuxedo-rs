@@ -9,7 +9,7 @@ use relm4::{gtk, Component, ComponentParts, ComponentSender, RelmWidgetExt};
 use tailor_api::Color;
 
 use crate::state::{TailorStateMsg, STATE};
-use crate::util::{self, rgba_to_color};
+use crate::util;
 
 pub struct ColorButton {
     pub color: Color,
@@ -95,7 +95,9 @@ impl Component for ColorButton {
                 relm4::spawn_local(async move {
                     let response = dialog.run_future().await;
                     if let ResponseType::Ok = response {
-                        sender.input(ColorButtonInput::UpdateColor(rgba_to_color(dialog.rgba())))
+                        sender.input(ColorButtonInput::UpdateColor(util::rgba_to_color(
+                            dialog.rgba(),
+                        )))
                     }
                     dialog.close();
                 });
