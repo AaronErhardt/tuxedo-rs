@@ -33,7 +33,8 @@ pub(crate) async fn read_to_string(file: &mut fs::File) -> Result<String, io::Er
     let buffer = Vec::with_capacity(256);
     let (res, buffer) = file.read_at(buffer, 0).await;
     res?;
-    String::from_utf8(buffer).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))
+    let v = String::from_utf8(buffer).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err));
+    v
 }
 
 pub(crate) async fn read_to_int(file: &mut fs::File) -> Result<u32, io::Error> {

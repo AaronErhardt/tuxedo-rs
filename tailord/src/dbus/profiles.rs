@@ -2,6 +2,7 @@ use tailor_api::{LedDeviceInfo, ProfileInfo};
 use zbus::{dbus_interface, fdo};
 
 use crate::{
+    backlight::BacklightRuntimeHandle,
     fancontrol::FanRuntimeHandle,
     led::LedRuntimeHandle,
     performance::PerformanceProfileRuntimeHandle,
@@ -13,6 +14,7 @@ pub struct ProfileInterface {
     pub fan_handles: Vec<FanRuntimeHandle>,
     pub led_handles: Vec<LedRuntimeHandle>,
     pub performance_profile_handle: Option<PerformanceProfileRuntimeHandle>,
+    pub brightness_handle: BacklightRuntimeHandle,
 }
 
 #[dbus_interface(name = "com.tux.Tailor.Profiles")]
@@ -80,6 +82,7 @@ impl ProfileInterface {
             fans,
             leds,
             performance_profile,
+            brightness,
         } = Profile::load();
 
         for (idx, fan_handle) in self.fan_handles.iter().enumerate() {
@@ -110,6 +113,12 @@ impl ProfileInterface {
                 perf_handle.set_active_performance_profile(&performance_profile.to_string());
             }
         }
+
+        self.brightness_handle
+            .backlight_percentage_sender
+            .send(*brightness)
+            .await
+            .map_err(|err| fdo::Error::Failed(err.to_string()))?;
 
         Ok(())
     }

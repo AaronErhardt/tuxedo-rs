@@ -1,3 +1,4 @@
+mod backlight;
 mod dbus;
 mod fancontrol;
 pub mod led;
@@ -9,13 +10,15 @@ pub mod util;
 
 use std::future::pending;
 
+use backlight::BacklightRuntime;
 use dbus::{FanInterface, PerformanceInterface, ProfileInterface};
 use profiles::Profile;
 use tuxedo_ioctl::hal::IoInterface;
+use tuxedo_sysfs::backlight::BacklightDriver;
 use zbus::ConnectionBuilder;
 
 use crate::{
-    dbus::LedInterface,
+    dbus::{BacklightInterface, LedInterface},
     fancontrol::FanRuntime,
     led::{LedRuntime, LedRuntimeData},
     performance::PerformanceProfileRuntime,
@@ -125,10 +128,15 @@ async fn start_runtime() {
         None => (None, None),
     };
 
+    let backlight_device = BacklightDriver::new().await.unwrap();
+    let (backlight_handle, backlight_runtime) =
+        BacklightRuntime::new(backlight_device, *profile.brightness).await;
+
     let profile_interface = ProfileInterface {
         led_handles: led_handles.clone(),
         fan_handles: fan_handles.clone(),
         performance_profile_handle: performance_profile_handle.clone(),
+        brightness_handle: backlight_handle.clone(),
     };
 
     let led_interface = LedInterface {
@@ -143,6 +151,10 @@ async fn start_runtime() {
         handler: performance_profile_handle,
     };
 
+    let backlight_interface = BacklightInterface {
+        handler: backlight_handle,
+    };
+
     tracing::debug!("Connecting to DBUS as {DBUS_NAME}");
     let _conn = ConnectionBuilder::system()
         .unwrap()
@@ -155,6 +167,8 @@ async fn start_runtime() {
         .serve_at(DBUS_PATH, profile_interface)
         .unwrap()
         .serve_at(DBUS_PATH, performance_profile_interface)
+        .unwrap()
+        .serve_at(DBUS_PATH, backlight_interface)
         .unwrap()
         .build()
         .await
@@ -177,6 +191,9 @@ async fn start_runtime() {
         tracing::debug!("Starting performance profile runtime");
         tokio_uring::spawn(performance_profile_runtime.run());
     }
+
+    tracing::debug!("Starting backlight runtime");
+    tokio_uring::spawn(backlight_runtime.run());
 
     tracing::info!("Tailord started");
     tokio::select! {
