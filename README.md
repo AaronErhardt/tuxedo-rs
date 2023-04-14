@@ -85,11 +85,20 @@ sudo systemctl start tailord.service
 
 ### Tailor GUI
 
-Tailord will soon be available as flatpak. 
-In the meantime, you can install it from source.
-If you're not building it with flatpak-builder, make sure you have the following dependencies installed on your system.
+Tailor GUI will soon be available as flatpak package. 
+In the meantime, you can build the app from source.
+Usually, building the app only requires GNOME Builder or the flatpak extension for VSCode.
+Yet, you can use the command line if your prefer it:
 
-Ubuntu:
+```sh
+flatpak install org.gnome.Sdk//44 org.freedesktop.Sdk.Extension.rust-stable//22.08 org.gnome.Platform//44
+flatpak-builder --user flatpak_app tailor_gui/build-aux/com.github.aaronerhardt.Tailor.json 
+flatpak-builder --run flatpak_app tailor_gui/build-aux/com.github.aaronerhardt.Tailor.json tailor_gui
+```
+
+If you don't want to use flatpak-builder, make sure you have the following dependencies installed on your system.
+
+Ubuntu 23.04:
 
 ```sh
 sudo apt install meson libadwaita-1-dev libgtk-4-dev
@@ -101,7 +110,7 @@ Arch Linux:
 sudo pacman -S meson libadwaita gtk4
 ```
 
-Fedora:
+Fedora 38:
 
 ```sh
 sudo dnf -y install meson libadwaita-devel gtk4-devel
