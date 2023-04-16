@@ -37,7 +37,7 @@ Also, tuxedo-rs is modular and contains several crates with different levels of 
 This list includes devices that were successfully tested with tuxedo-rs.
 Since I have limited access to hardware, please consider adding your device(s) to the list.
 
-+ TUXEDO Aura 15 Gen1
++ TUXEDO Aura 15 Gen1 and Gen2
 + TUXEDO Pulse 15 Gen1
 
 ## Installation
@@ -129,7 +129,7 @@ ninja -C _build install
 
 - [x] Ioctl abstraction for tuxedo_io
 - [x] Sysfs abstraction for tuxedo_keyboard
-- [x] Support for hardware based on uniwill
+- [x] Support for hardware from both clevo and uniwill
 - [x] Daemon with DBus interface for user space application
 - [x] Client library for interacting with the daemon
 - [ ] CLI that interacts with the daemon
