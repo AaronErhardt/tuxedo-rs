@@ -91,7 +91,7 @@ Usually, building the app only requires GNOME Builder or the flatpak extension f
 Yet, you can use the command line if your prefer it:
 
 ```sh
-flatpak install org.gnome.Sdk//44 org.freedesktop.Sdk.Extension.rust-stable//22.08 org.gnome.Platform//44
+flatpak install org.gnome.Sdk//44 org.freedesktop.Sdk.Extension.rust-stable//22.08 org.gnome.Platform//44 runtime/org.freedesktop.Sdk.Extension.llvm15//22.08
 flatpak-builder --user flatpak_app tailor_gui/build-aux/com.github.aaronerhardt.Tailor.json 
 flatpak-builder --run flatpak_app tailor_gui/build-aux/com.github.aaronerhardt.Tailor.json tailor_gui
 ```
