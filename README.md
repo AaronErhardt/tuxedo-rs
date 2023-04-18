@@ -39,6 +39,7 @@ Since I have limited access to hardware, please consider adding your device(s) t
 
 + TUXEDO Aura 15 Gen1 and Gen2
 + TUXEDO Pulse 15 Gen1
++ TUXEDO Polaris 17 Gen3
 
 ## Installation
 
@@ -123,6 +124,37 @@ cd tailor_gui
 meson setup --prefix=/usr _build
 ninja -C _build
 ninja -C _build install
+```
+
+### On NixOS
+
+To install tailor-rs on NixOS, with flakes enabled, add
+the following to your flake.nix:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    tuxedo-rs.url = "github:AaronErhardt/tuxedo-rs";
+  }
+
+  outputs = {
+    nixpkgs,
+    tuxedo-rs,
+   ...
+  } : {
+    nixosConfigurations.myConfiguration = nixpkgs.lib.nixosSystem {
+      modules = [
+        tuxedo-rs.nixosModules.default
+      ];
+
+      services.tuxedo-rs = {
+        enable = true;
+        tailor_gui.enable = true;
+      };
+    };
+  };
+}
 ```
 
 ## Roadmap
