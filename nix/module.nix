@@ -44,8 +44,6 @@ in {
         "tailord/keyboard".source = ../tailord/default_configs/keyboard;
         "tailord/fan".source = ../tailord/default_configs/fan;
         "tailord/profiles".source = ../tailord/default_configs/profiles;
-        # FIXME: This has to be a symlink and it should be writable by tailord
-        # "tailord/active_profile.json".source = ../tailord/default_configs/profiles/default.json;
       };
 
       systemPackages = mkIf cfg.tailor_gui.enable [
