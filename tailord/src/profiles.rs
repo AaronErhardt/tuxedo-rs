@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::Component};
+use std::{collections::HashMap, path::Component, path::Path};
 
 use crate::{fancontrol::profile::FanProfile, performance::PerformanceProfile};
 use tailor_api::{ColorProfile, LedDeviceInfo, LedProfile, ProfileInfo};
@@ -17,6 +17,15 @@ fn init_paths() {
         .for_each(|dir| {
             std::fs::create_dir_all(dir).ok();
         })
+}
+
+fn init_active_profile() {
+    if Path::new(ACTIVE_PROFILE_PATH).exists() {
+        return;
+    }
+    tracing::debug!("Initialising active profile.");
+    let default_profile = Path::join(Path::new(PROFILE_DIR), "default.json");
+    std::os::unix::fs::symlink(default_profile.as_path(), Path::new(ACTIVE_PROFILE_PATH)).ok();
 }
 
 fn led_profile_path(name: &str) -> fdo::Result<String> {
@@ -48,6 +57,7 @@ pub struct Profile {
 impl Profile {
     pub fn load() -> Self {
         init_paths();
+        init_active_profile();
 
         let profile_info = Self::get_active_profile_info().unwrap_or_else(|err| {
             tracing::warn!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`: {err:?}");
@@ -124,7 +134,7 @@ impl Profile {
         let link = std::fs::read_link(ACTIVE_PROFILE_PATH)
             .map_err(|err| fdo::Error::IOError(err.to_string()))?;
         let components: Vec<Component> = link.components().collect();
-        if components.len() == 2 {
+        if components.len() > 0 {
             if let Component::Normal(name) = components.last().unwrap() {
                 if let Some(name) = name.to_str() {
                     return Ok(name.trim_end_matches(".json").to_string());
