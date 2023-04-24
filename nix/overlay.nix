@@ -38,7 +38,7 @@ with final.pkgs.stdenv; let
 
   tailor_gui = mkDerivation {
     name = "tailor_gui";
-    version = "0.1.0";
+    version = "0.2.0";
 
     src = builtins.path {
       path = "${self}/tailor_gui";
