@@ -6,11 +6,6 @@
 
     flake-utils.url = "github:numtide/flake-utils";
 
-    fenix = {
-      url = "github:nix-community/fenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -20,7 +15,6 @@
   outputs = {
     self,
     nixpkgs,
-    fenix,
     pre-commit-hooks,
     flake-utils,
     ...
@@ -32,7 +26,7 @@
     overlay = import ./nix/overlay.nix {
       inherit
         self
-        fenix
+        nixpkgs
         ;
     };
   in

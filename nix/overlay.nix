@@ -1,16 +1,12 @@
 {
   self,
-  fenix,
+  nixpkgs,
 }: final: prev:
 with final.pkgs.stdenv; let
-  pkgs = final.pkgs;
-
-  rustToolchain = fenix.packages.${pkgs.system}.stable.toolchain;
-
-  rustPlatform = pkgs.makeRustPlatform {
-    cargo = rustToolchain;
-    rustc = rustToolchain;
-  };
+  # XXX: The nixos-22.11 rustPlatform is too old to build this.
+  #TODO: We should use final.pkgs.rustPlatform when NixOS 23.05 has been released.
+  pkgs = import nixpkgs {inherit (final.pkgs) system;};
+  rustPlatform = pkgs.rustPlatform;
 
   tailord = rustPlatform.buildRustPackage {
     pname = "tailord";
