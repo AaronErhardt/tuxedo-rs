@@ -45,16 +45,28 @@ with final.pkgs.stdenv; let
       name = "tailor_gui";
     };
 
+    cargoDeps = rustPlatform.importCargoLock {
+      lockFile = "${self}/tailor_gui/Cargo.lock";
+    };
+
+    nativeBuildInputs = with rustPlatform;
+      [
+        rust.cargo
+        rust.rustc
+        cargoSetupHook
+      ]
+      ++ (with pkgs; [
+        pkg-config
+        desktop-file-utils
+        appstream-glib
+        makeWrapper
+      ]);
+
     buildInputs = with pkgs; [
       meson
       ninja
       libadwaita
       gtk4
-      rustToolchain
-      pkg-config
-      desktop-file-utils
-      appstream-glib
-      makeWrapper
     ];
 
     postFixup = ''
