@@ -16,6 +16,10 @@ in {
       tailor_gui.enable = mkEnableOption ''
         Alternative to Tuxedo Control Center, written in Rust.
       '';
+
+      tailor_cli.enable = mkEnableOption ''
+        CLI for interacting with tailord.
+      '';
     };
   };
 
@@ -58,9 +62,13 @@ in {
         };
       };
 
-      systemPackages = mkIf cfg.tailor_gui.enable [
-        pkgs.tailor_gui
-      ];
+      systemPackages =
+        (mkIf cfg.tailor_gui.enable [
+          pkgs.tailor_gui
+        ])
+        ++ (mkIf cfg.tailor_cli.enable [
+          pkgs.tailor_cli
+        ]);
     };
   };
 }

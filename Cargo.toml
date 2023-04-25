@@ -8,5 +8,6 @@ members = [
 ]
 
 exclude = [
-    "tailor_gui"
+    "tailor_gui",
+    "tailor_cli"
 ]

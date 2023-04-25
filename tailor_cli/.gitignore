@@ -1,0 +1,6 @@
+target/
+build/
+_build/
+builddir/
+src/config.rs
+vendor
