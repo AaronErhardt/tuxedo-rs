@@ -49,8 +49,10 @@
       devShell = pkgs.mkShell {
         name = "tuxedo-rs-devShell";
         inherit (pre-commit-check) shellHook;
-        buildInputs = with pkgs; [
-          fenix.packages.${system}.stable.toolchain
+        buildInputs = with pkgs;
+        with pkgs.rustPlatform.rust; [
+          cargo
+          rustc
           meson
           ninja
           libadwaita
@@ -72,6 +74,7 @@
           (pkgs)
           tailord
           tailor_gui
+          tailor_cli
           ;
       };
 
@@ -81,6 +84,7 @@
           (pkgs)
           tailord
           tailor_gui
+          tailor_cli
           ;
       };
     })
