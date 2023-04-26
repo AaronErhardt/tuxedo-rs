@@ -11,8 +11,8 @@ repository = "https://github.com/AaronErhardt/tuxedo-rs"
 futures = "0.3.28"
 gettext-rs = { version = "0.7", features = ["gettext-system"] }
 once_cell = "1.17.1"
-relm4-components = { version = "0.6.0-alpha.2", git = "https://github.com/Relm4/Relm4", branch = "next"}
-relm4 = { version = "0.6.0-alpha.2", features = ["libadwaita", "gnome_44"], git = "https://github.com/Relm4/Relm4", branch = "next"}
+relm4-components = { version = "0.6.0-beta.1" }
+relm4 = { version = "0.6.0-beta.1", features = ["libadwaita", "gnome_44"] }
 tailor_api = "0.2.1"
 tailor_client = "0.2.1"
 tokio = { version = "1.27", features = ["parking_lot"] }
