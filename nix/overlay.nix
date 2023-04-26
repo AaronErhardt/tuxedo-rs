@@ -8,13 +8,12 @@ with final.pkgs.stdenv; let
   pkgs = import nixpkgs {inherit (final.pkgs) system;};
   rustPlatform = pkgs.rustPlatform;
 
-  tailord = let
+  tailord = with pkgs.lib; let
     src = self;
   in
     rustPlatform.buildRustPackage {
       pname = "tailord";
-
-      inherit ((importTOML (src + "/Cargo.toml")).package) version;
+      inherit ((importTOML "${src}/tailord/Cargo.toml").package) version;
 
       inherit src;
 
@@ -36,7 +35,7 @@ with final.pkgs.stdenv; let
       };
     };
 
-  tailor_gui = let
+  tailor_gui = with pkgs.lib; let
     src = builtins.path {
       path = self + "/tailor_gui";
       name = "tailor_gui";
