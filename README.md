@@ -126,6 +126,15 @@ ninja -C _build
 ninja -C _build install
 ```
 
+### Tailor CLI
+
+You can build and install the tailor CLI from source using cargo:
+
+```sh
+cargo install --path tailor_cli
+tailor --help
+```
+
 ### On NixOS
 
 To install tailor-rs on NixOS, with flakes enabled, add
