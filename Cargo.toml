@@ -5,9 +5,9 @@ members = [
     "tailord",
     "tailor_api",
     "tailor_client",
+    "tailor_cli",
 ]
 
 exclude = [
     "tailor_gui",
-    "tailor_cli"
 ]
