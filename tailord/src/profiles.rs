@@ -18,11 +18,9 @@ fn init_paths() {
     // If the old path exist, rename it.
     std::fs::rename(KEYBOARD_DIR, LED_DIR).ok();
 
-    [PROFILE_DIR, LED_DIR, FAN_DIR]
-        .into_iter()
-        .for_each(|dir| {
-            std::fs::create_dir_all(dir).ok();
-        })
+    [PROFILE_DIR, LED_DIR, FAN_DIR].into_iter().for_each(|dir| {
+        std::fs::create_dir_all(dir).ok();
+    })
 }
 
 fn init_active_profile() {

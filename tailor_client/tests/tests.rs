@@ -8,7 +8,7 @@ async fn test_profiles() {
     let second_name = "__test_global_profile2";
 
     let fan_rename = "__test_fan_rename";
-    let keyboard_rename = "__test_keyboard_rename";
+    let led_rename = "__test_led_rename";
 
     connection.get_number_of_fans().await.unwrap();
     connection.get_led_devices().await.unwrap();
@@ -44,13 +44,13 @@ async fn test_profiles() {
         .await
         .unwrap();
     connection
-        .rename_led_profile(&active_profile.leds[0].profile, keyboard_rename)
+        .rename_led_profile(&active_profile.leds[0].profile, led_rename)
         .await
         .unwrap();
 
     let profile_after_rename = connection.get_global_profile(name).await.unwrap();
     assert_eq!(profile_after_rename.fans[0], fan_rename);
-    assert_eq!(profile_after_rename.leds[0].profile, keyboard_rename);
+    assert_eq!(profile_after_rename.leds[0].profile, led_rename);
 
     // Undo rename
     connection
@@ -58,7 +58,7 @@ async fn test_profiles() {
         .await
         .unwrap();
     connection
-        .rename_led_profile(keyboard_rename, &active_profile.leds[0].profile)
+        .rename_led_profile(led_rename, &active_profile.leds[0].profile)
         .await
         .unwrap();
 
@@ -177,10 +177,10 @@ async fn test_fan() {
 }
 
 #[tokio::test]
-async fn test_keyboard() {
+async fn test_leds() {
     let connection = TailorConnection::new().await.unwrap();
-    let name = "__test_keyboard_profile";
-    let second_name = "__test_keyboard_profile2";
+    let name = "__test_led_profile";
+    let second_name = "__test_led_profile2";
 
     let profile = ColorProfile::Multiple(vec![
         ColorPoint {

@@ -22,13 +22,13 @@ impl<'a> TailorConnection<'a> {
         let connection = Connection::system().await?;
 
         let profiles = dbus::ProfilesProxy::new(&connection).await?;
-        let keyboard = dbus::LedProxy::new(&connection).await?;
+        let led = dbus::LedProxy::new(&connection).await?;
         let fan = dbus::FanProxy::new(&connection).await?;
         let performance = dbus::PerformanceProxy::new(&connection).await?;
 
         Ok(Self {
             profiles,
-            led: keyboard,
+            led,
             fan,
             performance,
         })
