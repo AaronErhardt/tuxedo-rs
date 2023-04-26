@@ -3,7 +3,7 @@ use zbus::{dbus_interface, fdo};
 
 use crate::{
     led::LedRuntimeHandle,
-    profiles::{Profile, KEYBOARD_DIR, PROFILE_DIR},
+    profiles::{Profile, LED_DIR, PROFILE_DIR},
     util,
 };
 
@@ -17,9 +17,9 @@ impl LedInterface {
         // Verify correctness of the file.
         serde_json::from_str::<ColorProfile>(value)
             .map_err(|err| fdo::Error::InvalidArgs(err.to_string()))?;
-        util::write_file(KEYBOARD_DIR, name, value.as_bytes()).await?;
+        util::write_file(LED_DIR, name, value.as_bytes()).await?;
 
-        // Reload if the keyboard profile is part of the active global profile
+        // Reload if the led profile is part of the active global profile
         let info = Profile::get_active_profile_info()?;
         if info.leds.iter().any(|prof| prof.profile == name) {
             let info = Profile::load();
@@ -42,15 +42,15 @@ impl LedInterface {
     }
 
     async fn get_profile(&self, name: &str) -> fdo::Result<String> {
-        util::read_file(KEYBOARD_DIR, name).await
+        util::read_file(LED_DIR, name).await
     }
 
     async fn list_profiles(&self) -> fdo::Result<Vec<String>> {
-        util::get_profiles(KEYBOARD_DIR).await
+        util::get_profiles(LED_DIR).await
     }
 
     async fn remove_profile(&self, name: &str) -> fdo::Result<()> {
-        util::remove_file(KEYBOARD_DIR, name).await
+        util::remove_file(LED_DIR, name).await
     }
 
     async fn rename_profile(&self, from: &str, to: &str) -> fdo::Result<Vec<String>> {
@@ -82,7 +82,7 @@ impl LedInterface {
                 }
             }
 
-            util::move_file(KEYBOARD_DIR, from, to).await?;
+            util::move_file(LED_DIR, from, to).await?;
 
             self.list_profiles().await
         }

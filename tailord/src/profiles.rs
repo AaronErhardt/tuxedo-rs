@@ -7,12 +7,18 @@ use zbus::fdo;
 use super::util;
 
 pub const PROFILE_DIR: &str = "/etc/tailord/profiles/";
-pub const KEYBOARD_DIR: &str = "/etc/tailord/keyboard/";
+pub const LED_DIR: &str = "/etc/tailord/led/";
 pub const FAN_DIR: &str = "/etc/tailord/fan/";
 pub const ACTIVE_PROFILE_PATH: &str = "/etc/tailord/active_profile.json";
 
+/// Legacy value, was renamed to led in version 0.3
+const KEYBOARD_DIR: &str = "/etc/tailord/keyboard/";
+
 fn init_paths() {
-    [PROFILE_DIR, KEYBOARD_DIR, FAN_DIR]
+    // If the old path exist, rename it.
+    std::fs::rename(KEYBOARD_DIR, LED_DIR).ok();
+
+    [PROFILE_DIR, LED_DIR, FAN_DIR]
         .into_iter()
         .for_each(|dir| {
             std::fs::create_dir_all(dir).ok();
@@ -29,7 +35,7 @@ fn init_active_profile() {
 }
 
 fn led_profile_path(name: &str) -> fdo::Result<String> {
-    util::normalize_json_path(KEYBOARD_DIR, name)
+    util::normalize_json_path(LED_DIR, name)
 }
 
 fn fan_path(name: &str) -> fdo::Result<String> {
@@ -77,10 +83,10 @@ impl Profile {
                 function,
             };
             let profile = match load_led_profile(&profile) {
-                Ok(keyboard) => keyboard,
+                Ok(led_profile) => led_profile,
                 Err(err) => {
                     tracing::warn!(
-                        "Failed to load keyboard color profile called `{}`: `{}`",
+                        "Failed to load led color profile called `{}`: `{}`",
                         info.device_id(),
                         err.to_string(),
                     );

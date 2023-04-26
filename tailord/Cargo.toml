@@ -4,7 +4,7 @@ authors = ["Aaron Erhardt <aaron.erhardt@t-online.de>"]
 version = "0.2.1"
 edition = "2021"
 license = "GPL-2.0+"
-description = "Daemon handling fan, keyboard and general HW support for Tuxedo laptops (part of tuxedo-rs)"
+description = "Daemon handling fans, leds and general HW support for Tuxedo laptops (part of tuxedo-rs)"
 repository = "https://github.com/AaronErhardt/tuxedo-rs"
 
 [dependencies]

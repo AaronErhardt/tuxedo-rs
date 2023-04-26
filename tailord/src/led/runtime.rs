@@ -23,7 +23,7 @@ impl LedRuntime {
                     if let Some(mut color) = override_color {
                         loop {
                             if let Err(err) = self.data.controller.set_color(&color).await {
-                                tracing::error!("Failed to update keyboard color: `{}`", err.to_string());
+                                tracing::error!("Failed to update led color: `{}`", err.to_string());
                                 break;
                             }
                             tokio::select! {
@@ -68,7 +68,7 @@ impl LedRuntimeData {
     ) {
         for step in color_steps.iter().cycle() {
             if let Err(err) = self.controller.set_color(&step.0).await {
-                tracing::error!("Failed setting keyboard colors: `{err}`")
+                tracing::error!("Failed setting led colors: `{err}`")
             }
 
             tokio::select! {

@@ -36,7 +36,7 @@ dbus_config_dir = '/usr/share/dbus-1/system.d'
 install_data('com.tux.Tailor.conf', install_dir: dbus_config_dir)
 
 # Copy default configurations
-install_subdir('default_configs/keyboard', install_dir: '/etc/tailord')
+install_subdir('default_configs/led', install_dir: '/etc/tailord')
 install_subdir('default_configs/fan', install_dir: '/etc/tailord')
 install_subdir('default_configs/profiles', install_dir: '/etc/tailord')
 install_symlink('active_profile.json', install_dir: '/etc/tailord', pointing_to: 'profiles/default.json')
