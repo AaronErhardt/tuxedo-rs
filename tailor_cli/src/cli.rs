@@ -1,4 +1,4 @@
-use clap::{ Parser, Subcommand };
+use clap::{Parser, Subcommand};
 
 /// CLI to interact with tailord
 #[derive(Parser, Debug)]
@@ -8,13 +8,12 @@ pub(crate) struct Opts {
     pub command: Option<Command>,
 }
 
-
 #[derive(Subcommand, Debug, Clone)]
 pub(crate) enum Command {
     /// Profile commands
-    Profile { 
+    Profile {
         #[command(subcommand)]
-        profile_cmd: ProfileCommand
+        profile_cmd: ProfileCommand,
     },
 }
 
@@ -28,5 +27,5 @@ pub(crate) enum ProfileCommand {
         /// The name of the profile to set (see: list)
         #[arg()]
         name: String,
-    }
+    },
 }
