@@ -28,4 +28,11 @@ pub(crate) enum ProfileCommand {
         #[arg()]
         name: String,
     },
+
+    /// Cycle profiles
+    Cycle {
+        // Whether to print the profile that was set
+        #[arg(long, short)]
+        verbose: bool,
+    },
 }

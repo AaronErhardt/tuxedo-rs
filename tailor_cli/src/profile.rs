@@ -20,6 +20,25 @@ pub(crate) async fn handle(cmd: ProfileCommand) -> Result<()> {
             println!("{}\n{}", active_profile_str, inactive_profiles.join("\n"));
         }
         ProfileCommand::Set { name } => connection.set_active_global_profile_name(&name).await?,
+        ProfileCommand::Cycle { verbose } => {
+            let active_profile = connection.get_active_global_profile_name().await?;
+            let profiles: Vec<String> = connection.list_global_profiles().await?;
+            let mut next_profile_name = profiles.last();
+            for profile_name in profiles.iter() {
+                if *profile_name == active_profile {
+                    break;
+                }
+                next_profile_name = Some(profile_name)
+            }
+            if let Some(next_profile_name) = next_profile_name {
+                connection
+                    .set_active_global_profile_name(&next_profile_name)
+                    .await?;
+                if verbose {
+                    println!("Current profile: {}", next_profile_name)
+                }
+            }
+        }
     }
     Ok(())
 }
