@@ -1,6 +1,11 @@
 {
   description = "Rust libraries for interacting with hardware from TUXEDO Computers";
 
+  nixConfig = {
+    extra-substituters = "https://tuxedo-rs.cachix.org";
+    extra-trusted-public-keys = "TODO";
+  };
+
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
