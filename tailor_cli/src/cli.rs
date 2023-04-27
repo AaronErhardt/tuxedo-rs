@@ -31,8 +31,12 @@ pub(crate) enum ProfileCommand {
 
     /// Cycle profiles
     Cycle {
-        // Whether to print the profile that was set
+        // Print the new profile to stdout
         #[arg(long, short)]
         verbose: bool,
+
+        // Send a desktop notification about the new profile
+        #[arg(long, short)]
+        notify: bool,
     },
 }

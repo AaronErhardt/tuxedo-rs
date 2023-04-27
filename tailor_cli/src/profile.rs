@@ -3,6 +3,7 @@ use eyre::Result;
 use tailor_client::TailorConnection;
 
 use crate::cli::ProfileCommand;
+use notify_rust::Notification;
 
 /// Handle profile commands
 pub(crate) async fn handle(cmd: ProfileCommand) -> Result<()> {
@@ -20,7 +21,7 @@ pub(crate) async fn handle(cmd: ProfileCommand) -> Result<()> {
             println!("{}\n{}", active_profile_str, inactive_profiles.join("\n"));
         }
         ProfileCommand::Set { name } => connection.set_active_global_profile_name(&name).await?,
-        ProfileCommand::Cycle { verbose } => {
+        ProfileCommand::Cycle { verbose, notify } => {
             let active_profile = connection.get_active_global_profile_name().await?;
             let profiles: Vec<String> = connection.list_global_profiles().await?;
             let mut next_profile_name = profiles.last();
@@ -31,11 +32,20 @@ pub(crate) async fn handle(cmd: ProfileCommand) -> Result<()> {
                 next_profile_name = Some(profile_name)
             }
             if let Some(next_profile_name) = next_profile_name {
+                let profile_updated_msg = format!("Current profile: {}", next_profile_name);
                 connection
                     .set_active_global_profile_name(&next_profile_name)
                     .await?;
                 if verbose {
-                    println!("Current profile: {}", next_profile_name)
+                    println!("{}", profile_updated_msg)
+                }
+                if notify {
+                    Notification::new()
+                        .summary("Profile updated")
+                        .body(&profile_updated_msg)
+                        .appname("tailor")
+                        .show_async()
+                        .await?;
                 }
             }
         }

@@ -17,6 +17,7 @@ clap = { version = "4.2.4", features = ["derive"] }
 tokio = { version = "1.27", features = ["rt-multi-thread", "macros"] }
 colored = "2.0.0"
 eyre = "0.6.8"
+notify-rust = "4.8.0"
 
 [build-dependencies]
 clap = { version = "4.2.4", features = ["derive"] }
