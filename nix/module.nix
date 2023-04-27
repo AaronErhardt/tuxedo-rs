@@ -64,11 +64,11 @@ in {
         };
       };
     }
-    {
-      environment.systemPackages = mkIf cfg.tailor_gui.enable [pkgs.tailor_gui];
-    }
-    {
-      environment.systemPackages = mkIf cfg.tailor_cli.enable [pkgs.tailor_cli];
-    }
+    (mkIf cfg.tailor_gui.enable {
+      environment.systemPackages = [pkgs.tailor_gui];
+    })
+    (mkIf cfg.tailor_cli.enable {
+      environment.systemPackages = [pkgs.tailor_cli];
+    })
   ]);
 }
