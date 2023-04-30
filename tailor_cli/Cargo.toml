@@ -1,6 +1,6 @@
 [package]
 name = "tailor"
-version = "0.1.0"
+version = "0.2.1"
 authors = [
   "Aaron Erhardt <aaron.erhardt@t-online.de>",
   "Marc Jakobi <mrcjkb89@outlook.com>"
