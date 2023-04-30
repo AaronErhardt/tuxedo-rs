@@ -81,12 +81,11 @@
       };
 
       packages = rec {
-        default = tailord;
+        default = tuxedo-rs;
         inherit
           (pkgs)
-          tailord
+          tuxedo-rs
           tailor_gui
-          tailor_cli
           ;
       };
 
@@ -94,9 +93,8 @@
         formatting = pre-commit-check;
         inherit
           (pkgs)
-          tailord
+          tuxedo-rs
           tailor_gui
-          tailor_cli
           ;
       };
     })

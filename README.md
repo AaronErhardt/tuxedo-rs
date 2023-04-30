@@ -160,7 +160,6 @@ the following to your flake.nix:
       services.tuxedo-rs = {
         enable = true;
         tailor_gui.enable = true;
-        tailor_cli.enable = true;
       };
     };
   };

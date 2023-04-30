@@ -8,11 +8,11 @@ with final.pkgs.stdenv; let
   pkgs = import nixpkgs {inherit (final.pkgs) system;};
   rustPlatform = pkgs.rustPlatform;
 
-  tailord = with pkgs.lib; let
+  tuxedo-rs = with pkgs.lib; let
     src = self;
   in
     rustPlatform.buildRustPackage {
-      pname = "tailord";
+      pname = "tuxedo-rs";
       inherit ((importTOML "${src}/tailord/Cargo.toml").package) version;
 
       inherit src;
@@ -76,47 +76,9 @@ with final.pkgs.stdenv; let
         wrapProgram $out/bin/tailor_gui --set XDG_DATA_DIRS "$out/share/gsettings-schemas/tailor_gui"
       '';
     };
-
-  tailor_cli = with pkgs.lib; let
-    src = builtins.path {
-      path = self + "/tailor_cli";
-      name = "tailor_cli";
-    };
-  in
-    rustPlatform.buildRustPackage {
-      pname = "tailor_cli";
-
-      inherit ((importTOML (src + "/Cargo.toml")).package) version;
-
-      inherit src;
-
-      cargoLock = {
-        lockFile = self + "/tailor_cli/Cargo.lock";
-      };
-
-      nativeBuildInputs = with pkgs; [
-        installShellFiles
-      ];
-
-      env = {
-        GEN_ARTIFACTS = "artifacts";
-      };
-
-      postInstall = ''
-        installManPage artifacts/tailor.1
-        installShellCompletion artifacts/tailor.{bash,fish} --zsh artifacts/_tailor
-      '';
-
-      meta = with final.lib; {
-        description = "CLI for interacting with tailord";
-        homepage = "https://github.com/AaronErhardt/tuxedo-rs";
-        license = licenses.gpl2Only;
-      };
-    };
 in {
   inherit
-    tailord
+    tuxedo-rs
     tailor_gui
-    tailor_cli
     ;
 }

@@ -16,10 +16,6 @@ in {
       tailor_gui.enable = mkEnableOption ''
         Alternative to Tuxedo Control Center, written in Rust.
       '';
-
-      tailor_cli.enable = mkEnableOption ''
-        CLI for interacting with tailord.
-      '';
     };
   };
 
@@ -37,14 +33,14 @@ in {
           serviceConfig = {
             Type = "dbus";
             BusName = "com.tux.Tailor";
-            ExecStart = "${pkgs.tailord}/bin/tailord";
+            ExecStart = "${pkgs.tuxedo-rs}/bin/tailord";
             Environment = "RUST_BACKTRACE=1";
             Restart = "on-failure";
           };
         };
       };
 
-      services.dbus.packages = [pkgs.tailord];
+      services.dbus.packages = [pkgs.tuxedo-rs];
 
       # NOTE: By setting mode, the files are copied and not symlinked
       environment = {
@@ -63,12 +59,11 @@ in {
           };
         };
       };
+
+      environment.systemPackages = [pkgs.tuxedo-rs];
     }
     (mkIf cfg.tailor_gui.enable {
       environment.systemPackages = [pkgs.tailor_gui];
-    })
-    (mkIf cfg.tailor_cli.enable {
-      environment.systemPackages = [pkgs.tailor_cli];
     })
   ]);
 }

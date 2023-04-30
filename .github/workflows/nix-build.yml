@@ -14,9 +14,8 @@ jobs:
           - ubuntu-latest
         attribute:
           - .#devShells.x86_64-linux.default
-          - .#packages.x86_64-linux.tailord
+          - .#packages.x86_64-linux.tuxedo-rs
           - .#packages.x86_64-linux.tailor_gui
-          - .#packages.x86_64-linux.tailor_cli
           - .#checks.x86_64-linux.formatting
     steps:
     - uses: actions/checkout@v3
