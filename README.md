@@ -126,6 +126,15 @@ ninja -C _build
 ninja -C _build install
 ```
 
+### Tailor CLI
+
+You can build and install the tailor CLI from source using cargo:
+
+```sh
+cargo install --path tailor_cli
+tailor --help
+```
+
 ### On NixOS
 
 To install tailor-rs on NixOS, with flakes enabled, add
@@ -164,6 +173,6 @@ the following to your flake.nix:
 - [x] Support for hardware from both clevo and uniwill
 - [x] Daemon with DBus interface for user space application
 - [x] Client library for interacting with the daemon
-- [ ] CLI that interacts with the daemon
+- [x] CLI that interacts with the daemon
 - [x] Native GUI that interacts with the daemon
 - [ ] OPTIONAL: Rewrite various tuxedo kernel modules in Rust

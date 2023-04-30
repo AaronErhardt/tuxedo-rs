@@ -1,0 +1,25 @@
+[package]
+name = "tailor"
+version = "0.2.1"
+authors = [
+  "Aaron Erhardt <aaron.erhardt@t-online.de>",
+  "Marc Jakobi <mrcjkb89@outlook.com>"
+]
+edition = "2021"
+publish = false
+description = "Tailor CLI (part of tuxedo-rs)"
+repository = "https://github.com/AaronErhardt/tuxedo-rs"
+
+[dependencies]
+tailor_api = "0.2.1"
+tailor_client = "0.2.1"
+clap = { version = "4.2.4", features = ["derive"] }
+tokio = { version = "1.27", features = ["rt-multi-thread", "macros"] }
+colored = "2.0.0"
+eyre = "0.6.8"
+notify-rust = "4.8.0"
+
+[build-dependencies]
+clap = { version = "4.2.4", features = ["derive"] }
+clap_complete = "4.2.1"
+clap_mangen = "0.2.10"

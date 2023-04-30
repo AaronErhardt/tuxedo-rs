@@ -8,70 +8,77 @@ with final.pkgs.stdenv; let
   pkgs = import nixpkgs {inherit (final.pkgs) system;};
   rustPlatform = pkgs.rustPlatform;
 
-  tailord = rustPlatform.buildRustPackage {
-    pname = "tailord";
-    version = "0.1.0";
-
+  tuxedo-rs = with pkgs.lib; let
     src = self;
+  in
+    rustPlatform.buildRustPackage {
+      pname = "tuxedo-rs";
+      inherit ((importTOML "${src}/tailord/Cargo.toml").package) version;
 
-    doCheck = false;
+      inherit src;
 
-    cargoLock = {
-      lockFile = "${self}/Cargo.lock";
+      doCheck = false;
+
+      cargoLock = {
+        lockFile = self + "/Cargo.lock";
+      };
+
+      postInstall = ''
+        mkdir -p $out/share/dbus-1/system.d
+        cp ${self}/tailord/com.tux.Tailor.conf $out/share/dbus-1/system.d
+      '';
+
+      meta = with final.lib; {
+        description = "Daemon handling fan, keyboard and general HW support for Tuxedo laptops (part of tuxedo-rs)";
+        homepage = "https://github.com/AaronErhardt/tuxedo-rs";
+        license = licenses.gpl2Only;
+      };
     };
 
-    postInstall = ''
-      mkdir -p $out/share/dbus-1/system.d
-      cp ${self}/tailord/com.tux.Tailor.conf $out/share/dbus-1/system.d
-    '';
-
-    meta = with final.lib; {
-      description = "Daemon handling fan, keyboard and general HW support for Tuxedo laptops (part of tuxedo-rs)";
-      homepage = "https://github.com/AaronErhardt/tuxedo-rs";
-      license = licenses.gpl2Only;
-    };
-  };
-
-  tailor_gui = mkDerivation {
-    name = "tailor_gui";
-    version = "0.2.0";
-
+  tailor_gui = with pkgs.lib; let
     src = builtins.path {
-      path = "${self}/tailor_gui";
+      path = self + "/tailor_gui";
       name = "tailor_gui";
     };
+  in
+    mkDerivation {
+      name = "tailor_gui";
 
-    cargoDeps = rustPlatform.importCargoLock {
-      lockFile = "${self}/tailor_gui/Cargo.lock";
+      inherit ((importTOML (src + "/Cargo.toml")).package) version;
+
+      inherit src;
+
+      cargoDeps = rustPlatform.importCargoLock {
+        lockFile = self + "/tailor_gui/Cargo.lock";
+      };
+
+      nativeBuildInputs = with rustPlatform;
+        [
+          rust.cargo
+          rust.rustc
+          cargoSetupHook
+        ]
+        ++ (with pkgs; [
+          pkg-config
+          desktop-file-utils
+          appstream-glib
+          makeWrapper
+        ]);
+
+      buildInputs = with pkgs; [
+        meson
+        ninja
+        libadwaita
+        gtk4
+      ];
+
+      postFixup = ''
+        wrapProgram $out/bin/tailor_gui --set XDG_DATA_DIRS "$out/share/gsettings-schemas/tailor_gui"
+      '';
     };
-
-    nativeBuildInputs = with rustPlatform;
-      [
-        rust.cargo
-        rust.rustc
-        cargoSetupHook
-      ]
-      ++ (with pkgs; [
-        pkg-config
-        desktop-file-utils
-        appstream-glib
-        makeWrapper
-      ]);
-
-    buildInputs = with pkgs; [
-      meson
-      ninja
-      libadwaita
-      gtk4
-    ];
-
-    postFixup = ''
-      wrapProgram $out/bin/tailor_gui --set XDG_DATA_DIRS "$out/share/gsettings-schemas/tailor_gui"
-    '';
-  };
 in {
   inherit
-    tailord
+    tuxedo-rs
     tailor_gui
     ;
 }

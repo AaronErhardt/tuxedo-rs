@@ -53,19 +53,26 @@
 
       devShell = pkgs.mkShell {
         name = "tuxedo-rs-devShell";
-        inherit (pre-commit-check) shellHook;
-        buildInputs = with pkgs;
-        with pkgs.rustPlatform.rust; [
-          cargo
-          rustc
-          meson
-          ninja
-          libadwaita
-          gtk4
-          pkg-config
-          desktop-file-utils
-          appstream-glib
-        ];
+        buildInputs =
+          (with pkgs;
+            with pkgs.rustPlatform.rust; [
+              cargo
+              rustc
+              meson
+              ninja
+              libadwaita
+              gtk4
+              pkg-config
+              desktop-file-utils
+              appstream-glib
+            ])
+          ++ (with pre-commit-hooks.packages.${system}; [
+            alejandra
+            rustfmt
+          ]);
+        shellHook = ''
+          ${self.checks.${system}.formatting.shellHook}
+        '';
       };
     in {
       devShells = {
@@ -74,12 +81,11 @@
       };
 
       packages = rec {
-        default = tailord;
+        default = tuxedo-rs;
         inherit
           (pkgs)
-          tailord
+          tuxedo-rs
           tailor_gui
-          tailor_cli
           ;
       };
 
@@ -87,9 +93,8 @@
         formatting = pre-commit-check;
         inherit
           (pkgs)
-          tailord
+          tuxedo-rs
           tailor_gui
-          tailor_cli
           ;
       };
     })
