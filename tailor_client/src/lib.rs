@@ -15,6 +15,7 @@ pub struct TailorConnection<'a> {
     led: dbus::LedProxy<'a>,
     fan: dbus::FanProxy<'a>,
     performance: dbus::PerformanceProxy<'a>,
+    backlight: dbus::BacklightProxy<'a>,
 }
 
 impl<'a> TailorConnection<'a> {
@@ -25,12 +26,14 @@ impl<'a> TailorConnection<'a> {
         let keyboard = dbus::LedProxy::new(&connection).await?;
         let fan = dbus::FanProxy::new(&connection).await?;
         let performance = dbus::PerformanceProxy::new(&connection).await?;
+        let backlight = dbus::BacklightProxy::new(&connection).await?;
 
         Ok(Self {
             profiles,
             led: keyboard,
             fan,
             performance,
+            backlight,
         })
     }
 }
@@ -171,5 +174,22 @@ impl<'a> TailorConnection<'a> {
     /// Read the list of supported performance profiles.
     pub async fn list_performance_profiles(&self) -> ClientResult<Vec<String>> {
         Ok(self.performance.list_profiles().await?)
+    }
+}
+
+impl<'a> TailorConnection<'a> {
+    /// Get the current backlight percentage.
+    async fn get_backlight_percentage(&self) -> ClientResult<u8> {
+        Ok(self.backlight.get_backlight_percentage().await?)
+    }
+
+    /// Get the raw maximum backlight.
+    async fn get_max_backlight_raw(&self) -> ClientResult<u8> {
+        Ok(self.backlight.get_max_backlight_raw().await?)
+    }
+
+    /// Set a new backlight percentage.
+    async fn set_backlight_percentage(&self, value: u8) -> ClientResult<()> {
+        Ok(self.backlight.set_backlight_percentage(value).await?)
     }
 }

@@ -1,6 +1,8 @@
 use std::{collections::HashMap, path::Component, path::Path};
 
-use crate::{fancontrol::profile::FanProfile, performance::PerformanceProfile};
+use crate::{
+    backlight::BacklightProfile, fancontrol::profile::FanProfile, performance::PerformanceProfile,
+};
 use tailor_api::{ColorProfile, LedDeviceInfo, LedProfile, ProfileInfo};
 use zbus::fdo;
 
@@ -52,6 +54,7 @@ pub struct Profile {
     pub fans: Vec<FanProfile>,
     pub leds: HashMap<LedDeviceInfo, ColorProfile>,
     pub performance_profile: Option<PerformanceProfile>,
+    pub brightness: BacklightProfile,
 }
 
 impl Profile {
@@ -110,10 +113,13 @@ impl Profile {
             .performance_profile
             .map(PerformanceProfile::new);
 
+        let brightness = BacklightProfile::new(profile_info.brightness);
+
         Self {
             fans: fan,
             leds: led,
             performance_profile,
+            brightness,
         }
     }
 
