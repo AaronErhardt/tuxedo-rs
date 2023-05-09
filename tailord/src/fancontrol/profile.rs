@@ -3,7 +3,8 @@ use std::path::Path;
 use tailor_api::FanProfilePoint;
 use zbus::fdo;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+#[serde(transparent)]
 pub struct FanProfile {
     inner: Vec<FanProfilePoint>,
 }

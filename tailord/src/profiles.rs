@@ -6,6 +6,7 @@ use zbus::fdo;
 
 use super::util;
 
+const DEFAULT_PROFILE_NAME: &str = "default";
 pub const PROFILE_DIR: &str = "/etc/tailord/profiles/";
 pub const KEYBOARD_DIR: &str = "/etc/tailord/keyboard/";
 pub const FAN_DIR: &str = "/etc/tailord/fan/";
@@ -19,13 +20,32 @@ fn init_paths() {
         })
 }
 
-fn init_active_profile() {
-    if Path::new(ACTIVE_PROFILE_PATH).exists() {
-        return;
+fn default_profile_exists(base_path: &str) -> bool {
+    Path::join(Path::new(base_path), DEFAULT_PROFILE_NAME).exists()
+}
+
+fn init_profiles() {
+    tracing::debug!("Initialising profiles.");
+    if !default_profile_exists(KEYBOARD_DIR) {
+        let profile = ColorProfile::default();
+        util::write_json_sync(KEYBOARD_DIR, DEFAULT_PROFILE_NAME, &profile).ok();
     }
-    tracing::debug!("Initialising active profile.");
-    let default_profile = Path::join(Path::new(PROFILE_DIR), "default.json");
+    if !default_profile_exists(FAN_DIR) {
+        let profile = FanProfile::default();
+        util::write_json_sync(FAN_DIR, DEFAULT_PROFILE_NAME, &profile).ok();
+    }
+    if !default_profile_exists(PROFILE_DIR) {
+        let profile = ProfileInfo::default();
+        util::write_json_sync(PROFILE_DIR, DEFAULT_PROFILE_NAME, &profile).ok();
+    }
+    let default_profile = Path::join(Path::new(PROFILE_DIR), DEFAULT_PROFILE_NAME);
     std::os::unix::fs::symlink(default_profile.as_path(), Path::new(ACTIVE_PROFILE_PATH)).ok();
+}
+
+fn init_profiles_if_necessary() {
+    if !Path::new(ACTIVE_PROFILE_PATH).exists() {
+        init_profiles();
+    }
 }
 
 fn led_profile_path(name: &str) -> fdo::Result<String> {
@@ -57,7 +77,7 @@ pub struct Profile {
 impl Profile {
     pub fn load() -> Self {
         init_paths();
-        init_active_profile();
+        init_profiles_if_necessary();
 
         let profile_info = Self::get_active_profile_info().unwrap_or_else(|err| {
             tracing::warn!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`: {err:?}");

@@ -42,24 +42,6 @@ in {
 
       services.dbus.packages = [pkgs.tuxedo-rs];
 
-      # NOTE: By setting mode, the files are copied and not symlinked
-      environment = {
-        etc = {
-          "tailord/keyboard/default.json" = {
-            source = ../tailord/default_configs/keyboard/default.json;
-            mode = "644";
-          };
-          "tailord/fan/default.json" = {
-            source = ../tailord/default_configs/fan/default.json;
-            mode = "644";
-          };
-          "tailord/profiles/default.json" = {
-            source = ../tailord/default_configs/profiles/default.json;
-            mode = "644";
-          };
-        };
-      };
-
       environment.systemPackages = [pkgs.tuxedo-rs];
     }
     (mkIf cfg.tailor_gui.enable {
