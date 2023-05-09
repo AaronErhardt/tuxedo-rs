@@ -1305,8 +1305,8 @@ dependencies = [
  "colored",
  "eyre",
  "notify-rust",
- "tailor_api 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "tailor_client 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tailor_api",
+ "tailor_client",
  "tokio",
 ]
 
@@ -1316,16 +1316,8 @@ version = "0.2.1"
 dependencies = [
  "atoi",
  "serde",
-]
-
-[[package]]
-name = "tailor_api"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21a0695b1d8d5e042a3bf5891d637d7d975fc9459b622ea966e54b8936061ce6"
-dependencies = [
- "atoi",
- "serde",
+ "serde_json",
+ "tailor_api",
 ]
 
 [[package]]
@@ -1333,21 +1325,9 @@ name = "tailor_client"
 version = "0.2.1"
 dependencies = [
  "serde_json",
- "tailor_api 0.2.1",
+ "tailor_api",
  "thiserror",
  "tokio",
- "zbus",
-]
-
-[[package]]
-name = "tailor_client"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "235b1287771becf96f15e31cdfac036308ab6991e37104a0b3152702228649e4"
-dependencies = [
- "serde_json",
- "tailor_api 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "thiserror",
  "zbus",
 ]
 
@@ -1363,7 +1343,7 @@ dependencies = [
  "serde_json",
  "signal-hook",
  "signal-hook-tokio",
- "tailor_api 0.2.1",
+ "tailor_api",
  "tokio",
  "tokio-uring",
  "tracing",
@@ -1581,7 +1561,7 @@ version = "0.2.0"
 dependencies = [
  "futures",
  "sudo",
- "tailor_api 0.2.1",
+ "tailor_api",
  "tokio",
  "tokio-uring",
  "tracing",

@@ -24,7 +24,23 @@ pub enum ColorProfile {
 
 impl Default for ColorProfile {
     fn default() -> Self {
-        Self::None
+        Self::Multiple(vec![
+            ColorPoint {
+                color: Color { r: 255, g: 0, b: 0 },
+                transition: ColorTransition::Linear,
+                transition_time: 6000,
+            },
+            ColorPoint {
+                color: Color { r: 0, g: 255, b: 0 },
+                transition: ColorTransition::Linear,
+                transition_time: 6000,
+            },
+            ColorPoint {
+                color: Color { r: 0, g: 0, b: 255 },
+                transition: ColorTransition::Linear,
+                transition_time: 6000,
+            },
+        ])
     }
 }
 

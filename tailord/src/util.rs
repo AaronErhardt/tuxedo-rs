@@ -35,9 +35,23 @@ pub async fn write_json<T: Serialize>(
     name: &str,
     data: &T,
 ) -> Result<(), fdo::Error> {
-    let data =
-        serde_json::to_string_pretty(data).map_err(|err| fdo::Error::Failed(err.to_string()))?;
-    write_file(base_path, name, data.as_bytes()).await
+    write_file(base_path, name, to_pretty_json(data)?.as_bytes()).await
+}
+
+pub fn write_json_sync<T: Serialize>(
+    base_path: &str,
+    name: &str,
+    data: &T,
+) -> Result<(), fdo::Error> {
+    std::fs::write(
+        normalize_json_path(base_path, name)?,
+        to_pretty_json(data)?.as_bytes(),
+    )
+    .map_err(|err| fdo::Error::IOError(err.to_string()))
+}
+
+fn to_pretty_json<T: Serialize>(data: &T) -> Result<String, fdo::Error> {
+    serde_json::to_string_pretty(data).map_err(|err| fdo::Error::Failed(err.to_string()))
 }
 
 pub async fn read_file(base_path: &str, name: &str) -> Result<String, fdo::Error> {
