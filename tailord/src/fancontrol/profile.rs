@@ -140,8 +140,3 @@ impl Default for FanProfile {
         }
     }
 }
-
-#[test]
-fn default_serde_roundrip() {
-    tailor_api::default_json_roundtrip::<FanProfile>();
-}

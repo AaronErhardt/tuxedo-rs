@@ -1316,8 +1316,6 @@ version = "0.2.1"
 dependencies = [
  "atoi",
  "serde",
- "serde_json",
- "tailor_api",
 ]
 
 [[package]]
