@@ -9,10 +9,14 @@ use super::util;
 pub const PROFILE_DIR: &str = "/etc/tailord/profiles/";
 pub const LED_DIR: &str = "/etc/tailord/led/";
 pub const FAN_DIR: &str = "/etc/tailord/fan/";
-pub const ACTIVE_PROFILE_PATH: &str = "/etc/tailord/active_profile.json";
+
+const ACTIVE_POWER_PROFILE_PATH: &str = "/etc/tailord/power_profile.json";
+const ACTIVE_BATTERY_PROFILE_PATH: &str = "/etc/tailord/battery_profile.json";
 
 /// Legacy value, was renamed to led in version 0.3
 const KEYBOARD_DIR: &str = "/etc/tailord/keyboard/";
+/// Legacy value, was split into power and battery profiles
+const ACTIVE_PROFILE_PATH: &str = "/etc/tailord/active_profile.json";
 
 fn init_paths() {
     // If the old path exist, rename it.

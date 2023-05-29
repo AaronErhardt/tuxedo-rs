@@ -1,6 +1,19 @@
+use once_cell::sync;
 use serde::{de::DeserializeOwned, Serialize};
 use std::ffi::OsString;
-use zbus::fdo;
+use zbus::{fdo, Connection};
+
+static SYSTEM_BUS_CONNECTION: sync::OnceCell<Connection> = sync::OnceCell::new();
+
+pub async fn init_system_bus_connection() -> zbus::Result<()> {
+    let connection = zbus::Connection::system().await?;
+    SYSTEM_BUS_CONNECTION.set(connection);
+    Ok(())
+}
+
+pub fn system_bus_connection() -> Option<&'static Connection> {
+    SYSTEM_BUS_CONNECTION.get()
+}
 
 pub fn normalize_json_path(base_path: &str, name: &str) -> fdo::Result<String> {
     // Make sure the name doesn't contain any illegal characters.

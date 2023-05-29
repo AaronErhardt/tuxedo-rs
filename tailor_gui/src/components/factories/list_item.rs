@@ -1,9 +1,10 @@
 use std::marker::PhantomData;
 
 use adw::prelude::{MessageDialogExt, MessageDialogExtManual};
-use gtk::glib;
-use gtk::prelude::{BoxExt, ButtonExt, EditableExt, ObjectExt, OrientableExt, WidgetExt};
+use gtk::prelude::{BoxExt, ButtonExt, OrientableExt, WidgetExt};
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender};
+use relm4::gtk::prelude::{EntryBufferExtManual, Cast};
+use relm4::gtk::traits::{EntryExt, ToggleButtonExt};
 use relm4::{adw, factory, gtk, RelmWidgetExt};
 use relm4_icons::icon_name;
 
@@ -16,6 +17,15 @@ pub trait ListMsg {
 pub struct ListItem<Msg: ListMsg> {
     pub name: String,
     msg: PhantomData<*const Msg>,
+    index: DynamicIndex,
+    edit_active: bool,
+    name_buffer: gtk::EntryBuffer,
+}
+
+#[derive(Debug)]
+pub enum ListItemInput {
+    SetEditMode(bool),
+    Remove(gtk::Widget)
 }
 
 #[factory(pub)]
@@ -25,12 +35,13 @@ where
 {
     type CommandOutput = ();
     type Init = String;
-    type Input = ();
+    type Input = ListItemInput;
     type Output = Msg;
     type ParentInput = Msg;
     type ParentWidget = gtk::ListBox;
 
     view! {
+        #[name = "root"]
         gtk::Box {
             set_orientation: gtk::Orientation::Horizontal,
             add_css_class: "header",
@@ -40,18 +51,21 @@ where
                 set_halign: gtk::Align::Start,
                 set_valign: gtk::Align::Center,
 
-                #[name(edit_label)]
-                gtk::EditableLabel {
-                    add_css_class: "padded",
-                    #[watch]
-                    set_text: &self.name,
-
-                    connect_editing_notify[sender, index] => move |e| {
-                        if !e.is_editing() {
-                            sender.output(Msg::rename(index.clone(), e.text().into()))
-                        }
+                if self.edit_active {
+                    #[name(edit_label)]
+                    gtk::Entry {
+                        set_buffer: &self.name_buffer,
+                        connect_activate => ListItemInput::SetEditMode(false),
+                        #[track(self.edit_active)]
+                        grab_focus: (),
                     }
-                },
+                } else {
+                    gtk::Label {
+                        #[watch]
+                        set_text: &self.name,
+                        set_halign: gtk::Align::Start,
+                    }
+                }
             },
 
             gtk::Box {
@@ -59,34 +73,24 @@ where
                 set_orientation: gtk::Orientation::Horizontal,
                 set_valign: gtk::Align::Center,
 
+                gtk::ToggleButton {
+                    set_icon_name: icon_name::EDIT,
+                    #[watch]
+                    set_active: self.edit_active,
+                    connect_clicked[sender] => move |btn| {
+                        sender.input(ListItemInput::SetEditMode(btn.is_active()))
+                    }
+                },
+
                 gtk::Button {
                     set_icon_name: icon_name::CROSS_FILLED,
-                    connect_clicked[sender, index, name = self.name.clone()] => move |btn| {
-                        let window = btn.toplevel_window().unwrap();
-                        let dialog = adw::MessageDialog::builder()
-                            .modal(true)
-                            .transient_for(&window)
-                            .heading(format!("Delete {} profile \"{name}\"?", Msg::ty()))
-                            .body("This change is not reversible.")
-                            .default_response("cancel")
-                            .close_response("cancel")
-                            .build();
-                        dialog.add_responses(&[("cancel", "Cancel"), ("remove", "Remove")]);
-                        dialog.set_response_appearance("remove", adw::ResponseAppearance::Destructive);
-
-                        let sender = sender.clone();
-                        let index = index.clone();
-                        relm4::spawn_local(async move {
-                            let response = dialog.choose_future().await;
-                            if response == "remove" {
-                                sender.output(Msg::remove(index.clone()));
-                            }
-                        });
+                    connect_clicked[sender, root] => move |_| {
+                        sender.input(ListItemInput::Remove(root.clone().upcast()));
                     }
                 },
 
                 gtk::Image {
-                    set_icon_name: Some("go-next"),
+                    set_icon_name: Some(icon_name::RIGHT),
                 }
             },
         }
@@ -96,30 +100,51 @@ where
         Some(output)
     }
 
-    fn init_model(name: Self::Init, _index: &DynamicIndex, _sender: FactorySender<Self>) -> Self {
+    fn init_model(name: Self::Init, index: &DynamicIndex, _sender: FactorySender<Self>) -> Self {
         Self {
             name,
             msg: PhantomData,
+            index: index.clone(),
+            edit_active: false,
+            name_buffer: gtk::EntryBuffer::new(None::<&str>),
         }
     }
 
-    fn init_widgets(
-        &mut self,
-        index: &DynamicIndex,
-        root: &Self::Root,
-        returned_widget: &gtk::ListBoxRow,
-        sender: FactorySender<Self>,
-    ) -> Self::Widgets {
-        let widgets = view_output!();
+    fn update(&mut self, message: Self::Input, sender: FactorySender<Self>) {
+        match message {
+            ListItemInput::SetEditMode(active) => {
+                if active {
+                    self.name_buffer.set_text(&self.name);
+                } else {
+                    let new_name = self.name_buffer.text().to_string();
+                    if self.name != new_name {
+                        sender.output(Msg::rename(self.index.clone(), new_name))
+                    }
+                }
+                self.edit_active = active;
+            }
+            ListItemInput::Remove(root) => {
+                let window = root.toplevel_window().unwrap();
+                let dialog = adw::MessageDialog::builder()
+                    .modal(true)
+                    .transient_for(&window)
+                    .heading(format!("Delete {} profile \"{}\"?", Msg::ty(), self.name))
+                    .body("This change is not reversible.")
+                    .default_response("cancel")
+                    .close_response("cancel")
+                    .build();
+                dialog.add_responses(&[("cancel", "Cancel"), ("remove", "Remove")]);
+                dialog.set_response_appearance("remove", adw::ResponseAppearance::Destructive);
 
-        widgets
-            .edit_label
-            .bind_property("editing", returned_widget, "activatable")
-            .flags(glib::BindingFlags::INVERT_BOOLEAN)
-            .build();
-
-        widgets
+                let sender = sender.clone();
+                let index = self.index.clone();
+                relm4::spawn_local(async move {
+                    let response = dialog.choose_future().await;
+                    if response == "remove" {
+                        sender.output(Msg::remove(index.clone()));
+                    }
+                });
+            }
+        }
     }
-
-    fn update(&mut self, _message: Self::Input, _sender: FactorySender<Self>) {}
 }

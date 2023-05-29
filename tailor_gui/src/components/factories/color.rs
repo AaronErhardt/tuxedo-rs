@@ -83,7 +83,6 @@ impl FactoryComponent for ColorRow {
                     },
                     gtk::Button {
                         set_icon_name: icon_name::CROSS_FILLED,
-                        add_css_class: "destructive-action",
                         connect_clicked[sender, index] => move |_| {
                             sender.output(ColorOutput::Remove(index.clone()));
                         }

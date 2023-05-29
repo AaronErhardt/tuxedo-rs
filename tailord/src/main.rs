@@ -2,6 +2,7 @@ mod dbus;
 mod fancontrol;
 pub mod led;
 mod performance;
+mod power_supply;
 mod profiles;
 pub mod shutdown;
 mod suspend;
@@ -159,6 +160,11 @@ async fn start_runtime() {
         .build()
         .await
         .unwrap();
+
+    tracing::debug!("Connecting to the system DBUS");
+    if let Err(err) = util::init_system_bus_connection().await {
+        tracing::warn!("Couldn't connect to the system bus {err:?}");
+    }
 
     tracing::debug!("Starting suspend watcher runtime");
     tokio_uring::spawn(suspend::wait_for_suspend());

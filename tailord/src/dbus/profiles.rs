@@ -9,6 +9,7 @@ use crate::{
     util,
 };
 
+#[derive(Clone)]
 pub struct ProfileInterface {
     pub fan_handles: Vec<FanRuntimeHandle>,
     pub led_handles: Vec<LedRuntimeHandle>,

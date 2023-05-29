@@ -5,6 +5,8 @@ use zbus::{dbus_proxy, Connection};
 
 use std::{future::pending, time::Duration};
 
+use crate::util;
+
 static SUSPEND_CHANNEL: Lazy<(broadcast::Sender<bool>, broadcast::Receiver<bool>)> =
     Lazy::new(|| broadcast::channel(1));
 
@@ -23,18 +25,22 @@ trait Suspend {
 }
 
 pub async fn wait_for_suspend() {
-    let mut sender = SUSPEND_CHANNEL.0.clone();
+    if let Some(connection) = util::system_bus_connection() {
+        let mut sender = SUSPEND_CHANNEL.0.clone();
 
-    // Don't try to reconnect anymore after 3 attempts
-    for _ in 0..3 {
-        tracing::info!("Setting up suspend service");
-        if let Err(err) = try_wait_for_suspend(&mut sender).await {
-            tracing::error!("Failed to wait for suspend: `{err}`");
-            // Reconnect after 10s
-            tokio::time::sleep(Duration::from_secs(10)).await;
+        // Don't try to reconnect anymore after 3 attempts
+        for _ in 0..3 {
+            tracing::info!("Setting up suspend service");
+            if let Err(err) = try_wait_for_suspend(&mut sender).await {
+                tracing::error!("Failed to wait for suspend: `{err}`");
+                // Reconnect after 10s
+                tokio::time::sleep(Duration::from_secs(10)).await;
+            }
         }
+        tracing::warn!("Stopping suspend service after 3 errors");
+    } else {
+        tracing::warn!("Stopping suspend service due to missing system DBUS connection");
     }
-    tracing::warn!("Stopping suspend service after 3 errors");
 }
 
 async fn try_wait_for_suspend(sender: &mut broadcast::Sender<bool>) -> Result<(), zbus::Error> {

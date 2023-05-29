@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Aaron Erhardt 2019 <aaron.erhardt@t-online.de> -->
+<!-- Aaron Erhardt 2023 <aaron.erhardt@t-online.de> -->
 <component type="desktop-application">
   <id>@app-id@</id>
   <metadata_license>CC0</metadata_license>
-  <!-- Insert your license of choice here -->
-  <!-- <project_license>MIT</project_license> -->
+  <project_license>GPL-2.0+</project_license> -->
   <name>Tailor</name>
-  <summary>Write a GTK + Rust application</summary>
+  <summary>Control your TUXEDO hardware</summary>
   <description>
     <p>A boilerplate template for GTK + Rust. It uses Meson as a build system and has flatpak support by default.</p>
   </description>
@@ -20,7 +19,7 @@
   <url type="bugtracker">https://gitlab.gnome.org/bilelmoussaoui/tailor_gui/issues</url>
   <content_rating type="oars-1.0" />
   <releases>
-    <release version="0.1.0" date="2019-07-11" />
+    <release version="0.2.1" date="2023-04-22" />
   </releases>
   <kudos>
      <!--
