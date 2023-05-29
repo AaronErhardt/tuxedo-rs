@@ -1,6 +1,11 @@
+mod fs_util;
+
 use std::{collections::HashMap, path::Component, path::Path};
 
-use crate::{fancontrol::profile::FanProfile, performance::PerformanceProfile};
+use crate::{
+    fancontrol::profile::FanProfile, performance::PerformanceProfile,
+    power_supply::is_power_connected,
+};
 use tailor_api::{ColorProfile, LedDeviceInfo, LedProfile, ProfileInfo};
 use zbus::fdo;
 
@@ -14,26 +19,41 @@ const ACTIVE_POWER_PROFILE_PATH: &str = "/etc/tailord/power_profile.json";
 const ACTIVE_BATTERY_PROFILE_PATH: &str = "/etc/tailord/battery_profile.json";
 
 /// Legacy value, was renamed to led in version 0.3
-const KEYBOARD_DIR: &str = "/etc/tailord/keyboard/";
-/// Legacy value, was split into power and battery profiles
-const ACTIVE_PROFILE_PATH: &str = "/etc/tailord/active_profile.json";
+const OLD_KEYBOARD_DIR: &str = "/etc/tailord/keyboard/";
+
+// Legacy value, was split into power and battery profiles
+const OLD_ACTIVE_PROFILE_PATH: &str = "/etc/tailord/active_profile.json";
 
 fn init_paths() {
     // If the old path exist, rename it.
-    std::fs::rename(KEYBOARD_DIR, LED_DIR).ok();
+    fs_util::rename(OLD_KEYBOARD_DIR, LED_DIR).ok();
 
     [PROFILE_DIR, LED_DIR, FAN_DIR].into_iter().for_each(|dir| {
-        std::fs::create_dir_all(dir).ok();
+        fs_util::create_dir_all(dir).ok();
     })
 }
 
-fn init_active_profile() {
-    if Path::new(ACTIVE_PROFILE_PATH).exists() {
-        return;
+fn init_active_profiles() {
+    fn init_active_profile(name: &str, path: &str) {
+        if !Path::new(path).exists() {
+            tracing::debug!("Initializing active {} profile.", name);
+            let profile_dir = Path::new(PROFILE_DIR);
+
+            // Try carrying the configuration over from older releases
+            let target_profile = if let Ok(link) = fs_util::read_link(OLD_ACTIVE_PROFILE_PATH) {
+                profile_dir.join(link.components().last().unwrap())
+            } else {
+                // Use default profile is no link exists yet
+                profile_dir.join("default.json")
+            };
+            fs_util::symlink(target_profile.as_path(), Path::new(path)).ok();
+        }
     }
-    tracing::debug!("Initialising active profile.");
-    let default_profile = Path::join(Path::new(PROFILE_DIR), "default.json");
-    std::os::unix::fs::symlink(default_profile.as_path(), Path::new(ACTIVE_PROFILE_PATH)).ok();
+    init_active_profile("battery", ACTIVE_BATTERY_PROFILE_PATH);
+    init_active_profile("power", ACTIVE_POWER_PROFILE_PATH);
+
+    // Try removing the old profile link if it still exists
+    fs_util::remove_file(OLD_ACTIVE_PROFILE_PATH).ok();
 }
 
 fn led_profile_path(name: &str) -> fdo::Result<String> {
@@ -65,15 +85,15 @@ pub struct Profile {
 impl Profile {
     pub fn load() -> Self {
         init_paths();
-        init_active_profile();
+        init_active_profiles();
 
         let profile_info = Self::get_active_profile_info().unwrap_or_else(|err| {
-            tracing::warn!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`: {err:?}");
+            tracing::warn!("Failed to load active profile: {err:?}");
             ProfileInfo::default()
         });
-        tracing::info!("Loaded profile at `{ACTIVE_PROFILE_PATH}`: {profile_info:?}");
+        tracing::info!("Loaded profile: {profile_info:?}");
 
-        let mut led = HashMap::new();
+        let mut leds = HashMap::new();
         for data in profile_info.leds {
             let LedProfile {
                 device_name,
@@ -95,10 +115,10 @@ impl Profile {
                     ColorProfile::default()
                 }
             };
-            led.insert(info, profile);
+            leds.insert(info, profile);
         }
 
-        let fan = profile_info
+        let fans = profile_info
             .fans
             .iter()
             .map(|fan_profile| match load_fan_profile(fan_profile) {
@@ -119,28 +139,50 @@ impl Profile {
             .map(PerformanceProfile::new);
 
         Self {
-            fans: fan,
-            leds: led,
+            fans,
+            leds,
             performance_profile,
         }
     }
 
-    pub async fn set_active_profile_name(name: &str) -> fdo::Result<()> {
-        std::fs::metadata(util::normalize_json_path(PROFILE_DIR, name)?)
-            .map_err(|_| fdo::Error::FileNotFound(format!("Couldn't find profile `{name}`")))?;
+    fn active_profile_path() -> &'static str {
+        if is_power_connected() {
+            ACTIVE_POWER_PROFILE_PATH
+        } else {
+            ACTIVE_BATTERY_PROFILE_PATH
+        }
+    }
 
-        std::fs::remove_file(ACTIVE_PROFILE_PATH)
-            .map_err(|err| fdo::Error::IOError(err.to_string()))?;
-        std::os::unix::fs::symlink(
-            util::normalize_json_path("profiles", name)?,
-            ACTIVE_PROFILE_PATH,
-        )
-        .map_err(|err| fdo::Error::IOError(err.to_string()))
+    pub async fn set_active_battery_profile_name(name: &str) -> fdo::Result<()> {
+        Self::set_active_profile_name_link(name, ACTIVE_BATTERY_PROFILE_PATH).await
+    }
+
+    pub async fn set_active_power_profile_name(name: &str) -> fdo::Result<()> {
+        Self::set_active_profile_name_link(name, ACTIVE_POWER_PROFILE_PATH).await
+    }
+
+    pub async fn set_active_profile_name(name: &str) -> fdo::Result<()> {
+        Self::set_active_profile_name_link(name, Self::active_profile_path()).await
+    }
+
+    async fn set_active_profile_name_link(name: &str, link: &str) -> fdo::Result<()> {
+        if fs_util::exists(util::normalize_json_path(PROFILE_DIR, name)?) {
+            fs_util::remove_file(link)?;
+            fs_util::symlink(util::normalize_json_path("profiles", name)?, link)?;
+            Ok(())
+        } else {
+            Err(fdo::Error::FileNotFound(format!(
+                "Couldn't find profile `{name}`"
+            )))
+        }
     }
 
     pub async fn get_active_profile_name() -> fdo::Result<String> {
-        let link = std::fs::read_link(ACTIVE_PROFILE_PATH)
-            .map_err(|err| fdo::Error::IOError(err.to_string()))?;
+        Self::get_active_profile_name_from_link(Self::active_profile_path()).await
+    }
+
+    async fn get_active_profile_name_from_link(link: &str) -> fdo::Result<String> {
+        let link = fs_util::read_link(link)?;
         let components: Vec<Component> = link.components().collect();
         if components.len() > 0 {
             if let Component::Normal(name) = components.last().unwrap() {
@@ -156,8 +198,7 @@ impl Profile {
     }
 
     pub fn get_active_profile_info() -> fdo::Result<ProfileInfo> {
-        let data = std::fs::read(ACTIVE_PROFILE_PATH)
-            .map_err(|err| fdo::Error::IOError(err.to_string()))?;
+        let data = fs_util::read(Self::active_profile_path())?;
         serde_json::from_slice(&data).map_err(|err| fdo::Error::InvalidFileContent(err.to_string()))
     }
 }

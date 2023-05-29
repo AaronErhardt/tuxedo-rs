@@ -9,7 +9,6 @@ use crate::{
     util,
 };
 
-#[derive(Clone)]
 pub struct ProfileInterface {
     pub fan_handles: Vec<FanRuntimeHandle>,
     pub led_handles: Vec<LedRuntimeHandle>,
@@ -46,8 +45,9 @@ impl ProfileInterface {
         } else {
             util::move_file(PROFILE_DIR, from, to).await?;
 
+            // Reload if the active profile was renamed
             if self.get_active_profile_name().await? == from {
-                self.set_active_profile_name(to).await?;
+                Profile::set_active_profile_name(to).await?;
                 self.reload().await?;
             }
 
@@ -55,8 +55,12 @@ impl ProfileInterface {
         }
     }
 
-    async fn set_active_profile_name(&self, name: &str) -> fdo::Result<()> {
-        Profile::set_active_profile_name(name).await
+    async fn set_active_battery_profile_name(&self, name: &str) -> fdo::Result<()> {
+        Profile::set_active_battery_profile_name(name).await
+    }
+
+    async fn set_active_power_profile_name(&self, name: &str) -> fdo::Result<()> {
+        Profile::set_active_power_profile_name(name).await
     }
 
     async fn get_active_profile_name(&self) -> fdo::Result<String> {
