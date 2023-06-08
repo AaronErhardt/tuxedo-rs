@@ -36,7 +36,9 @@ impl FanRuntimeData {
 
             tokio::select! {
                 _ = tokio::time::sleep(delay) => {},
-                _ = process_suspend(&mut self.suspend_receiver) => {}
+                _ = process_suspend(&mut self.suspend_receiver) => {
+                    self.fan_speed = self.io.get_fan_speed_percent(0).unwrap();
+                }
             }
         }
     }
