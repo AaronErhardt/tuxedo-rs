@@ -140,6 +140,9 @@ impl HardwareDevice for UniwillHardware {
     fn get_available_odm_performance_profiles(&self) -> IoctlResult<Vec<String>> {
         let available_profs = read::uw::profs_available(&self.file)?;
         let profiles = match available_profs {
+            0 => {
+                Vec::new()
+            }
             2 => {
                 vec![PERF_PROF_BALANCED.into(), PERF_PROF_ENTHUSIAST.into()]
             }

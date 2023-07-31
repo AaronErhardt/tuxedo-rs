@@ -96,6 +96,8 @@ impl FactoryComponent for Profile {
 
             #[template]
             add_row = &templates::ProfileListItem {
+                set_visible: !self.performance.model().variants.is_empty(),
+
                 #[template_child]
                 image -> gtk::Image {
                     set_icon_name: Some(icon_name::SPEEDOMETER),
