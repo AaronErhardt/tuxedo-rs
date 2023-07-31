@@ -154,7 +154,7 @@ impl Profile {
         let link = std::fs::read_link(ACTIVE_PROFILE_PATH)
             .map_err(|err| fdo::Error::IOError(err.to_string()))?;
         let components: Vec<Component> = link.components().collect();
-        if components.len() > 0 {
+        if !components.is_empty() {
             if let Component::Normal(name) = components.last().unwrap() {
                 if let Some(name) = name.to_str() {
                     return Ok(name.trim_end_matches(".json").to_string());
