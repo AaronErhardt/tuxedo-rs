@@ -114,13 +114,16 @@ async fn start_runtime() {
 
     let (performance_profile_handle, performance_profile_runtime) = match device {
         Some(device) => {
-            let default_performance_profile = device.get_default_odm_performance_profile().unwrap();
-            let (handle, runtime) = PerformanceProfileRuntime::new(
-                device,
-                profile.performance_profile,
-                default_performance_profile,
-            );
-            (Some(handle), Some(runtime))
+            if let Ok(default_performance_profile) = device.get_default_odm_performance_profile() {
+                let (handle, runtime) = PerformanceProfileRuntime::new(
+                    device,
+                    profile.performance_profile,
+                    default_performance_profile,
+                );
+                (Some(handle), Some(runtime))
+            } else {
+                (None, None)
+            }
         }
         None => (None, None),
     };

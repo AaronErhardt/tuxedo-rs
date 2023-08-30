@@ -43,13 +43,12 @@ impl PerformanceInterface {
 
     /// Read the list of supported performance profiles.
     async fn list_profiles(&self) -> fdo::Result<Vec<String>> {
-        Ok(self
-            .handler()?
+        self.handler()?
             .get_availables_performance_profiles()
             .map_err(|err| {
                 fdo::Error::IOError(format!(
                     "unable to list available performance profiles: {err}"
                 ))
-            })?)
+            })
     }
 }

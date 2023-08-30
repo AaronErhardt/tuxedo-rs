@@ -9,9 +9,8 @@ use crate::cli::{Command, Opts};
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Opts::parse();
-    match args.command {
-        Some(Command::Profile { profile_cmd }) => profile::handle(profile_cmd).await?,
-        None => {}
+    if let Some(Command::Profile { profile_cmd }) = args.command {
+        profile::handle(profile_cmd).await?;
     }
     Ok(())
 }

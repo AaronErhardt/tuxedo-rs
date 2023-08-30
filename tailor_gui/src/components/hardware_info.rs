@@ -98,16 +98,29 @@ impl SimpleComponent for HardwareInfo {
         let info = hardware_capabilities().unwrap().clone();
 
         let led_info: String = comma_list(info.led_devices.iter().map(|d| d.device_id()));
-        let performance_info = comma_list(info.performance_profiles.iter().cloned());
+        let performance_info = comma_list_optional(info.performance_profiles);
         let widgets = view_output!();
         ComponentParts { model, widgets }
     }
 }
 
-fn comma_list<I>(iter: I) -> String
+fn comma_list<I, S>(iter: I) -> String
 where
-    I: Iterator<Item = String>,
+    I: Iterator<Item = S>,
+    S: Into<String>,
 {
-    let value: String = iter.map(|string| format!("{}, ", string)).collect();
+    let value: String = iter.map(|string| format!("{}, ", string.into())).collect();
     value.trim_end_matches(", ").to_owned()
+}
+
+fn comma_list_optional<I, S>(iter: Option<I>) -> String
+where
+    I: IntoIterator<Item = S>,
+    S: Into<String>,
+{
+    if let Some(iter) = iter {
+        comma_list(iter.into_iter())
+    } else {
+        "Device not available".into()
+    }
 }

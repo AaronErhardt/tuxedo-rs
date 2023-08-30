@@ -34,7 +34,7 @@ pub(crate) async fn handle(cmd: ProfileCommand) -> Result<()> {
             if let Some(next_profile_name) = next_profile_name {
                 let profile_updated_msg = format!("Current profile: {}", next_profile_name);
                 connection
-                    .set_active_global_profile_name(&next_profile_name)
+                    .set_active_global_profile_name(next_profile_name)
                     .await?;
                 if verbose {
                     println!("{}", profile_updated_msg)

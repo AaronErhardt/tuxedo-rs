@@ -24,7 +24,7 @@ pub struct Profile {
     pub active: bool,
     pub leds: FactoryVecDeque<ProfileItemLed>,
     pub fans: FactoryVecDeque<ProfileItemFan>,
-    pub performance: Controller<SimpleComboBox<String>>,
+    pub performance: Option<Controller<SimpleComboBox<String>>>,
 }
 
 #[derive(Debug)]
@@ -96,6 +96,8 @@ impl FactoryComponent for Profile {
 
             #[template]
             add_row = &templates::ProfileListItem {
+                set_visible: self.performance.is_some(),
+
                 #[template_child]
                 image -> gtk::Image {
                     set_icon_name: Some(icon_name::SPEEDOMETER),
@@ -108,7 +110,7 @@ impl FactoryComponent for Profile {
 
                 #[template_child]
                 row -> gtk::Box {
-                    append: self.performance.widget(),
+                    append?: self.performance.as_ref().map(Controller::widget),
                 }
             }
         }
@@ -186,18 +188,21 @@ impl FactoryComponent for Profile {
             }
         }
 
-        let active_index = info.performance_profile.as_ref().and_then(|profile| {
-            capabilities
-                .performance_profiles
-                .iter()
-                .position(|name| name == profile)
-        });
-        let performance = SimpleComboBox::builder()
-            .launch(SimpleComboBox {
-                variants: capabilities.performance_profiles.clone(),
-                active_index,
-            })
-            .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile);
+        let performance = capabilities
+            .performance_profiles
+            .as_ref()
+            .map(|cap_perf_prof| {
+                let active_index = info
+                    .performance_profile
+                    .as_ref()
+                    .and_then(|profile| cap_perf_prof.iter().position(|name| name == profile));
+                SimpleComboBox::builder()
+                    .launch(SimpleComboBox {
+                        variants: cap_perf_prof.clone(),
+                        active_index,
+                    })
+                    .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile)
+            });
 
         Self {
             name,
@@ -227,11 +232,8 @@ impl FactoryComponent for Profile {
 
                 let performance_profile = self
                     .performance
-                    .state()
-                    .get()
-                    .model
-                    .get_active_elem()
-                    .cloned();
+                    .as_ref()
+                    .and_then(|perf| perf.state().get().model.get_active_elem().cloned());
 
                 self.info = ProfileInfo {
                     leds,
