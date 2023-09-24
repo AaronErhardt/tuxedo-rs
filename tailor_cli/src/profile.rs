@@ -20,7 +20,14 @@ pub(crate) async fn handle(cmd: ProfileCommand) -> Result<()> {
             let active_profile_str = format!("{} (active)", active_profile).bold().green();
             println!("{}\n{}", active_profile_str, inactive_profiles.join("\n"));
         }
-        ProfileCommand::Set { name } => connection.set_active_global_profile_name(&name).await?,
+        ProfileCommand::Set { name } => {
+            connection
+                .set_active_global_profile_name(&name)
+                .await?;
+            connection
+                .reload()
+                .await?;
+        }
         ProfileCommand::Cycle { verbose, notify } => {
             let active_profile = connection.get_active_global_profile_name().await?;
             let profiles: Vec<String> = connection.list_global_profiles().await?;
@@ -35,6 +42,9 @@ pub(crate) async fn handle(cmd: ProfileCommand) -> Result<()> {
                 let profile_updated_msg = format!("Current profile: {}", next_profile_name);
                 connection
                     .set_active_global_profile_name(next_profile_name)
+                    .await?;
+                connection
+                    .reload()
                     .await?;
                 if verbose {
                     println!("{}", profile_updated_msg)

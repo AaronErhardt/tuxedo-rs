@@ -1,6 +1,6 @@
 [package]
 name = "tailor_gui"
-version = "0.2.0"
+version = "0.2.2"
 authors = ["Aaron Erhardt <aaron.erhardt@t-online.de>"]
 edition = "2021"
 publish = false

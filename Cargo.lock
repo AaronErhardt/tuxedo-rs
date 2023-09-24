@@ -1297,7 +1297,7 @@ dependencies = [
 
 [[package]]
 name = "tailor"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "clap",
  "clap_complete",
@@ -1331,7 +1331,7 @@ dependencies = [
 
 [[package]]
 name = "tailord"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "futures",
  "futures-lite",
