@@ -1,3 +1,4 @@
+# TODO: Remove this after NixOS 23.11 release
 {
   config,
   lib,
@@ -8,12 +9,12 @@ with lib; let
   cfg = config.services.tuxedo-rs;
 in {
   options = {
-    services.tuxedo-rs = {
+    hardware.tuxedo-rs = {
       enable = mkEnableOption ''
         Rust utilities for interacting with hardware from TUXEDO Computers.
       '';
 
-      tailor_gui.enable = mkEnableOption ''
+      tailor-gui.enable = mkEnableOption ''
         Alternative to Tuxedo Control Center, written in Rust.
       '';
     };
@@ -44,8 +45,8 @@ in {
 
       environment.systemPackages = [pkgs.tuxedo-rs];
     }
-    (mkIf cfg.tailor_gui.enable {
-      environment.systemPackages = [pkgs.tailor_gui];
+    (mkIf cfg.tailor-gui.enable {
+      environment.systemPackages = [pkgs.tailor-gui];
     })
   ]);
 }

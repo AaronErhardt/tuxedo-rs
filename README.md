@@ -44,7 +44,9 @@ Since I have limited access to hardware, please consider adding your device(s) t
 
 ## Installation
 
-Currently, tuxedo-rs isn't available from package archives so you have to install it from source.
+[![Packaging status](https://repology.org/badge/vertical-allrepos/tuxedo-rs.svg)](https://repology.org/project/tuxedo-rs/versions)
+
+Currently, tuxedo-rs isn't available from other package archives so you have to install it from source.
 
 ### Tuxedo driver modules
 
@@ -136,33 +138,15 @@ cargo install --path tailor_cli
 tailor --help
 ```
 
-### On NixOS
+### NixOS
 
-To install tailor-rs on NixOS, with flakes enabled, add
-the following to your flake.nix:
+tuxedo-rs can be [enabled on NixOS with the following options](https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=tuxedo-rs):
 
 ```nix
 {
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    tuxedo-rs.url = "github:AaronErhardt/tuxedo-rs";
-  }
-
-  outputs = {
-    nixpkgs,
-    tuxedo-rs,
-   ...
-  } : {
-    nixosConfigurations.myConfiguration = nixpkgs.lib.nixosSystem {
-      modules = [
-        tuxedo-rs.nixosModules.default
-      ];
-
-      services.tuxedo-rs = {
-        enable = true;
-        tailor_gui.enable = true;
-      };
-    };
+  hardware.tuxedo-rs = {
+    enable = true;
+    tailor-gui.enable = true;
   };
 }
 ```

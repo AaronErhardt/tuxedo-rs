@@ -28,12 +28,7 @@
       "x86_64-linux"
     ];
 
-    overlay = import ./nix/overlay.nix {
-      inherit
-        self
-        nixpkgs
-        ;
-    };
+    overlay = import ./nix/overlay.nix {inherit self;};
   in
     flake-utils.lib.eachSystem supportedSystems (system: let
       pkgs = import nixpkgs {
@@ -55,7 +50,7 @@
         name = "tuxedo-rs-devShell";
         buildInputs =
           (with pkgs;
-            with pkgs.rustPlatform.rust; [
+            with pkgs.rustPlatform; [
               cargo
               rustc
               meson
@@ -85,7 +80,7 @@
         inherit
           (pkgs)
           tuxedo-rs
-          tailor_gui
+          tailor-gui
           ;
       };
 
@@ -94,7 +89,7 @@
         inherit
           (pkgs)
           tuxedo-rs
-          tailor_gui
+          tailor-gui
           ;
       };
     })

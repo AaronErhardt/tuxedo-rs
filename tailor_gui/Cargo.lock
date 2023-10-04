@@ -1590,7 +1590,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_gui"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "futures",
  "gettext-rs",
