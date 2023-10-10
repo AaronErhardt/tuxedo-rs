@@ -6,7 +6,7 @@
   ...
 }:
 with lib; let
-  cfg = config.services.tuxedo-rs;
+  cfg = config.hardware.tuxedo-rs;
 in {
   options = {
     hardware.tuxedo-rs = {
