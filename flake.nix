@@ -28,7 +28,7 @@
       "x86_64-linux"
     ];
 
-    overlay = import ./nix/overlay.nix {inherit self;};
+    overlay = import ./nix/overlay.nix {inherit self nixpkgs;};
   in
     flake-utils.lib.eachSystem supportedSystems (system: let
       pkgs = import nixpkgs {
