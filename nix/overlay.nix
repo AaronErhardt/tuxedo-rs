@@ -1,5 +1,13 @@
-{self}: final: prev: let
-  pkgs = prev;
+{
+  self,
+  nixpkgs,
+}: final: prev: let
+  # To make this usable with NixOS < 23.11,
+  # we fall back to nixpkgs from the flake inputs.
+  pkgs =
+    if builtins.hasAttr "tuxedo-rs" prev
+    then prev
+    else nixpkgs.legacyPackages.${final.system};
   lib = final.lib;
 
   tuxedo-rs = pkgs.tuxedo-rs.overrideAttrs (oa: {
