@@ -1297,7 +1297,7 @@ dependencies = [
 
 [[package]]
 name = "tailor"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "clap",
  "clap_complete",
@@ -1312,7 +1312,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_api"
-version = "0.2.1"
+version = "0.2.3"
 dependencies = [
  "atoi",
  "serde",
@@ -1331,7 +1331,7 @@ dependencies = [
 
 [[package]]
 name = "tailord"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "futures",
  "futures-lite",
@@ -1545,7 +1545,7 @@ dependencies = [
 
 [[package]]
 name = "tuxedo_ioctl"
-version = "0.2.0"
+version = "0.2.3"
 dependencies = [
  "nix",
  "sudo",
