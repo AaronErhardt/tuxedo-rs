@@ -24,15 +24,11 @@ impl FanProfile {
         // Make sure the temperature is increasing with each point.
         let is_sorted = inner
             .iter()
-            .fold(Some(-1), |prev_value, new_value| {
+            .try_fold(-1, |prev_value, new_value| {
                 let new_value = i16::from(new_value.temp);
-                if let Some(prev_value) = prev_value {
-                    // If the previous value is smaller than the next, return `None` -> not sorted
-                    if prev_value < new_value {
-                        Some(new_value)
-                    } else {
-                        None
-                    }
+                // If the previous value is smaller than the next, return `None` -> not sorted
+                if prev_value < new_value {
+                    Some(new_value)
                 } else {
                     None
                 }
