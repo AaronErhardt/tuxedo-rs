@@ -20,11 +20,11 @@ fn init_paths() {
         })
 }
 
-fn default_profile_exists(base_path: &str) -> bool {
-    Path::join(Path::new(base_path), DEFAULT_PROFILE_NAME).exists()
-}
-
 fn init_profiles() {
+    fn default_profile_exists(base_path: &str) -> bool {
+        Path::new(base_path).join(DEFAULT_PROFILE_NAME).exists()
+    }
+
     tracing::debug!("Initialising profiles.");
     if !default_profile_exists(KEYBOARD_DIR) {
         let profile = ColorProfile::default();
@@ -38,8 +38,9 @@ fn init_profiles() {
         let profile = ProfileInfo::default();
         util::write_json_sync(PROFILE_DIR, DEFAULT_PROFILE_NAME, &profile).ok();
     }
-    let default_profile = Path::join(Path::new(PROFILE_DIR), DEFAULT_PROFILE_NAME);
-    std::os::unix::fs::symlink(default_profile.as_path(), Path::new(ACTIVE_PROFILE_PATH)).ok();
+    let mut default_profile = Path::new(PROFILE_DIR).join(DEFAULT_PROFILE_NAME);
+    default_profile.set_extension(".json");
+    std::os::unix::fs::symlink(default_profile, ACTIVE_PROFILE_PATH).ok();
 }
 
 fn init_profiles_if_necessary() {
