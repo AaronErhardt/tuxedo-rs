@@ -38,8 +38,15 @@ fn init_profiles() {
         let profile = ProfileInfo::default();
         util::write_json_sync(PROFILE_DIR, DEFAULT_PROFILE_NAME, &profile).ok();
     }
+
+    // Delete broken symlink
+    if std::fs::remove_file(ACTIVE_PROFILE_PATH).is_ok() {
+        tracing::warn!("Broken symlink at {ACTIVE_PROFILE_PATH} was removed");
+    }
+
+    // Create new symlink
     let mut default_profile = Path::new(PROFILE_DIR).join(DEFAULT_PROFILE_NAME);
-    default_profile.set_extension(".json");
+    default_profile.set_extension("json");
     std::os::unix::fs::symlink(default_profile, ACTIVE_PROFILE_PATH).ok();
 }
 
