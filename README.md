@@ -40,7 +40,9 @@ Since I have limited access to hardware, please consider adding your device(s) t
 + TUXEDO Aura 15 Gen1 and Gen2
 + TUXEDO Pulse 15 Gen1
 + TUXEDO Polaris 17 Gen3
-- TUXEDO Book XP14 Gen12
++ TUXEDO Book XP14 Gen12
++ TUXEDO Infinity Book S 14 Gen 6
+
 
 ## Installation
 
