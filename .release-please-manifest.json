@@ -1,0 +1,9 @@
+{
+    "tuxedo_ioctl": "0.2.3",
+    "tuxedo_sysfs": "0.2.3",
+    "tailord": "0.2.3",
+    "tailor_api": "0.2.3",
+    "tailor_client": "0.2.3",
+    "tailor_cli": "0.2.3",
+    "tailor_gui": "0.2.3"
+}
