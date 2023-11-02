@@ -11,3 +11,12 @@ members = [
 exclude = [
     "tailor_gui",
 ]
+
+[workspace.package]
+name = "tuxedo-rs"
+version = "0.2.3"
+rust-version = "1.72.0"
+authors = ["Aaron Erhardt <aaron.erhardt@t-online.de>"]
+edition = "2021"
+license = "GPL-2.0+"
+repository = "https://github.com/AaronErhardt/tuxedo-rs"

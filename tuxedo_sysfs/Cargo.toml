@@ -1,11 +1,12 @@
 [package]
 name = "tuxedo_sysfs"
-authors = ["Aaron Erhardt <aaron.erhardt@t-online.de>"]
-version = "0.2.0"
-edition = "2021"
-license = "GPL-2.0+"
 description = "Tuxedo sysfs interface (part of tuxedo-rs)"
-repository = "https://github.com/AaronErhardt/tuxedo-rs"
+version = "0.2.3"
+rust-version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 futures = "0.3"

@@ -1,14 +1,16 @@
 [package]
 name = "tailor"
-version = "0.2.3"
+description = "Tailor CLI (part of tuxedo-rs)"
 authors = [
   "Aaron Erhardt <aaron.erhardt@t-online.de>",
   "Marc Jakobi <mrcjkb89@outlook.com>"
 ]
-edition = "2021"
 publish = false
-description = "Tailor CLI (part of tuxedo-rs)"
-repository = "https://github.com/AaronErhardt/tuxedo-rs"
+version = "0.2.3"
+rust-version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 tailor_api = {version = "0.2.1", path = "../tailor_api" }
