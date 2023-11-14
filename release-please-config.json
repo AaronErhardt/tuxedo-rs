@@ -21,6 +21,9 @@
     },
     "tailor_gui": {
         "release-type": "rust"
+    },
+    "tailor_hwcaps": {
+        "release-type": "rust"
     }
   }
 }

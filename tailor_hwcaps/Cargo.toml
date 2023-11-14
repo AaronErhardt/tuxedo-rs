@@ -1,0 +1,13 @@
+[package]
+name = "tailor_hwcaps"
+version = "0.2.0"
+edition = "2021"
+
+description = "A crate for checking the hardware capabilities on different devices"
+
+[dependencies]
+sudo = "0.6.0"
+tokio-uring = "0.4.0"
+
+tuxedo_ioctl = { path = "../tuxedo_ioctl" }
+tuxedo_sysfs = { path = "../tuxedo_sysfs" }
