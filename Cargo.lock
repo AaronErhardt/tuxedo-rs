@@ -1330,6 +1330,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tailor_hwcaps"
+version = "0.2.0"
+dependencies = [
+ "sudo",
+ "tokio-uring",
+ "tuxedo_ioctl",
+ "tuxedo_sysfs",
+]
+
+[[package]]
 name = "tailord"
 version = "0.2.3"
 dependencies = [
