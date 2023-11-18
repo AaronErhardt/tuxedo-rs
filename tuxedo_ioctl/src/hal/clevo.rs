@@ -75,7 +75,7 @@ impl HardwareDevice for ClevoHardware {
             if selected_fan == fan {
                 *fan_speed = (fan_speed_percent as f64 * 0xFF as f64 / 100.0).round() as u8;
             } else {
-                *fan_speed = self.read_fanspeed_raw(fan)?;
+                *fan_speed = self.read_fanspeed_raw(selected_fan)?;
             }
         }
 
