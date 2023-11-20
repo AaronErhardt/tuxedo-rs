@@ -39,8 +39,9 @@ Since I have limited access to hardware, please consider adding your device(s) t
 
 - TUXEDO Aura 15 Gen1 and Gen2
 - TUXEDO Pulse 15 Gen1
-- TUXEDO Polaris 17 Gen 1 AMD & Gen3
+- TUXEDO Polaris 17 Gen1 AMD & Gen3
 - TUXEDO Book XP14 Gen12
+- TUXEDO InfinityBook S 14 Gen6
 - TUXEDO InfinityBook S 15 Gen6
 
 To find out more about the features supported by your device, you can install the `tailor_hwcaps` CLI-tool:
