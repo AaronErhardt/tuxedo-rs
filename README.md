@@ -37,12 +37,18 @@ Also, tuxedo-rs is modular and contains several crates with different levels of 
 This list includes devices that were successfully tested with tuxedo-rs.
 Since I have limited access to hardware, please consider adding your device(s) to the list.
 
-+ TUXEDO Aura 15 Gen1 and Gen2
-+ TUXEDO Pulse 15 Gen1
-+ TUXEDO Polaris 17 Gen3
-+ TUXEDO Book XP14 Gen12
-+ TUXEDO Infinity Book S 14 Gen 6
+- TUXEDO Aura 15 Gen1 and Gen2
+- TUXEDO Pulse 15 Gen1
+- TUXEDO Polaris 17 Gen1 AMD & Gen3
+- TUXEDO Book XP14 Gen12
+- TUXEDO InfinityBook S 14 Gen6
+- TUXEDO InfinityBook S 15 Gen6
 
+To find out more about the features supported by your device, you can install the `tailor_hwcaps` CLI-tool:
+
+```sh
+cargo install tailor_hwcaps --git https://github.com/AaronErhardt/tuxedo-rs && tailor_hwcaps
+```
 
 ## Installation
 

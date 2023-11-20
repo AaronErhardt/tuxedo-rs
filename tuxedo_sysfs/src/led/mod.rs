@@ -1,6 +1,9 @@
 mod collection;
 mod controller;
 
+/// A collection of controllers for LED devices.
+/// Stores a [`Vec`] of [`Controller`] and initializes by
+/// detecting all available LED devices via sysfs.
 #[derive(Debug)]
 pub struct Collection {
     controllers: Vec<Controller>,

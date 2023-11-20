@@ -1,0 +1,29 @@
+{
+  "plugins": ["cargo-workspace"],
+  "packages": {
+    "tuxedo_ioctl": {
+        "release-type": "rust"
+    },
+    "tuxedo_sysfs": {
+        "release-type": "rust"
+    },
+    "tailord": {
+        "release-type": "rust"
+    },
+    "tailor_api": {
+        "release-type": "rust"
+    },
+    "tailor_client": {
+        "release-type": "rust"
+    },
+    "tailor_cli": {
+        "release-type": "rust"
+    },
+    "tailor_gui": {
+        "release-type": "rust"
+    },
+    "tailor_hwcaps": {
+        "release-type": "rust"
+    }
+  }
+}
