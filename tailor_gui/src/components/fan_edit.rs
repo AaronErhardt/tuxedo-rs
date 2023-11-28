@@ -5,9 +5,7 @@ use gtk::cairo::Operator;
 use gtk::gdk;
 use gtk::gdk::RGBA;
 use gtk::glib::{timeout_add_local_once, MainContext, SourceId};
-use gtk::prelude::{
-    BoxExt, ButtonExt, DrawingAreaExt, GestureDragExt, OrientableExt, StyleContextExt, WidgetExt,
-};
+use gtk::prelude::{BoxExt, ButtonExt, DrawingAreaExt, GestureDragExt, OrientableExt, WidgetExt};
 use relm4::drawing::DrawHandler;
 use relm4::{
     adw, component, gtk, Component, ComponentController, ComponentParts, ComponentSender,
@@ -20,23 +18,21 @@ use crate::state::{hardware_capabilities, tailor_connection, TailorStateMsg, STA
 use crate::templates;
 
 struct Colors {
-    fill: RGBA,
     stroke: RGBA,
     warn: RGBA,
 }
 
 impl Colors {
-    fn new(root: &adw::Window) -> Self {
-        let style_context = root.style_context();
-        let fill = style_context.lookup_color("theme_bg_color").unwrap();
+    fn new(_root: &adw::Window) -> Self {
+        let label = gtk::Label::new(None);
+        label.add_css_class("accent");
+        let stroke = label.color();
 
-        let stroke = style_context
-            .lookup_color("theme_selected_bg_color")
-            .unwrap();
+        let label = gtk::Label::new(None);
+        label.add_css_class("warning");
+        let warn = label.color();
 
-        let warn = style_context.lookup_color("warning_color").unwrap();
-
-        Self { fill, stroke, warn }
+        Self { stroke, warn }
     }
 }
 
@@ -64,6 +60,8 @@ pub enum FanEditInput {
     Cancel,
     #[doc(hidden)]
     Update,
+    #[doc(hidden)]
+    UpdateColors,
     #[doc(hidden)]
     Apply,
 }
@@ -209,10 +207,14 @@ impl Component for FanEdit {
         let fan_selection = model.preview_fan.widget();
         let widgets = view_output!();
 
+        adw::StyleManager::default().connect_color_scheme_notify(move |_| {
+            sender.input(FanEditInput::UpdateColors);
+        });
+
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, input: Self::Input, sender: ComponentSender<Self>, _root: &Self::Root) {
+    fn update(&mut self, input: Self::Input, sender: ComponentSender<Self>, root: &Self::Root) {
         match input {
             FanEditInput::Load(name) => {
                 self.profile_name = Some(name.clone());
@@ -252,6 +254,10 @@ impl Component for FanEdit {
                 self.visible = false;
             }
             FanEditInput::Update => {
+                self.update_drawn_points();
+            }
+            FanEditInput::UpdateColors => {
+                self.colors = Colors::new(root);
                 self.update_drawn_points();
             }
             FanEditInput::DragStart((x, y)) => {
@@ -405,25 +411,6 @@ impl FanEdit {
         ctx.fill().unwrap();
         ctx.set_operator(Operator::Over);
 
-        set_source_rgb(&ctx, &self.colors.fill);
-        ctx.new_path();
-        ctx.move_to(
-            self.drawn_points.first().map(|p| p.0).unwrap_or_default(),
-            height,
-        );
-
-        for (x, y) in &self.drawn_points {
-            ctx.line_to(*x, *y);
-        }
-        let path = ctx.copy_path().unwrap();
-
-        ctx.line_to(
-            self.drawn_points.last().map(|p| p.0).unwrap_or_default(),
-            height,
-        );
-        ctx.close_path();
-        ctx.fill().unwrap();
-
         if self.drag_into_danger_zone {
             let temp_range = self.temp_range();
 
@@ -442,9 +429,17 @@ impl FanEdit {
         }
 
         ctx.new_path();
-        ctx.append_path(&path);
         ctx.set_line_width(2.0);
         set_source_rgb(&ctx, &self.colors.stroke);
+
+        ctx.move_to(
+            self.drawn_points.first().map(|p| p.0).unwrap_or_default(),
+            height,
+        );
+
+        for (x, y) in &self.drawn_points {
+            ctx.line_to(*x, *y);
+        }
         ctx.stroke().unwrap();
 
         for (idx, (x, y)) in self.drawn_points.iter().enumerate() {
