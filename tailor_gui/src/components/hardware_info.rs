@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 use relm4::gtk::prelude::{GridExt, OrientableExt, WidgetExt};
 use relm4::gtk::traits::{ButtonExt, GtkWindowExt};
 use relm4::{gtk, ComponentParts, ComponentSender, RelmWidgetExt, SimpleComponent};
@@ -109,7 +111,10 @@ where
     I: Iterator<Item = S>,
     S: Into<String>,
 {
-    let value: String = iter.map(|string| format!("{}, ", string.into())).collect();
+    let value: String = iter.fold(String::new(), |mut out, string| {
+        write!(&mut out, ", {}", string.into()).unwrap();
+        out
+    });
     value.trim_end_matches(", ").to_owned()
 }
 
