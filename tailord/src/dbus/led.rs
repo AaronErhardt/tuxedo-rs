@@ -24,17 +24,17 @@ impl LedInterface {
         if info.leds.iter().any(|prof| prof.profile == name) {
             let info = Profile::load();
             for handle in &self.handles {
-                let profile = info
-                    .leds
-                    .iter()
-                    .find_map(|(info, profile)| {
-                        if info == &handle.info {
-                            Some(profile.clone())
-                        } else {
-                            None
-                        }
-                    })
-                    .unwrap_or_default();
+                let profile = match info.leds.iter().find_map(|(info, profile)| {
+                    if info == &handle.info {
+                        Some(profile.clone())
+                    } else {
+                        None
+                    }
+                }) {
+                    Some(color_profile) => color_profile,
+                    None => ColorProfile::default(handle.info.mode),
+                };
+
                 handle.profile_sender.send(profile).await.unwrap();
             }
         }

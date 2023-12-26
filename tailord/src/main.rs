@@ -11,6 +11,7 @@ use std::future::pending;
 
 use dbus::{FanInterface, PerformanceInterface, ProfileInterface};
 use profiles::Profile;
+use tailor_api::{ColorProfile, LedControllerMode};
 use tuxedo_ioctl::hal::IoInterface;
 use zbus::ConnectionBuilder;
 
@@ -19,6 +20,7 @@ use crate::{
     fancontrol::FanRuntime,
     led::{LedRuntime, LedRuntimeData},
     performance::PerformanceProfileRuntime,
+    profiles::SupportedFeatures,
 };
 
 const DBUS_NAME: &str = "com.tux.Tailor";
@@ -40,11 +42,24 @@ fn main() {
 
 #[tracing::instrument]
 async fn start_runtime() {
+    println!("start_runtime()");
     tracing::info!("Starting tailord");
 
     // Setup shutdown
     let mut shutdown_receiver = shutdown::setup();
 
+    let led_devices = tuxedo_sysfs::led::Collection::new()
+        .await
+        .map(|c| c.into_inner())
+        .unwrap_or_default();
+
+    let mut mode = LedControllerMode::Rgb;
+    for device in &led_devices {
+        if device.mode() == LedControllerMode::Monochrome {
+            mode = LedControllerMode::Monochrome;
+        }
+    }
+    Profile::init_if_necessary(SupportedFeatures { mode });
     let profile = Profile::load();
 
     let (device, _webcam, _tdp) = match IoInterface::new() {
@@ -81,27 +96,19 @@ async fn start_runtime() {
         }
     }
 
-    let led_devices = tuxedo_sysfs::led::Collection::new()
-        .await
-        .map(|c| c.into_inner())
-        .unwrap_or_default();
-
     let mut led_handles = Vec::new();
     let mut led_runtimes = Vec::new();
     for led_device in led_devices {
-        let profile = profile
-            .leds
-            .iter()
-            .find_map(|(info, profile)| {
-                if info.device_name == led_device.device_name
-                    && info.function == led_device.function
-                {
-                    Some(profile.clone())
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default();
+        let profile = match profile.leds.iter().find_map(|(info, profile)| {
+            if info.device_name == led_device.device_name && info.function == led_device.function {
+                Some(profile.clone())
+            } else {
+                None
+            }
+        }) {
+            Some(c) => c,
+            None => ColorProfile::default(led_device.mode()),
+        };
 
         let (handle, runtime) = LedRuntime::new(LedRuntimeData {
             controller: led_device,

@@ -1,3 +1,4 @@
+use crate::led::LedControllerMode;
 use atoi::FromRadix16;
 use std::{fmt::Display, io, str::FromStr};
 
@@ -22,25 +23,28 @@ pub enum ColorProfile {
     Multiple(Vec<ColorPoint>),
 }
 
-impl Default for ColorProfile {
-    fn default() -> Self {
-        Self::Multiple(vec![
-            ColorPoint {
-                color: Color { r: 255, g: 0, b: 0 },
-                transition: ColorTransition::Linear,
-                transition_time: 6000,
-            },
-            ColorPoint {
-                color: Color { r: 0, g: 255, b: 0 },
-                transition: ColorTransition::Linear,
-                transition_time: 6000,
-            },
-            ColorPoint {
-                color: Color { r: 0, g: 0, b: 255 },
-                transition: ColorTransition::Linear,
-                transition_time: 6000,
-            },
-        ])
+impl ColorProfile {
+    pub fn default(mode: LedControllerMode) -> Self {
+        match mode {
+            LedControllerMode::Monochrome => Self::None,
+            LedControllerMode::Rgb => Self::Multiple(vec![
+                ColorPoint {
+                    color: Color { r: 255, g: 0, b: 0 },
+                    transition: ColorTransition::Linear,
+                    transition_time: 6000,
+                },
+                ColorPoint {
+                    color: Color { r: 0, g: 255, b: 0 },
+                    transition: ColorTransition::Linear,
+                    transition_time: 6000,
+                },
+                ColorPoint {
+                    color: Color { r: 0, g: 0, b: 255 },
+                    transition: ColorTransition::Linear,
+                    transition_time: 6000,
+                },
+            ]),
+        }
     }
 }
 

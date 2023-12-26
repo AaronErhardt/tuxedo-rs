@@ -1,7 +1,15 @@
+#[derive(Debug, Copy, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum LedControllerMode {
+    Rgb,
+    Monochrome,
+}
+
 #[derive(Debug, Clone, Hash, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct LedDeviceInfo {
     pub device_name: String,
     pub function: String,
+    pub mode: LedControllerMode,
 }
 
 impl LedDeviceInfo {
@@ -9,6 +17,7 @@ impl LedDeviceInfo {
         let Self {
             device_name,
             function,
+            mode: _mode,
         } = self;
         format!("{device_name}::{function}")
     }

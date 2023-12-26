@@ -19,10 +19,3 @@ pub struct Controller {
     brightness_file: tokio_uring::fs::File,
     intensities_file: Option<tokio_uring::fs::File>,
 }
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[non_exhaustive]
-pub enum ControllerMode {
-    Rgb,
-    Monochrome,
-}

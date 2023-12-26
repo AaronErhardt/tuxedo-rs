@@ -1,3 +1,5 @@
+use crate::LedControllerMode;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ProfileInfo {
     pub fans: Vec<String>,
@@ -20,4 +22,5 @@ pub struct LedProfile {
     pub device_name: String,
     pub function: String,
     pub profile: String,
+    pub mode: LedControllerMode,
 }
