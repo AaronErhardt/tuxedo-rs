@@ -34,7 +34,8 @@ impl LedInterface {
                             None
                         }
                     })
-                    .unwrap_or_default();
+                    .unwrap_or_else(|| ColorProfile::default(handle.info.mode));
+
                 handle.profile_sender.send(profile).await.unwrap();
             }
         }

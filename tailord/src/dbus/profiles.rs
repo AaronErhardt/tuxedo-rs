@@ -1,4 +1,4 @@
-use tailor_api::{LedDeviceInfo, ProfileInfo};
+use tailor_api::{ColorProfile, LedDeviceInfo, ProfileInfo};
 use zbus::{dbus_interface, fdo};
 
 use crate::{
@@ -92,7 +92,10 @@ impl ProfileInterface {
         }
 
         for led_handle in &self.led_handles {
-            let profile = leds.get(&led_handle.info).cloned().unwrap_or_default();
+            let profile = match leds.get(&led_handle.info).cloned() {
+                Some(color_profile) => color_profile,
+                None => ColorProfile::default(led_handle.info.mode),
+            };
             led_handle
                 .profile_sender
                 .send(profile)

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, path::Component, path::Path};
 
 use crate::{fancontrol::profile::FanProfile, performance::PerformanceProfile};
-use tailor_api::{ColorProfile, LedDeviceInfo, LedProfile, ProfileInfo};
+use tailor_api::{ColorProfile, LedControllerMode, LedDeviceInfo, LedProfile, ProfileInfo};
 use zbus::fdo;
 
 use super::util;
@@ -20,14 +20,14 @@ fn init_paths() {
         })
 }
 
-fn init_profiles() {
+fn init_profiles(supported_features: SupportedFeatures) {
     fn default_profile_exists(base_path: &str) -> bool {
         Path::new(base_path).join(DEFAULT_PROFILE_NAME).exists()
     }
 
     tracing::debug!("Initialising profiles.");
     if !default_profile_exists(KEYBOARD_DIR) {
-        let profile = ColorProfile::default();
+        let profile = ColorProfile::default(supported_features.mode);
         util::write_json_sync(KEYBOARD_DIR, DEFAULT_PROFILE_NAME, &profile).ok();
     }
     if !default_profile_exists(FAN_DIR) {
@@ -50,9 +50,9 @@ fn init_profiles() {
     std::os::unix::fs::symlink(default_profile, ACTIVE_PROFILE_PATH).ok();
 }
 
-fn init_profiles_if_necessary() {
+fn init_profiles_if_necessary(supported_features: SupportedFeatures) {
     if !Path::new(ACTIVE_PROFILE_PATH).exists() {
-        init_profiles();
+        init_profiles(supported_features);
     }
 }
 
@@ -75,6 +75,11 @@ fn load_fan_profile(name: &str) -> fdo::Result<FanProfile> {
     FanProfile::load_config(fan_path(name)?)
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct SupportedFeatures {
+    pub mode: LedControllerMode,
+}
+
 #[derive(Debug)]
 pub struct Profile {
     pub fans: Vec<FanProfile>,
@@ -83,10 +88,12 @@ pub struct Profile {
 }
 
 impl Profile {
-    pub fn load() -> Self {
+    pub fn init_if_necessary(supported_features: SupportedFeatures) {
         init_paths();
-        init_profiles_if_necessary();
+        init_profiles_if_necessary(supported_features);
+    }
 
+    pub fn load() -> Self {
         let profile_info = Self::get_active_profile_info().unwrap_or_else(|err| {
             tracing::warn!("Failed to load active profile at `{ACTIVE_PROFILE_PATH}`: {err:?}");
             ProfileInfo::default()
@@ -99,10 +106,12 @@ impl Profile {
                 device_name,
                 function,
                 profile,
+                mode,
             } = data;
             let info = LedDeviceInfo {
                 device_name,
                 function,
+                mode,
             };
             let profile = match load_led_profile(&profile) {
                 Ok(keyboard) => keyboard,
@@ -112,7 +121,7 @@ impl Profile {
                         info.device_id(),
                         err.to_string(),
                     );
-                    ColorProfile::default()
+                    ColorProfile::default(mode)
                 }
             };
             led.insert(info, profile);

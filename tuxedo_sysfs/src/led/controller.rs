@@ -1,10 +1,11 @@
 use std::io;
 
 use tailor_api::Color;
+use tailor_api::LedControllerMode;
 
 use crate::sysfs_util::{read_int_list, write_string};
 
-use super::{Controller, ControllerMode};
+use super::Controller;
 
 impl Controller {
     pub async fn new_rgb(
@@ -91,11 +92,11 @@ impl Controller {
         &self.function
     }
 
-    pub fn mode(&self) -> ControllerMode {
+    pub fn mode(&self) -> LedControllerMode {
         if self.intensities_file.is_some() {
-            ControllerMode::Rgb
+            LedControllerMode::Rgb
         } else {
-            ControllerMode::Monochrome
+            LedControllerMode::Monochrome
         }
     }
 }
