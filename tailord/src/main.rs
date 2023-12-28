@@ -42,7 +42,6 @@ fn main() {
 
 #[tracing::instrument]
 async fn start_runtime() {
-    println!("start_runtime()");
     tracing::info!("Starting tailord");
 
     // Setup shutdown
