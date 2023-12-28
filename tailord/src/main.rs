@@ -98,16 +98,19 @@ async fn start_runtime() {
     let mut led_handles = Vec::new();
     let mut led_runtimes = Vec::new();
     for led_device in led_devices {
-        let profile = match profile.leds.iter().find_map(|(info, profile)| {
-            if info.device_name == led_device.device_name && info.function == led_device.function {
-                Some(profile.clone())
-            } else {
-                None
-            }
-        }) {
-            Some(c) => c,
-            None => ColorProfile::default(led_device.mode()),
-        };
+        let profile = profile
+            .leds
+            .iter()
+            .find_map(|(info, profile)| {
+                if info.device_name == led_device.device_name
+                    && info.function == led_device.function
+                {
+                    Some(profile.clone())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| ColorProfile::default(led_device.mode()));
 
         let (handle, runtime) = LedRuntime::new(LedRuntimeData {
             controller: led_device,
