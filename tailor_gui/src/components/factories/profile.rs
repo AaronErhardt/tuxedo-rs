@@ -147,6 +147,7 @@ impl FactoryComponent for Profile {
                     device_name: device.device_name.clone(),
                     function: device.function.clone(),
                     profile: "default".to_owned(),
+                    mode: device.mode.clone(),
                 })
             }
         }
@@ -159,6 +160,7 @@ impl FactoryComponent for Profile {
                 let device_info = LedDeviceInfo {
                     device_name: profile.device_name.clone(),
                     function: profile.function.clone(),
+                    mode: profile.mode.clone(),
                 };
                 let index = led_profiles
                     .iter()
