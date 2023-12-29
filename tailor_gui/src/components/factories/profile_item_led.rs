@@ -99,11 +99,13 @@ impl ProfileItemLed {
         let LedDeviceInfo {
             device_name,
             function,
+            mode,
         } = self.device_info.clone();
         LedProfile {
             device_name,
             function,
             profile,
+            mode,
         }
     }
 }
