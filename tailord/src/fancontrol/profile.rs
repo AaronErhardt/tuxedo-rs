@@ -66,12 +66,13 @@ impl FanProfile {
                 51..=255 => (value.temp - 50).saturating_mul(2).min(100),
             };
             if min_speed > value.fan {
+                let invalid_fan_value = value.fan;
                 value.fan = min_speed;
                 tracing::warn!(
-                "Fan speed {}% at {}°C is too low. Falling back to {min_speed}%: `{file_name:?}`",
-                value.fan,
-                value.temp
-            );
+                    "Fan speed {}% at {}°C is too low. Falling back to {min_speed}%: `{file_name:?}`",
+                    invalid_fan_value,
+                    value.temp
+                );
             }
         }
 
