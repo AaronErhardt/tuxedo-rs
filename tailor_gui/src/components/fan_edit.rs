@@ -81,23 +81,23 @@ impl Component for FanEdit {
 
             gtk::Box {
                 set_orientation: gtk::Orientation::Vertical,
-                // This must be moved in the next libadwaita release due to stylesheet changes
-                add_css_class: "response-area",
 
-                gtk::CenterBox {
-                    #[local_ref]
-                    #[wrap(Some)]
-                    set_start_widget = fan_selection -> gtk::ComboBoxText {
-                        set_margin_all: 6,
-                        set_tooltip: "Select the fan for instant feedback",
-                    },
+                gtk::WindowHandle {
+                    gtk::CenterBox {
+                        #[local_ref]
+                        #[wrap(Some)]
+                        set_start_widget = fan_selection -> gtk::ComboBoxText {
+                            set_margin_all: 6,
+                            set_tooltip: "Select a fan for instant feedback",
+                        },
 
-                    #[wrap(Some)]
-                    set_center_widget = &gtk::Label {
-                        add_css_class: "title-4",
-                        set_margin_all: 12,
-                        #[watch]
-                        set_label: &format!("Edit fan profile '{}'", model.profile_name.as_deref().unwrap_or_default()),
+                        #[wrap(Some)]
+                        set_center_widget = &gtk::Label {
+                            add_css_class: "title-4",
+                            set_margin_all: 12,
+                            #[watch]
+                            set_label: &format!("Edit fan profile '{}'", model.profile_name.as_deref().unwrap_or_default()),
+                        },
                     },
                 },
 
@@ -176,10 +176,10 @@ impl Component for FanEdit {
 
     fn init(
         _: Self::Init,
-        root: &Self::Root,
+        root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let colors = Colors::new(root);
+        let colors = Colors::new(&root);
 
         let preview_fan = SimpleComboBox::builder()
             .launch(SimpleComboBox {

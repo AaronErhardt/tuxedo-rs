@@ -58,7 +58,7 @@ impl Component for Profiles {
 
     fn init(
         _: Self::Init,
-        root: &Self::Root,
+        root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         STATE.subscribe(sender.input_sender(), move |state| {
@@ -72,7 +72,9 @@ impl Component for Profiles {
         });
 
         let profile_box = adw::PreferencesGroup::default();
-        let profiles = FactoryVecDeque::new(profile_box.clone(), sender.input_sender());
+        let profiles = FactoryVecDeque::builder()
+            .launch(profile_box.clone())
+            .forward(sender.input_sender(), |msg| msg);
 
         let model = Self {
             profiles,

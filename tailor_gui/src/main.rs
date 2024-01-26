@@ -48,7 +48,6 @@ fn main() {
 
     relm4_icons::initialize_icons();
 
-    let app = RelmApp::from_app(app);
-
+    let app = RelmApp::from_app(app).visible_on_activate(false);
     app.run::<App>(());
 }

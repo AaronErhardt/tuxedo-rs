@@ -27,7 +27,6 @@ where
     type Init = String;
     type Input = ();
     type Output = Msg;
-    type ParentInput = Msg;
     type ParentWidget = gtk::ListBox;
 
     view! {
@@ -48,7 +47,7 @@ where
 
                     connect_editing_notify[sender, index] => move |e| {
                         if !e.is_editing() {
-                            sender.output(Msg::rename(index.clone(), e.text().into()))
+                            sender.output(Msg::rename(index.clone(), e.text().into())).unwrap();
                         }
                     }
                 },
@@ -79,7 +78,7 @@ where
                         relm4::spawn_local(async move {
                             let response = dialog.choose_future().await;
                             if response == "remove" {
-                                sender.output(Msg::remove(index.clone()));
+                                sender.output(Msg::remove(index.clone())).unwrap();
                             }
                         });
                     }
@@ -92,10 +91,6 @@ where
         }
     }
 
-    fn forward_to_parent(output: Self::Output) -> Option<Msg> {
-        Some(output)
-    }
-
     fn init_model(name: Self::Init, _index: &DynamicIndex, _sender: FactorySender<Self>) -> Self {
         Self {
             name,
@@ -106,7 +101,7 @@ where
     fn init_widgets(
         &mut self,
         index: &DynamicIndex,
-        root: &Self::Root,
+        root: Self::Root,
         returned_widget: &gtk::ListBoxRow,
         sender: FactorySender<Self>,
     ) -> Self::Widgets {

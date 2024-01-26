@@ -6,7 +6,6 @@ use relm4_icons::icon_name;
 use tailor_api::{Color, ColorPoint};
 
 use crate::components::color_button::ColorButton;
-use crate::components::led_edit::LedEditInput;
 
 pub struct ColorRow {
     pub inner: ColorPoint,
@@ -32,7 +31,6 @@ impl FactoryComponent for ColorRow {
     type Init = ColorPoint;
     type Input = ColorInput;
     type Output = ColorOutput;
-    type ParentInput = LedEditInput;
     type ParentWidget = gtk::ListBox;
 
     view! {
@@ -72,33 +70,25 @@ impl FactoryComponent for ColorRow {
                     gtk::Button {
                         set_icon_name: icon_name::UP,
                         connect_clicked[sender, index] => move |_| {
-                            sender.output(ColorOutput::Up(index.clone()));
+                            sender.output(ColorOutput::Up(index.clone())).unwrap();
                         }
                     },
                     gtk::Button {
                         set_icon_name: icon_name::DOWN,
                         connect_clicked[sender, index] => move |_| {
-                            sender.output(ColorOutput::Down(index.clone()));
+                            sender.output(ColorOutput::Down(index.clone())).unwrap();
                         }
                     },
                     gtk::Button {
                         set_icon_name: icon_name::CROSS_FILLED,
                         add_css_class: "destructive-action",
                         connect_clicked[sender, index] => move |_| {
-                            sender.output(ColorOutput::Remove(index.clone()));
+                            sender.output(ColorOutput::Remove(index.clone())).unwrap();
                         }
                     }
                 }
             }
         }
-    }
-
-    fn forward_to_parent(output: Self::Output) -> Option<LedEditInput> {
-        Some(match output {
-            ColorOutput::Up(index) => LedEditInput::Up(index),
-            ColorOutput::Down(index) => LedEditInput::Down(index),
-            ColorOutput::Remove(index) => LedEditInput::Remove(index),
-        })
     }
 
     fn init_model(inner: Self::Init, _index: &DynamicIndex, sender: FactorySender<Self>) -> Self {
@@ -115,7 +105,7 @@ impl FactoryComponent for ColorRow {
     fn init_widgets(
         &mut self,
         index: &DynamicIndex,
-        root: &Self::Root,
+        root: Self::Root,
         _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
         sender: FactorySender<Self>,
     ) -> Self::Widgets {

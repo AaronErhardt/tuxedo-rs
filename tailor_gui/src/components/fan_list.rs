@@ -101,7 +101,7 @@ impl Component for FanList {
 
     fn init(
         _: Self::Init,
-        root: &Self::Root,
+        root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         STATE.subscribe_optional(sender.input_sender(), move |state| {
@@ -114,12 +114,11 @@ impl Component for FanList {
         });
 
         let profile_box = gtk::ListBox::default();
-        let profiles = FactoryVecDeque::new(profile_box.clone(), sender.input_sender());
+        let profiles = FactoryVecDeque::builder()
+            .launch(profile_box.clone())
+            .forward(sender.input_sender(), |msg| msg);
 
-        let fan_edit = FanEdit::builder()
-            .transient_for(&**root)
-            .launch(())
-            .detach();
+        let fan_edit = FanEdit::builder().transient_for(&*root).launch(()).detach();
 
         let model = Self {
             profiles,

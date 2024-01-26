@@ -48,7 +48,6 @@ impl FactoryComponent for Profile {
     type Init = ProfileInit;
     type Input = ProfileInput;
     type Output = ProfilesInput;
-    type ParentInput = ProfilesInput;
     type ParentWidget = adw::PreferencesGroup;
 
     view! {
@@ -71,7 +70,7 @@ impl FactoryComponent for Profile {
                     connect_toggled[sender, index] => move |btn| {
                         if btn.is_active() {
                             sender.input(ProfileInput::Enabled);
-                            sender.output(ProfilesInput::Enabled(index.clone()));
+                            sender.output(ProfilesInput::Enabled(index.clone())).unwrap();
                        }
                     },
                 },
@@ -89,7 +88,7 @@ impl FactoryComponent for Profile {
                     #[watch]
                     set_sensitive: !self.active,
                     connect_clicked[sender, index] => move |_| {
-                        sender.output(ProfilesInput::Remove(index.clone()));
+                        sender.output(ProfilesInput::Remove(index.clone())).unwrap();
                     }
                 }
             },
@@ -114,10 +113,6 @@ impl FactoryComponent for Profile {
                 }
             }
         }
-    }
-
-    fn forward_to_parent(output: Self::Output) -> Option<ProfilesInput> {
-        Some(output)
     }
 
     fn init_model(init: Self::Init, _index: &DynamicIndex, sender: FactorySender<Self>) -> Self {
@@ -147,20 +142,22 @@ impl FactoryComponent for Profile {
                     device_name: device.device_name.clone(),
                     function: device.function.clone(),
                     profile: "default".to_owned(),
-                    mode: device.mode.clone(),
+                    mode: device.mode,
                 })
             }
         }
         info.leds.extend(additional_led_profiles);
 
-        let mut leds = FactoryVecDeque::new(factory_widget.clone(), sender.input_sender());
+        let mut leds = FactoryVecDeque::builder()
+            .launch(factory_widget.clone())
+            .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile);
         {
             let mut guard = leds.guard();
             for profile in &info.leds {
                 let device_info = LedDeviceInfo {
                     device_name: profile.device_name.clone(),
                     function: profile.function.clone(),
-                    mode: profile.mode.clone(),
+                    mode: profile.mode,
                 };
                 let index = led_profiles
                     .iter()
@@ -174,7 +171,9 @@ impl FactoryComponent for Profile {
             }
         }
 
-        let mut fans = FactoryVecDeque::new(factory_widget, sender.input_sender());
+        let mut fans = FactoryVecDeque::builder()
+            .launch(factory_widget)
+            .forward(sender.input_sender(), |_| ProfileInput::UpdateProfile);
         {
             let mut guard = fans.guard();
             for (idx, profile) in info.fans.iter().enumerate() {

@@ -5,7 +5,6 @@ use relm4_components::simple_combo_box::SimpleComboBox;
 use relm4_icons::icon_name;
 use tailor_api::{LedDeviceInfo, LedProfile};
 
-use super::profile::ProfileInput;
 use crate::templates;
 
 #[derive(Debug)]
@@ -26,7 +25,6 @@ impl FactoryComponent for ProfileItemLed {
     type Init = ProfileItemLedInit;
     type Input = ();
     type Output = u8;
-    type ParentInput = ProfileInput;
     type ParentWidget = adw::ExpanderRow;
 
     view! {
@@ -72,17 +70,13 @@ impl FactoryComponent for ProfileItemLed {
     fn init_widgets(
         &mut self,
         _index: &Self::Index,
-        root: &Self::Root,
+        root: Self::Root,
         _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
         _sender: FactorySender<Self>,
     ) -> Self::Widgets {
         let led_box = self.combo_box.widget();
         let widgets = view_output!();
         widgets
-    }
-
-    fn forward_to_parent(_output: Self::Output) -> Option<Self::ParentInput> {
-        Some(ProfileInput::UpdateProfile)
     }
 }
 
