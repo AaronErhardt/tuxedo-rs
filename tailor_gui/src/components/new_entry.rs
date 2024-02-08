@@ -98,7 +98,7 @@ impl SimpleComponent for NewEntryDialog {
 
     fn init(
         init: Self::Init,
-        root: &Self::Root,
+        root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let NewEntryInit { info, profiles } = init;

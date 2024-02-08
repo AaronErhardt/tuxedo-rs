@@ -19,6 +19,10 @@
     "rust-analyzer.server.path": "${workspaceFolder}/.flatpak/rust-analyzer.sh",
     "rust-analyzer.runnables.command": "${workspaceFolder}/.flatpak/cargo.sh",
     "rust-analyzer.files.excludeDirs": [
-        ".flatpak"
+        ".flatpak",
+        ".flatpak-builder",
+        "_build",
+        "build",
+        "builddir"
     ]
 }

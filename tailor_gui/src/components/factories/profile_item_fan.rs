@@ -4,7 +4,6 @@ use relm4::{adw, gtk, Component, ComponentController, Controller, FactorySender}
 use relm4_components::simple_combo_box::SimpleComboBox;
 use relm4_icons::icon_name;
 
-use super::profile::ProfileInput;
 use crate::templates;
 
 #[derive(Debug)]
@@ -25,7 +24,6 @@ impl FactoryComponent for ProfileItemFan {
     type Init = ProfileItemFanInit;
     type Input = ();
     type Output = u8;
-    type ParentInput = ProfileInput;
     type ParentWidget = adw::ExpanderRow;
 
     view! {
@@ -68,17 +66,13 @@ impl FactoryComponent for ProfileItemFan {
     fn init_widgets(
         &mut self,
         _index: &Self::Index,
-        root: &Self::Root,
+        root: Self::Root,
         _returned_widget: &<Self::ParentWidget as FactoryView>::ReturnedWidget,
         _sender: FactorySender<Self>,
     ) -> Self::Widgets {
         let fan_box = self.combo_box.widget();
         let widgets = view_output!();
         widgets
-    }
-
-    fn forward_to_parent(_output: Self::Output) -> Option<Self::ParentInput> {
-        Some(ProfileInput::UpdateProfile)
     }
 }
 

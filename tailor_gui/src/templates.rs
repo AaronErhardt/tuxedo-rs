@@ -65,7 +65,7 @@ impl WidgetTemplate for DialogWindow {
             set_default_size: (600, 350),
             add_css_class: "messagedialog",
             set_modal: true,
-            connect_close_request => |_| gtk::Inhibit(true),
+            connect_close_request => |_| gtk::glib::Propagation::Stop,
         }
     }
 }

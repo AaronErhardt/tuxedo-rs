@@ -12,6 +12,7 @@ use tailor_api::{Color, ColorPoint, ColorProfile, ColorTransition};
 
 use super::color_button::{ColorButton, ColorButtonInput};
 use super::factories::color::ColorRow;
+use crate::components::factories::color::ColorOutput;
 use crate::state::{tailor_connection, TailorStateMsg, STATE};
 use crate::templates;
 
@@ -174,11 +175,17 @@ impl Component for LedEdit {
 
     fn init(
         _: Self::Init,
-        root: &Self::Root,
+        root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let color_points = gtk::ListBox::default();
-        let colors = FactoryVecDeque::new(color_points.clone(), sender.input_sender());
+        let colors = FactoryVecDeque::builder()
+            .launch(color_points.clone())
+            .forward(sender.input_sender(), |msg| match msg {
+                ColorOutput::Up(index) => LedEditInput::Up(index),
+                ColorOutput::Down(index) => LedEditInput::Down(index),
+                ColorOutput::Remove(index) => LedEditInput::Remove(index),
+            });
 
         let color_button = ColorButton::builder()
             .launch(Color {
