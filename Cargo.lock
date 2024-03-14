@@ -1492,7 +1492,7 @@ dependencies = [
 
 [[package]]
 name = "tailor"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "clap",
  "clap_complete",
@@ -1507,7 +1507,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_api"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "atoi",
  "serde",
@@ -1515,7 +1515,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_client"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "serde_json",
  "tailor_api",
@@ -1526,7 +1526,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_hwcaps"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "sudo",
  "tokio-uring",
@@ -1536,7 +1536,7 @@ dependencies = [
 
 [[package]]
 name = "tailord"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "futures",
  "futures-lite 1.13.0",
@@ -1761,7 +1761,7 @@ dependencies = [
 
 [[package]]
 name = "tuxedo_sysfs"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "futures",
  "sudo",
