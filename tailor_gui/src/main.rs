@@ -10,6 +10,7 @@ pub mod templates;
 pub mod util;
 
 use app::App;
+use clap::Parser;
 use gtk::prelude::ApplicationExt;
 use relm4::actions::{AccelsPlus, RelmAction, RelmActionGroup};
 use relm4::{gtk, main_application, RelmApp};
@@ -20,7 +21,17 @@ use crate::config::APP_ID;
 relm4::new_action_group!(AppActionGroup, "app");
 relm4::new_stateless_action!(QuitAction, AppActionGroup, "quit");
 
+/// Tailord GUI (part of tuxedo-rs)
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct CliArgs {}
+
 fn main() {
+    let _ = CliArgs::parse();
+    run_app()
+}
+
+fn run_app() {
     // Enable logging
     tracing_subscriber::fmt()
         .with_span_events(tracing_subscriber::fmt::format::FmtSpan::FULL)
