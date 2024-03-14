@@ -4,7 +4,7 @@ use once_cell::unsync::Lazy;
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryVecDeque};
 use relm4::{adw, factory, gtk, Component, ComponentController, Controller};
 use relm4_components::simple_combo_box::SimpleComboBox;
-use relm4_icons::icon_name;
+use relm4_icons::icon_names;
 use tailor_api::{LedDeviceInfo, LedProfile, ProfileInfo};
 
 use super::profile_item_fan::{ProfileItemFan, ProfileItemFanInit};
@@ -82,7 +82,7 @@ impl FactoryComponent for Profile {
 
                 #[name = "delete_button"]
                 gtk::Button {
-                    set_icon_name: icon_name::CROSS_FILLED,
+                    set_icon_name: icon_names::CROSS_FILLED,
                     add_css_class: "destructive-action",
                     set_visible: false,
                     #[watch]
@@ -99,7 +99,7 @@ impl FactoryComponent for Profile {
 
                 #[template_child]
                 image -> gtk::Image {
-                    set_icon_name: Some(icon_name::SPEEDOMETER),
+                    set_icon_name: Some(icon_names::SPEEDOMETER),
                 },
 
                 #[template_child]

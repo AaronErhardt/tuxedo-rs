@@ -10,7 +10,7 @@ use relm4::{
     adw, gtk, main_application, Component, ComponentController, ComponentParts, ComponentSender,
     Controller,
 };
-use relm4_icons::icon_name;
+use relm4_icons::icon_names;
 use tailor_api::ProfileInfo;
 
 use crate::components::fan_list::FanList;
@@ -131,7 +131,7 @@ impl Component for App {
                         },
 
                         pack_end = &gtk::MenuButton {
-                            set_icon_name: icon_name::MENU_LARGE,
+                            set_icon_name: icon_names::MENU_LARGE,
                             set_menu_model: Some(&primary_menu),
                         }
                     },
@@ -150,15 +150,15 @@ impl Component for App {
 
                                     #[local_ref]
                                     add_titled[Some("profiles"), "Profiles"] = profile_widget -> gtk::ScrolledWindow {} -> {
-                                        set_icon_name: Some(icon_name::SETTINGS),
+                                        set_icon_name: Some(icon_names::SETTINGS),
                                     },
                                     #[local_ref]
                                     add_titled[Some("led"), "LED"] = led_list_widget -> gtk::ScrolledWindow {} -> {
-                                        set_icon_name: Some(icon_name::COLOR),
+                                        set_icon_name: Some(icon_names::COLOR),
                                     },
                                     #[local_ref]
                                     add_titled[Some("fan"), "Fan control"] = fan_list -> gtk::ScrolledWindow {} -> {
-                                        set_icon_name: Some(icon_name::DATA_BAR_VERTICAL_ASCENDING_FILLED),
+                                        set_icon_name: Some(icon_names::DATA_BAR_VERTICAL_ASCENDING_FILLED),
                                     },
                                 },
                                 #[name = "view_bar"]

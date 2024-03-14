@@ -1,5 +1,4 @@
-use gtk::prelude::{ButtonExt, OrientableExt, WidgetExt};
-use relm4::gtk::traits::{GtkWindowExt, ListBoxRowExt};
+use gtk::prelude::{ButtonExt, GtkWindowExt, ListBoxRowExt, OrientableExt, WidgetExt};
 use relm4::{adw, gtk, RelmWidgetExt, WidgetTemplate};
 
 #[relm4::widget_template(pub)]

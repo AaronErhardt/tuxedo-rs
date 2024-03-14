@@ -1,7 +1,6 @@
 use std::fmt::Write;
 
-use relm4::gtk::prelude::{GridExt, OrientableExt, WidgetExt};
-use relm4::gtk::traits::{ButtonExt, GtkWindowExt};
+use relm4::gtk::prelude::{ButtonExt, GridExt, GtkWindowExt, OrientableExt, WidgetExt};
 use relm4::{gtk, ComponentParts, ComponentSender, RelmWidgetExt, SimpleComponent};
 
 use crate::state::hardware_capabilities;

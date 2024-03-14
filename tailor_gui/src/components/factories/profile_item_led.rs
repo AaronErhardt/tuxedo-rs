@@ -2,7 +2,7 @@ use relm4::factory::FactoryView;
 use relm4::prelude::{DynamicIndex, FactoryComponent};
 use relm4::{adw, gtk, Component, ComponentController, Controller, FactorySender};
 use relm4_components::simple_combo_box::SimpleComboBox;
-use relm4_icons::icon_name;
+use relm4_icons::icon_names;
 use tailor_api::{LedDeviceInfo, LedProfile};
 
 use crate::templates;
@@ -33,7 +33,7 @@ impl FactoryComponent for ProfileItemLed {
         templates::ProfileListItem {
             #[template_child]
             image -> gtk::Image {
-                set_icon_name: Some(icon_name::COLOR),
+                set_icon_name: Some(icon_names::COLOR),
             },
 
             #[template_child]

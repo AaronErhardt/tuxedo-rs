@@ -1,8 +1,8 @@
 use gtk::prelude::{OrientableExt, WidgetExt};
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender, FactoryView};
-use relm4::gtk::traits::{BoxExt, ButtonExt};
+use relm4::gtk::prelude::{BoxExt, ButtonExt};
 use relm4::{factory, gtk, Component, ComponentController, Controller};
-use relm4_icons::icon_name;
+use relm4_icons::icon_names;
 use tailor_api::{Color, ColorPoint};
 
 use crate::components::color_button::ColorButton;
@@ -68,19 +68,19 @@ impl FactoryComponent for ColorRow {
                     set_spacing: 6,
 
                     gtk::Button {
-                        set_icon_name: icon_name::UP,
+                        set_icon_name: icon_names::UP,
                         connect_clicked[sender, index] => move |_| {
                             sender.output(ColorOutput::Up(index.clone())).unwrap();
                         }
                     },
                     gtk::Button {
-                        set_icon_name: icon_name::DOWN,
+                        set_icon_name: icon_names::DOWN,
                         connect_clicked[sender, index] => move |_| {
                             sender.output(ColorOutput::Down(index.clone())).unwrap();
                         }
                     },
                     gtk::Button {
-                        set_icon_name: icon_name::CROSS_FILLED,
+                        set_icon_name: icon_names::CROSS_FILLED,
                         add_css_class: "destructive-action",
                         connect_clicked[sender, index] => move |_| {
                             sender.output(ColorOutput::Remove(index.clone())).unwrap();

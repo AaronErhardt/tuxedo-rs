@@ -1,0 +1,2 @@
+base_resource_path = "/com/github/aaronerhardt/Tailor/"
+icons = ["plus", "settings", "speedometer", "menu-large", "up", "down", "color", "cross-filled", "data-bar-vertical-ascending-filled"]
