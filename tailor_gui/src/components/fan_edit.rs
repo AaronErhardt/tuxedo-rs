@@ -6,7 +6,7 @@ use gtk::gdk;
 use gtk::gdk::RGBA;
 use gtk::glib::{timeout_add_local_once, MainContext, SourceId};
 use gtk::prelude::{BoxExt, ButtonExt, DrawingAreaExt, GestureDragExt, OrientableExt, WidgetExt};
-use relm4::drawing::DrawHandler;
+use relm4::abstractions::DrawHandler;
 use relm4::{
     adw, component, gtk, Component, ComponentController, ComponentParts, ComponentSender,
     Controller, RelmWidgetExt,

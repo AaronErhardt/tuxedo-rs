@@ -6,7 +6,7 @@ use relm4::{
     adw, component, gtk, Component, ComponentController, ComponentParts, ComponentSender,
     Controller,
 };
-use relm4_icons::icon_name;
+use relm4_icons::icon_names;
 
 use super::factories::list_item::{ListItem, ListMsg};
 use super::fan_edit::{FanEdit, FanEditInput};
@@ -78,7 +78,7 @@ impl Component for FanList {
                                 set_hexpand: true,
                             },
                             gtk::Button {
-                                set_icon_name: icon_name::PLUS,
+                                set_icon_name: icon_names::PLUS,
                                 connect_clicked => FanListInput::Add,
                             }
                         },

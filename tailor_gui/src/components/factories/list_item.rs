@@ -5,7 +5,7 @@ use gtk::glib;
 use gtk::prelude::{BoxExt, ButtonExt, EditableExt, ObjectExt, OrientableExt, WidgetExt};
 use relm4::factory::{DynamicIndex, FactoryComponent, FactorySender};
 use relm4::{adw, factory, gtk, RelmWidgetExt};
-use relm4_icons::icon_name;
+use relm4_icons::icon_names;
 
 pub trait ListMsg {
     fn ty() -> &'static str;
@@ -59,7 +59,7 @@ where
                 set_valign: gtk::Align::Center,
 
                 gtk::Button {
-                    set_icon_name: icon_name::CROSS_FILLED,
+                    set_icon_name: icon_names::CROSS_FILLED,
                     connect_clicked[sender, index, name = self.name.clone()] => move |btn| {
                         let window = btn.toplevel_window().unwrap();
                         let dialog = adw::MessageDialog::builder()

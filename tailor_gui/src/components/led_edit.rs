@@ -1,13 +1,13 @@
 use gtk::prelude::{ButtonExt, WidgetExt};
 use relm4::factory::FactoryVecDeque;
-use relm4::gtk::traits::OrientableExt;
+use relm4::gtk::prelude::OrientableExt;
 use relm4::prelude::DynamicIndex;
 use relm4::{
     adw, component, gtk, Component, ComponentController, ComponentParts, ComponentSender,
     Controller, RelmWidgetExt,
 };
 use relm4_components::simple_combo_box::{SimpleComboBox, SimpleComboBoxMsg};
-use relm4_icons::icon_name;
+use relm4_icons::icon_names;
 use tailor_api::{Color, ColorPoint, ColorProfile, ColorTransition};
 
 use super::color_button::{ColorButton, ColorButtonInput};
@@ -132,7 +132,7 @@ impl Component for LedEdit {
                                             set_hexpand: true,
                                         },
                                         gtk::Button {
-                                            set_icon_name: icon_name::PLUS,
+                                            set_icon_name: icon_names::PLUS,
                                             set_halign: gtk::Align::End,
                                             connect_clicked => LedEditInput::Add,
                                         }

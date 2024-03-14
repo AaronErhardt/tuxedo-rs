@@ -4,7 +4,7 @@ use gtk::prelude::ButtonExt;
 use relm4::factory::FactoryVecDeque;
 use relm4::prelude::DynamicIndex;
 use relm4::{adw, component, gtk, Component, ComponentParts, ComponentSender, WidgetRef};
-use relm4_icons::icon_name;
+use relm4_icons::icon_names;
 
 use super::factories::profile::{Profile, ProfileInit};
 use super::new_entry::{NewEntryDialog, NewEntryInit, NewEntryOutput};
@@ -48,7 +48,7 @@ impl Component for Profiles {
                     set_title: "Profiles",
                     #[wrap(Some)]
                     set_header_suffix = &gtk::Button {
-                        set_icon_name: icon_name::PLUS,
+                        set_icon_name: icon_names::PLUS,
                         connect_clicked => ProfilesInput::Add,
                     }
                 },
