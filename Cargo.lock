@@ -1504,7 +1504,7 @@ dependencies = [
 
 [[package]]
 name = "tailor"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "clap",
  "clap_complete",
@@ -1527,7 +1527,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_client"
-version = "0.2.5"
+version = "0.2.6"
 dependencies = [
  "serde_json",
  "tailor_api",
@@ -1538,7 +1538,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_hwcaps"
-version = "0.2.5"
+version = "0.2.6"
 dependencies = [
  "sudo",
  "tokio-uring",
