@@ -13,8 +13,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-tailor_api = {version = "0.2.4", path = "../tailor_api" }
-tailor_client = {version = "0.2.4", path = "../tailor_client" }
+tailor_api = {version = "0.2.5", path = "../tailor_api" }
+tailor_client = {version = "0.2.5", path = "../tailor_client" }
 clap = { version = "4.2.4", features = ["derive"] }
 tokio = { version = "1.27", features = ["rt-multi-thread", "macros"] }
 colored = "2.0.0"

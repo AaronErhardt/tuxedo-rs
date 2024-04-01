@@ -1932,7 +1932,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_api"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "atoi",
  "serde",
@@ -1940,7 +1940,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_client"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "serde_json",
  "tailor_api",
@@ -1950,7 +1950,7 @@ dependencies = [
 
 [[package]]
 name = "tailor_gui"
-version = "0.2.3"
+version = "0.2.5"
 dependencies = [
  "clap",
  "futures",
