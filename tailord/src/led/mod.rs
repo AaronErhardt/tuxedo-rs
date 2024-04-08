@@ -32,7 +32,7 @@ impl LedRuntime {
                 info: LedDeviceInfo {
                     device_name: data.controller.device_name.clone(),
                     function: data.controller.function.clone(),
-                    mode: data.controller.mode().clone(),
+                    mode: data.controller.mode(),
                 },
                 profile_sender,
                 color_sender,

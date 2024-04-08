@@ -1,5 +1,4 @@
 use serde::{de::DeserializeOwned, Serialize};
-use std::ffi::OsString;
 use zbus::fdo;
 
 pub fn normalize_json_path(base_path: &str, name: &str) -> fdo::Result<String> {
@@ -11,10 +10,6 @@ pub fn normalize_json_path(base_path: &str, name: &str) -> fdo::Result<String> {
     } else if name.contains('.') {
         Err(fdo::Error::InvalidArgs(format!(
             "Can't use '.' in profile names: `{name}`"
-        )))
-    } else if let Err(err) = OsString::try_from(name) {
-        Err(fdo::Error::InvalidArgs(format!(
-            "Can't convert `{name}` to OS string: `{err}`"
         )))
     } else if base_path.is_empty() {
         Ok(format!("{name}.json"))

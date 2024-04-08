@@ -22,5 +22,6 @@ pub struct LedProfile {
     pub device_name: String,
     pub function: String,
     pub profile: String,
+    #[serde(default)]
     pub mode: LedControllerMode,
 }

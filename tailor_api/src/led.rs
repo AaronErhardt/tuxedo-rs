@@ -1,6 +1,9 @@
-#[derive(Debug, Copy, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq, Hash)]
+#[derive(
+    Default, Debug, Copy, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq, Hash,
+)]
 #[non_exhaustive]
 pub enum LedControllerMode {
+    #[default]
     Rgb,
     Monochrome,
 }
