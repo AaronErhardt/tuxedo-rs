@@ -414,12 +414,12 @@ impl FanEdit {
         if self.drag_into_danger_zone {
             let temp_range = self.temp_range();
 
-            let x = Self::temp_to_x(50.0, temp_range, width);
+            let x = Self::temp_to_x(75.0, temp_range, width);
             let y = Self::fan_to_y(0.0, height);
             ctx.move_to(x, y);
 
             let last_temp = self.profile.last().map(|p| p.temp).unwrap_or_default();
-            let last_fan = last_temp.saturating_sub(50) * 2;
+            let last_fan = last_temp.saturating_sub(75).saturating_mul(5);
             let x = Self::temp_to_x(last_temp as f64, temp_range, width);
             let y = Self::fan_to_y(last_fan as f64, height);
             ctx.line_to(x, y);
@@ -520,7 +520,7 @@ impl FanEdit {
                 }
             }
 
-            let safety_fan_speed = temp.saturating_sub(50) * 2;
+            let safety_fan_speed = temp.saturating_sub(75).saturating_mul(5);
             if fan < safety_fan_speed {
                 self.drag_into_danger_zone = true;
                 fan = safety_fan_speed;
