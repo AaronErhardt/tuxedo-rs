@@ -58,13 +58,11 @@ impl FanProfile {
         }
 
         // Make sure some minimum fan speed is kept:
-        // From 50°C the fan speed should ramp up to
-        // 100% at 100°C.
+        // From 75°C the fan speed should ramp up to
+        // 100% at 95°C.
         for value in &mut inner {
-            let min_speed = match value.temp {
-                0..=50 => 0,
-                51..=255 => (value.temp - 50).saturating_mul(2).min(100),
-            };
+            let min_speed = value.temp.saturating_sub(75).saturating_mul(5).min(100);
+
             if min_speed > value.fan {
                 let invalid_fan_value = value.fan;
                 value.fan = min_speed;
