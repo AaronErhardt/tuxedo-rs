@@ -20,6 +20,7 @@
 
   tailor-gui = pkgs.tailor-gui.overrideAttrs (oa: {
     src = self;
+    sourceRoot = "source/tailor_gui";
     version = ((lib.importTOML "${self}/tailor_gui/Cargo.toml").package).version;
     cargoDeps = pkgs.rustPlatform.importCargoLock {
       lockFile = self + "/tailor_gui/Cargo.lock";
