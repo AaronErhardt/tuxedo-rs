@@ -36,6 +36,14 @@ pub(crate) async fn read_to_string(file: &mut fs::File) -> Result<String, io::Er
     String::from_utf8(buffer).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))
 }
 
+pub(crate) async fn read_path_to_int_list<P>(path: P) -> Result<Vec<u32>, io::Error>
+where
+    P: AsRef<Path>,
+{
+    let mut file = r_file(path).await?;
+    read_int_list(&mut file).await
+}
+
 pub(crate) async fn read_int_list(file: &mut fs::File) -> Result<Vec<u32>, io::Error> {
     let content = read_to_string(file).await?;
 
@@ -53,6 +61,22 @@ pub(crate) async fn read_int_list(file: &mut fs::File) -> Result<Vec<u32>, io::E
     } else {
         Ok(output)
     }
+}
+
+pub(crate) async fn read_path_to_string_list<P>(path: P) -> Result<Vec<String>, io::Error>
+where
+    P: AsRef<Path>,
+{
+    let mut file = r_file(path).await?;
+    read_to_string_list(&mut file).await
+}
+
+pub(crate) async fn read_to_string_list(file: &mut fs::File) -> Result<Vec<String>, io::Error> {
+    let output = read_to_string(file).await?;
+    Ok(output
+        .split(' ')
+        .map(|s| s.trim().to_owned())
+        .collect::<Vec<String>>())
 }
 
 async fn write_buffer<V>(file: &mut fs::File, value: V) -> Result<(), io::Error>
