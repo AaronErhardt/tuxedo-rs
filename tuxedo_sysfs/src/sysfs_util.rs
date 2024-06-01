@@ -63,14 +63,6 @@ pub(crate) async fn read_int_list(file: &mut fs::File) -> Result<Vec<u32>, io::E
     }
 }
 
-pub(crate) async fn read_path_to_string_list<P>(path: P) -> Result<Vec<String>, io::Error>
-where
-    P: AsRef<Path>,
-{
-    let mut file = r_file(path).await?;
-    read_to_string_list(&mut file).await
-}
-
 pub(crate) async fn read_to_string_list(file: &mut fs::File) -> Result<Vec<String>, io::Error> {
     let output = read_to_string(file).await?;
     Ok(output

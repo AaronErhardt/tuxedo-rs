@@ -1,23 +1,25 @@
 mod charge_control;
+mod charging_priority;
 mod charging_profile;
-
-// TODO: split ChargingProfile into Profile + Priority?
-// this would make the double Option<> thing for available + file less awkward to work with...
-// + it would make the get/set (especially set) charging_prio less awkward
 
 /// A type that manages all sysfs files related to
 /// charging profile options provided by the tuxedo_keyboard driver.
 ///
 /// The charging profile imposes a firmware-enforced limit on the maximum charge of the
 /// battery.
-//
-// The charging priority allows prioritizing charging speed or system performance when charging via
-// USB-C.
 pub struct ChargingProfile {
     pub available_charging_profiles: Vec<String>,
     charging_profile_file: tokio_uring::fs::File,
-    pub available_charging_priorities: Option<Vec<String>>,
-    charging_priority_file: Option<tokio_uring::fs::File>,
+}
+
+/// A type that manages all sysfs files related to
+/// charging priority options provided by the tuxedo_keyboard driver.
+///
+/// The charging priority determines whether charging speed or
+/// performance is prioritized when charging over USB-C.
+pub struct ChargingPriority {
+    pub available_charging_priorities: Vec<String>,
+    charging_priority_file: tokio_uring::fs::File,
 }
 
 /// A type that manages all sysfs files related to charging start/end thresholds.

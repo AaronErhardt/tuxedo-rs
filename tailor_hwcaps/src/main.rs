@@ -108,24 +108,36 @@ async fn sysfs() {
         print_value("LED device color", &controller.get_color().await);
     }
 
-    let mut charging_profile = tuxedo_sysfs::charging::ChargingProfile::new()
+    let charging_profile = tuxedo_sysfs::charging::ChargingProfile::new()
         .await
         .unwrap();
-    print_value(
-        "Available charging profiles",
-        &charging_profile.available_charging_profiles,
-    );
-    print_value(
-        "Current charging profile",
-        &charging_profile.get_charging_profile().await.unwrap(),
-    );
-    if let Some(priorities) = &charging_profile.available_charging_priorities {
-        print_value("Available charging priorities", priorities);
+    if let Some(mut charging_profile) = charging_profile {
+        print_value(
+            "Available charging profiles",
+            &charging_profile.available_charging_profiles,
+        );
+        print_value(
+            "Current charging profile",
+            &charging_profile.get_charging_profile().await.unwrap(),
+        );
+    } else {
+        print_info("Charging profile control is not available");
+    }
+
+    let charging_priority = tuxedo_sysfs::charging::ChargingPriority::new()
+        .await
+        .unwrap();
+    if let Some(mut charging_priority) = charging_priority {
+        print_value(
+            "Available charging priorities",
+            &charging_priority.available_charging_priorities,
+        );
+        print_value(
+            "Current charging priority",
+            &charging_priority.get_charging_priority().await.unwrap(),
+        );
     } else {
         print_info("Charging priority control is not available");
-    }
-    if let Some(priority) = charging_profile.get_charging_priority().await.unwrap() {
-        print_value("Current charging priority", &priority);
     }
 
     let first_battery = tuxedo_sysfs::charging::BatteryChargeControl::new_first_battery()
