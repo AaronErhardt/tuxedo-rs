@@ -20,7 +20,7 @@ tokio-uring = "0.4"
 tokio = { version = "1", features = ["time", "fs", "sync", "macros"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-zbus = { version = "3", default-features = false, features = ["tokio"] }
+zbus = { version = "4", default-features = false, features = ["tokio"] }
 
 tailor_api = { path = "../tailor_api" }
 tuxedo_ioctl = { path = "../tuxedo_ioctl" }
