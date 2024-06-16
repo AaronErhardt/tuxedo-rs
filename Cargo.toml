@@ -15,7 +15,6 @@ exclude = [
 ]
 
 [workspace.package]
-name = "tuxedo-rs"
 version = "0.2.5"
 rust-version = "1.72.0"
 authors = ["Aaron Erhardt <aaron.erhardt@t-online.de>"]

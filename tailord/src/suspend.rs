@@ -1,7 +1,7 @@
 use futures_lite::StreamExt;
 use once_cell::sync::Lazy;
 use tokio::sync::broadcast;
-use zbus::{dbus_proxy, Connection};
+use zbus::{proxy, Connection};
 
 use std::{future::pending, time::Duration};
 
@@ -12,13 +12,13 @@ pub fn get_suspend_receiver() -> broadcast::Receiver<bool> {
     SUSPEND_CHANNEL.0.subscribe()
 }
 
-#[dbus_proxy(
+#[proxy(
     interface = "org.freedesktop.login1.Manager",
     default_service = "org.freedesktop.login1",
     default_path = "/org/freedesktop/login1"
 )]
 trait Suspend {
-    #[dbus_proxy(signal)]
+    #[zbus(signal)]
     fn prepare_for_sleep(&self, arg1: bool) -> fdo::Result<()>;
 }
 
