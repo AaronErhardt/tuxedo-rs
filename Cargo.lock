@@ -1017,7 +1017,6 @@ dependencies = [
  "cfg-if",
  "libc",
  "memoffset 0.7.1",
- "pin-utils",
 ]
 
 [[package]]
@@ -1842,7 +1841,7 @@ dependencies = [
 name = "tuxedo_ioctl"
 version = "0.2.5"
 dependencies = [
- "nix 0.26.4",
+ "nix 0.28.0",
  "sudo",
  "thiserror",
  "tracing",
