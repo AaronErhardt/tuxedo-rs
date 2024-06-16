@@ -35,6 +35,8 @@ service = configure_file(
 dbus_config_dir = '/usr/share/dbus-1/system.d'
 install_data('com.tux.Tailor.conf', install_dir: dbus_config_dir)
 
-meson.add_install_script('post_install.sh', systemd_system_unit_dir, bindir, dbus_config_dir)
+if get_option('SEL_workaround') == true
+    meson.add_install_script('post_install.sh', systemd_system_unit_dir, bindir, dbus_config_dir)
+endif
 
 subdir('src')

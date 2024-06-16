@@ -8,3 +8,10 @@ option(
   value: 'default',
   description: 'The build profile for tailord. Either "default" for release mode or "development" for debug mode.'
 )
+
+option(
+  'SEL_workaround',
+  type: 'boolean',
+  value: 'false',
+  description: 'A workaround for installing tailord locally with SELinux enabled'
+)
