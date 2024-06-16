@@ -1,6 +1,6 @@
-use zbus::{dbus_proxy, fdo};
+use zbus::{fdo, proxy};
 
-#[dbus_proxy(
+#[proxy(
     interface = "com.tux.Tailor.Profiles",
     default_service = "com.tux.Tailor",
     default_path = "/com/tux/Tailor"

@@ -1,4 +1,4 @@
-use zbus::{dbus_interface, fdo};
+use zbus::{fdo, interface};
 
 use crate::performance::PerformanceProfileRuntimeHandle;
 
@@ -20,7 +20,7 @@ impl PerformanceInterface {
     }
 }
 
-#[dbus_interface(name = "com.tux.Tailor.Performance")]
+#[interface(name = "com.tux.Tailor.Performance")]
 impl PerformanceInterface {
     /// Temporarily override the performance profile. Please note that this will not survive a
     /// restart as the performance profile is handled by the overall profile configuration.

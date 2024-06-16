@@ -1,5 +1,5 @@
 use tailor_api::{FanProfilePoint, ProfileInfo};
-use zbus::{dbus_interface, fdo};
+use zbus::{fdo, interface};
 
 use crate::{
     fancontrol::FanRuntimeHandle,
@@ -11,7 +11,7 @@ pub struct FanInterface {
     pub handles: Vec<FanRuntimeHandle>,
 }
 
-#[dbus_interface(name = "com.tux.Tailor.Fan")]
+#[interface(name = "com.tux.Tailor.Fan")]
 impl FanInterface {
     async fn add_profile(&self, name: &str, value: &str) -> fdo::Result<()> {
         // Verify correctness of the file.
@@ -65,7 +65,7 @@ impl FanInterface {
 
                 for fan in &mut data.fans {
                     if fan == from {
-                        *fan = to.to_owned();
+                        to.clone_into(fan);
                         changed = true;
                     }
                 }

@@ -1,5 +1,5 @@
 use tailor_api::{Color, ColorProfile, ProfileInfo};
-use zbus::{dbus_interface, fdo};
+use zbus::{fdo, interface};
 
 use crate::{
     led::LedRuntimeHandle,
@@ -11,7 +11,7 @@ pub struct LedInterface {
     pub handles: Vec<LedRuntimeHandle>,
 }
 
-#[dbus_interface(name = "com.tux.Tailor.Led")]
+#[interface(name = "com.tux.Tailor.Led")]
 impl LedInterface {
     async fn add_profile(&self, name: &str, value: &str) -> fdo::Result<()> {
         // Verify correctness of the file.
@@ -73,7 +73,7 @@ impl LedInterface {
 
                 for led in &mut data.leds {
                     if led.profile == from {
-                        led.profile = to.to_owned();
+                        to.clone_into(&mut led.profile);
                         changed = true;
                     }
                 }
