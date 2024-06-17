@@ -7,7 +7,7 @@ description = "A crate for checking the hardware capabilities on different devic
 
 [dependencies]
 sudo = "0.6.0"
-tokio-uring = "0.4.0"
+tokio-uring = "0.5.0"
 
 tuxedo_ioctl = { path = "../tuxedo_ioctl" }
 tuxedo_sysfs = { path = "../tuxedo_sysfs" }
