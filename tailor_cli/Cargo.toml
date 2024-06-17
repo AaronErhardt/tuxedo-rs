@@ -15,13 +15,13 @@ repository.workspace = true
 [dependencies]
 tailor_api = {version = "0.2.5", path = "../tailor_api" }
 tailor_client = {version = "0.2.6", path = "../tailor_client" }
-clap = { version = "4.2.4", features = ["derive"] }
+clap = { version = "4.4.18", features = ["derive"] }
 tokio = { version = "1.38", features = ["rt-multi-thread", "macros"] }
-colored = "2.0.0"
-eyre = "0.6.8"
-notify-rust = "4.8.0"
+colored = "2.1.0"
+eyre = "0.6.12"
+notify-rust = "4.11.0"
 
 [build-dependencies]
-clap = { version = "4.2.4", features = ["derive"] }
-clap_complete = "4.2.1"
-clap_mangen = "0.2.10"
+clap = { version = "4.4.18", features = ["derive"] }
+clap_complete = "4.4.10"
+clap_mangen = "0.2.19"

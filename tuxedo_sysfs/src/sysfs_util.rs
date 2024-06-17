@@ -59,7 +59,7 @@ async fn write_buffer<V>(file: &mut fs::File, value: V) -> Result<(), io::Error>
 where
     V: tokio_uring::buf::IoBuf,
 {
-    file.write_at(value, 0).await.0?;
+    file.write_at(value, 0).submit().await.0?;
     Ok(())
 }
 
