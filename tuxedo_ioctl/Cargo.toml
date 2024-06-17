@@ -9,7 +9,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-nix = { version = "0.28", features = ["ioctl"] }
+nix = { version = "0.29", features = ["ioctl"] }
 thiserror = "1"
 tracing = "0.1"
 
