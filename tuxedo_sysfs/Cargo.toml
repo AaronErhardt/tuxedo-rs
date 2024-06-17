@@ -11,7 +11,7 @@ repository.workspace = true
 [dependencies]
 futures = "0.3"
 tokio = { version = "1", features = ["time", "fs"] }
-tokio-uring = "0.4"
+tokio-uring = "0.5"
 tracing = "0.1"
 
 tailor_api = { version = "0.2.5", path = "../tailor_api" }
