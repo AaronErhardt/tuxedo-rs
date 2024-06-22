@@ -82,3 +82,7 @@ where
 pub(crate) async fn write_string(file: &mut fs::File, string: String) -> Result<(), io::Error> {
     write_buffer(file, string.into_bytes()).await
 }
+
+pub(crate) async fn write_int(file: &mut fs::File, int: u32) -> Result<(), io::Error> {
+    write_string(file, format!("{}", int)).await
+}

@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::sysfs_util::{r_file, read_to_string, read_to_string_list, rw_file};
+use crate::sysfs_util::{r_file, read_to_string, read_to_string_list, rw_file, write_string};
 
 use super::ChargingPriority;
 
@@ -31,5 +31,13 @@ impl ChargingPriority {
             .await?
             .trim()
             .to_owned())
+    }
+
+    /// charge_battery, performance
+    /// src/ng-app/app/charging-settings/charging-settings.component.ts
+    /// in TCC
+    /// / src/uniwill_keyboard.h in tuxedo-keyboard
+    pub async fn set_charging_priority(&mut self, priority: String) -> Result<(), io::Error> {
+        write_string(&mut self.charging_priority_file, priority).await
     }
 }

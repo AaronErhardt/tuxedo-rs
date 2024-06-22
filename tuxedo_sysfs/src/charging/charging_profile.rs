@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::sysfs_util::{r_file, read_to_string, read_to_string_list, rw_file};
+use crate::sysfs_util::{r_file, read_to_string, read_to_string_list, rw_file, write_string};
 
 use super::ChargingProfile;
 
@@ -31,5 +31,13 @@ impl ChargingProfile {
             .await?
             .trim()
             .to_owned())
+    }
+
+    /// high_capacity, balanced, stationary according to
+    /// src/ng-app/app/charging-settings/charging-settings.component.ts
+    /// in TCC
+    /// / src/uniwill_keyboard.h in tuxedo-keyboard
+    pub async fn set_charging_profile(&mut self, profile: String) -> Result<(), io::Error> {
+        write_string(&mut self.charging_profile_file, profile).await
     }
 }

@@ -1,7 +1,8 @@
 use std::io;
 
 use crate::sysfs_util::{
-    r_file, read_int_list, read_path_to_int_list, read_path_to_string, read_to_string,
+    r_file, read_int_list, read_path_to_int_list, read_path_to_string, read_to_string, write_int,
+    write_string,
 };
 
 use super::BatteryChargeControl;
@@ -124,5 +125,23 @@ impl BatteryChargeControl {
             .await?
             .trim()
             .to_owned())
+    }
+
+    /// <https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-power>
+    /// (section charge_type)
+    pub async fn set_charge_type(&mut self, charge_type: String) -> Result<(), io::Error> {
+        write_string(&mut self.charge_type_file, charge_type).await
+    }
+
+    /// generally: 0-100,
+    /// but may be further restricted to [`Self::available_start_thresholds`]
+    pub async fn set_start_threshold(&mut self, threshold: u32) -> Result<(), io::Error> {
+        write_int(&mut self.start_threshold_file, threshold).await
+    }
+
+    /// generally: 0-100,
+    /// but may be further restricted to [`Self::available_end_thresholds`]
+    pub async fn set_end_threshold(&mut self, threshold: u32) -> Result<(), io::Error> {
+        write_int(&mut self.end_threshold_file, threshold).await
     }
 }
