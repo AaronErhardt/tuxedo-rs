@@ -107,4 +107,73 @@ async fn sysfs() {
         print_value("LED mode", &controller.mode());
         print_value("LED device color", &controller.get_color().await);
     }
+
+    let charging_profile = tuxedo_sysfs::charging::ChargingProfile::new()
+        .await
+        .unwrap();
+    if let Some(mut charging_profile) = charging_profile {
+        print_value(
+            "Available charging profiles",
+            &charging_profile.available_charging_profiles,
+        );
+        print_value(
+            "Current charging profile",
+            &charging_profile.get_charging_profile().await.unwrap(),
+        );
+    } else {
+        print_info("Charging profile control is not available");
+    }
+
+    let charging_priority = tuxedo_sysfs::charging::ChargingPriority::new()
+        .await
+        .unwrap();
+    if let Some(mut charging_priority) = charging_priority {
+        print_value(
+            "Available charging priorities",
+            &charging_priority.available_charging_priorities,
+        );
+        print_value(
+            "Current charging priority",
+            &charging_priority.get_charging_priority().await.unwrap(),
+        );
+    } else {
+        print_info("Charging priority control is not available");
+    }
+
+    let first_battery = tuxedo_sysfs::charging::BatteryChargeControl::new_first_battery()
+        .await
+        .unwrap();
+    if let Some(mut first_battery) = first_battery {
+        print_value("Battery name", &first_battery.name);
+        print_value(
+            "Battery charge type",
+            &first_battery.get_charge_type().await.unwrap(),
+        );
+        if let Some(available_start_thresholds) = &first_battery.available_start_thresholds {
+            print_value(
+                "Available charge control start thresholds",
+                available_start_thresholds,
+            );
+        } else {
+            print_info("Available charge control start thresholds not available");
+        }
+        print_value(
+            "Battery start threshold",
+            &first_battery.get_start_threshold().await.unwrap(),
+        );
+        if let Some(available_end_thresholds) = &first_battery.available_end_thresholds {
+            print_value(
+                "Available charge control end thresholds",
+                available_end_thresholds,
+            );
+        } else {
+            print_info("Available charge control end thresholds not available");
+        }
+        print_value(
+            "Battery end threshold",
+            &first_battery.get_end_threshold().await.unwrap(),
+        );
+    } else {
+        print_info("Charge control for start/end thresholds is not available");
+    }
 }
