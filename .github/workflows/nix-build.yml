@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Nix
-      uses: DeterminateSystems/nix-installer-action@v13
+      uses: DeterminateSystems/nix-installer-action@v14
     - name: Set up cachix
       uses: cachix/cachix-action@v15
       with:
