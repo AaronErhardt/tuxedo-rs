@@ -25,4 +25,4 @@ zbus = { version = "4", default-features = false, features = ["tokio"] }
 tailor_api = { path = "../tailor_api" }
 tuxedo_ioctl = { path = "../tuxedo_ioctl" }
 tuxedo_sysfs = { path = "../tuxedo_sysfs" }
-once_cell = "1.19.0"
+once_cell = "1.20.0"
