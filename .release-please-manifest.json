@@ -1,10 +1,10 @@
 {
     "tuxedo_ioctl": "0.2.4",
-    "tuxedo_sysfs": "0.2.5",
-    "tailord": "0.2.5",
-    "tailor_api": "0.2.5",
-    "tailor_client": "0.2.6",
-    "tailor_cli": "0.3.1",
+    "tuxedo_sysfs": "0.3.0",
+    "tailord": "0.3.0",
+    "tailor_api": "0.2.6",
+    "tailor_client": "0.2.7",
+    "tailor_cli": "0.3.2",
     "tailor_gui": "0.2.3",
-    "tailor_hwcaps": "0.2.6"
+    "tailor_hwcaps": "0.3.0"
 }
