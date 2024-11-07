@@ -10,14 +10,14 @@
 </div>
 
 > Tuxedo-rs is a community project. It is not developed nor supported by TUXEDO Computers.  
-> Although we only supports TUXEDO hardware for now, other vendors are free to contribute their own bindings.
+> Although we only support TUXEDO hardware for now, other vendors are free to contribute their own bindings.
 
 ## Motivation
 
-The TUXEDO Control Center (TCC) is a neat application that allows you to control different parts of your hardware, such as fans, webcam and performance profiles.
+The [TUXEDO Control Center (TCC)](https://github.com/tuxedocomputers/tuxedo-control-center) is a neat application that allows you to control different parts of your hardware, such as fans, webcam and performance profiles.
 However, TCC and its tccd service rely on Node.js which makes it slow, memory hungry and hard to package.
 
-Also, tuxedo-rs is modular and contains several crates with different levels of abstraction, which makes it easy for everyone to built their own tools on top.
+Also, tuxedo-rs is modular and contains several crates with different levels of abstraction, which makes it easy for everyone to build their own tools on top.
 
 ### Why Rust?
 
@@ -25,7 +25,7 @@ Also, tuxedo-rs is modular and contains several crates with different levels of 
 - Very robust code
 - Strong compile-time guarantees
 - High performance
-- Easy to package (no additional runtime or dependencies)
+- Easy to package (no additional runtime dependencies)
 
 ## Structure
 
@@ -44,7 +44,7 @@ Since I have limited access to hardware, please consider adding your device(s) t
 - TUXEDO InfinityBook S 14 Gen6
 - TUXEDO InfinityBook S 15 Gen6
 
-To find out more about the features supported by your device, you can install the `tailor_hwcaps` CLI-tool:
+To find out more about the features supported by your device, you can install the `tailor_hwcaps` CLI tool:
 
 ```sh
 cargo install tailor_hwcaps --git https://github.com/AaronErhardt/tuxedo-rs && tailor_hwcaps
@@ -54,23 +54,23 @@ cargo install tailor_hwcaps --git https://github.com/AaronErhardt/tuxedo-rs && t
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/tuxedo-rs.svg)](https://repology.org/project/tuxedo-rs/versions)
 
-Currently, tuxedo-rs isn't available from other package archives so you have to install it from source.
+Currently, tuxedo-rs isn't available from other package archives, so you have to install it from source.
 
 ### Tuxedo driver modules
 
-If you use a distribution that doesn't package the required tuxedo hardware drivers, you can install the from [source](https://github.com/tuxedocomputers/tuxedo-keyboard).
+If you use a distribution that doesn't package the required TUXEDO hardware drivers, you can install them from [source](https://gitlab.com/tuxedocomputers/development/packages/tuxedo-drivers).
 
 ```sh
-git clone https://github.com/tuxedocomputers/tuxedo-keyboard.git
-cd tuxedo-keyboard
-git checkout release
+git clone https://gitlab.com/tuxedocomputers/development/packages/tuxedo-drivers.git
+cd tuxedo-drivers
+git checkout "$(git rev-list --tags --max-count=1)"
 sudo make dkmsinstall
 ```
 
 ### Tailord
 
 Tailord is the system service that runs in the background and interacts with the driver modules.
-It exposes a D-BUS interface that can be used by applications to configure the hardware.
+It exposes a D-Bus interface that can be used by applications to configure the hardware.
 
 ```sh
 cd tailord
@@ -97,10 +97,10 @@ sudo systemctl start tailord.service
 
 ### Tailor GUI
 
-Tailor GUI will soon be available as flatpak package. 
+Tailor GUI will soon be available as a Flatpak package. 
 In the meantime, you can build the app from source.
-Usually, building the app only requires GNOME Builder or the flatpak extension for VSCode.
-Yet, you can use the command line if your prefer it:
+Usually, building the app only requires GNOME Builder or the Flatpak extension for VSCode.
+Yet, you can also use the command line if you prefer it:
 
 ```sh
 flatpak install org.gnome.Sdk//44 org.freedesktop.Sdk.Extension.rust-stable//22.08 org.gnome.Platform//44 runtime/org.freedesktop.Sdk.Extension.llvm15//22.08
@@ -108,7 +108,7 @@ flatpak-builder --user flatpak_app tailor_gui/build-aux/com.github.aaronerhardt.
 flatpak-builder --run flatpak_app tailor_gui/build-aux/com.github.aaronerhardt.Tailor.json tailor_gui
 ```
 
-If you don't want to use flatpak-builder, make sure you have the following dependencies installed on your system.
+If you don't want to use `flatpak-builder`, make sure you have the following dependencies installed on your system.
 
 Ubuntu 23.04:
 
@@ -128,7 +128,7 @@ Fedora 38:
 sudo dnf -y install meson libadwaita-devel gtk4-devel
 ```
 
-Then build and install Tailor GUI with meson:
+Then build and install Tailor GUI with `meson`:
 
 ```sh
 cd tailor_gui
@@ -139,7 +139,7 @@ ninja -C _build install
 
 ### Tailor CLI
 
-You can build and install the tailor CLI from source using cargo:
+You can build and install the `tailor` CLI from source using `cargo`:
 
 ```sh
 cargo install --path tailor_cli
@@ -164,7 +164,7 @@ tuxedo-rs can be [enabled on NixOS with the following options](https://search.ni
 - [x] Ioctl abstraction for tuxedo_io
 - [x] Sysfs abstraction for tuxedo_keyboard
 - [x] Support for hardware from both clevo and uniwill
-- [x] Daemon with DBus interface for user space application
+- [x] Daemon with D-Bus interface for user space application
 - [x] Client library for interacting with the daemon
 - [x] CLI that interacts with the daemon
 - [x] Native GUI that interacts with the daemon
