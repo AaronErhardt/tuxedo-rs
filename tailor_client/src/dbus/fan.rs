@@ -5,7 +5,7 @@ use zbus::{fdo, proxy};
     default_service = "com.tux.Tailor",
     default_path = "/com/tux/Tailor"
 )]
-trait Fan {
+pub trait Fan {
     async fn add_profile(&self, name: &str, value: &str) -> fdo::Result<()>;
 
     async fn get_profile(&self, name: &str) -> fdo::Result<String>;

@@ -13,7 +13,6 @@ use dbus::{FanInterface, PerformanceInterface, ProfileInterface};
 use profiles::Profile;
 use tailor_api::{ColorProfile, LedControllerMode};
 use tuxedo_ioctl::hal::IoInterface;
-use zbus::ConnectionBuilder;
 
 use crate::{
     dbus::LedInterface,
@@ -156,7 +155,7 @@ async fn start_runtime() {
     };
 
     tracing::debug!("Connecting to DBUS as {DBUS_NAME}");
-    let _conn = ConnectionBuilder::system()
+    let _conn = zbus::connection::Builder::system()
         .unwrap()
         .name(DBUS_NAME)
         .unwrap()
