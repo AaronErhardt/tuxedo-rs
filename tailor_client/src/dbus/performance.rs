@@ -5,7 +5,7 @@ use zbus::{fdo, proxy};
     default_service = "com.tux.Tailor",
     default_path = "/com/tux/Tailor"
 )]
-trait Performance {
+pub trait Performance {
     /// Temporarily override the performance profile. Please note that this will not survive a
     /// restart as the performance profile is handled by the overall profile configuration.
     async fn set_profile(&self, name: &str, value: &str) -> fdo::Result<()>;
