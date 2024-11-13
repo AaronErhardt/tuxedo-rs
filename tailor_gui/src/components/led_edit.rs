@@ -92,8 +92,6 @@ impl Component for LedEdit {
                 },
 
                 gtk::ScrolledWindow {
-                    add_css_class: "background",
-
                     adw::Clamp {
                         set_margin_all: 12,
                         set_vexpand: true,
@@ -148,8 +146,6 @@ impl Component for LedEdit {
                         }
                     }
                 },
-
-                gtk::Separator {},
 
                 #[template]
                 templates::MsgDialogButtons {

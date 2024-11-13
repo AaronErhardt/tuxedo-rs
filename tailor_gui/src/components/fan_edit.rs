@@ -157,7 +157,6 @@ impl Component for FanEdit {
                         }
                     }
                 },
-                gtk::Separator {},
 
                 #[template]
                 templates::MsgDialogButtons {

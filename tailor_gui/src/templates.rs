@@ -43,15 +43,14 @@ impl WidgetTemplate for MsgDialogButtons {
                 set_label: "Cancel",
                 set_hexpand: true,
                 #[iterate]
-                add_css_class: &["flat", "destructive"],
+                add_css_class: &["destructive-action"],
             },
-            gtk::Separator,
             #[name(save_button)]
             gtk::Button {
                 set_label: "Save",
                 set_hexpand: true,
                 #[iterate]
-                add_css_class: &["flat", "suggested"],
+                add_css_class: &["suggested-action"],
             },
         }
     }
