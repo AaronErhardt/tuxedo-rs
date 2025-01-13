@@ -16,7 +16,7 @@ repository.workspace = true
 tailor_api = {version = "0.2.5", path = "../tailor_api" }
 tailor_client = {version = "0.2.6", path = "../tailor_client" }
 clap = { version = "4.4.18", features = ["derive"] }
-tokio = { version = "1.41", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1.43", features = ["rt-multi-thread", "macros"] }
 colored = "3.0.0"
 eyre = "0.6.12"
 notify-rust = "4.11.3"
