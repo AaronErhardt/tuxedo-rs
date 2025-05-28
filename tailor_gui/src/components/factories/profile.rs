@@ -220,11 +220,9 @@ impl FactoryComponent for Profile {
 
         match message {
             ProfileInput::Enabled => {
-                if !self.active {
-                    sender.oneshot_command(async move {
-                        STATE.emit(TailorStateMsg::SetActiveProfile(name));
-                    });
-                }
+                sender.oneshot_command(async move {
+                    STATE.emit(TailorStateMsg::SetActiveProfile(name));
+                });
             }
             ProfileInput::UpdateProfile => {
                 let leds = self.leds.iter().map(|led| led.get_profile()).collect();
