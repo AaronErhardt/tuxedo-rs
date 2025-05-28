@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.6](https://github.com/AaronErhardt/tuxedo-rs/compare/tailor_api-v0.2.5...tailor_api-v0.2.6) (2025-05-28)
+
+
+### Bug Fixes
+
+* Parse profiles without LedMode without failing ([d2e938e](https://github.com/AaronErhardt/tuxedo-rs/commit/d2e938efd2e9e877e7eef9208cdc581b0e89e708))
+
 ## [0.2.5](https://github.com/AaronErhardt/tuxedo-rs/compare/tailor_api-v0.2.4...tailor_api-v0.2.5) (2024-04-01)
 
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/AaronErhardt/tuxedo-rs/compare/tailord-v0.2.5...tailord-v0.3.0) (2025-05-28)
+
+
+### Features
+
+* Lift fan limit to start at 75°C ([e1264b0](https://github.com/AaronErhardt/tuxedo-rs/commit/e1264b0ac4c893d35c5e74ee103bd62a95057466))
+
+
+### Bug Fixes
+
+* Parse profiles without LedMode without failing ([d2e938e](https://github.com/AaronErhardt/tuxedo-rs/commit/d2e938efd2e9e877e7eef9208cdc581b0e89e708))
+
 ## [0.2.5](https://github.com/AaronErhardt/tuxedo-rs/compare/tailord-v0.2.4...tailord-v0.2.5) (2024-04-01)
 
 
