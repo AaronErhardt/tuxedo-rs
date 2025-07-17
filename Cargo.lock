@@ -1387,7 +1387,7 @@ dependencies = [
  "tailor_api",
  "thiserror 2.0.0",
  "tokio",
- "zbus 5.7.0",
+ "zbus 5.9.0",
 ]
 
 [[package]]
@@ -1419,7 +1419,7 @@ dependencies = [
  "tracing-subscriber",
  "tuxedo_ioctl",
  "tuxedo_sysfs",
- "zbus 5.7.0",
+ "zbus 5.9.0",
 ]
 
 [[package]]
@@ -1940,9 +1940,9 @@ dependencies = [
 
 [[package]]
 name = "zbus"
-version = "5.7.0"
+version = "5.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88232b74ba057a0c85472ec1bae8a17569960be17da2d5e5ad30d5efe7ea6719"
+checksum = "4bb4f9a464286d42851d18a605f7193b8febaf5b0919d71c6399b7b26e5b0aad"
 dependencies = [
  "async-broadcast",
  "async-recursion",
@@ -1961,7 +1961,7 @@ dependencies = [
  "uds_windows",
  "windows-sys 0.59.0",
  "winnow 0.7.1",
- "zbus_macros 5.7.0",
+ "zbus_macros 5.9.0",
  "zbus_names 4.2.0",
  "zvariant 5.5.3",
 ]
@@ -1981,9 +1981,9 @@ dependencies = [
 
 [[package]]
 name = "zbus_macros"
-version = "5.7.0"
+version = "5.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6969c06899233334676e60da1675740539cf034ee472a6c5b5c54e50a0a554c9"
+checksum = "ef9859f68ee0c4ee2e8cde84737c78e3f4c54f946f2a38645d0d4c7a95327659"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
