@@ -43,6 +43,7 @@ Since I have limited access to hardware, please consider adding your device(s) t
 - TUXEDO Book XP14 Gen12
 - TUXEDO InfinityBook S 14 Gen6
 - TUXEDO InfinityBook S 15 Gen6
+- Gigabyte G5 KF 
 
 To find out more about the features supported by your device, you can install the `tailor_hwcaps` CLI tool:
 
