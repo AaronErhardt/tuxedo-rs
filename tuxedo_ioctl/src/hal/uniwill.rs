@@ -29,8 +29,11 @@ impl UniwillHardware {
                 num_of_fans: 0,
             };
 
-            // Only show actually available fans
-            while this.get_fan_temperature(this.num_of_fans).is_ok() {
+            // Probe speed IOCTLs directly for discovery, ignore temperature
+            if read::uw::fan_speed_0(&this.file).is_ok() {
+                this.num_of_fans += 1;
+            }
+            if read::uw::fan_speed_1(&this.file).is_ok() {
                 this.num_of_fans += 1;
             }
 
@@ -82,40 +85,57 @@ impl HardwareDevice for UniwillHardware {
             (MAX_FAN_SPEED as f64 * fan_speed_percent as f64 / 100.0).round() as i32;
 
         match fan {
-            0 => write::uw::fan_speed_0(&self.file, fan_speed_raw)?,
-            1 => write::uw::fan_speed_1(&self.file, fan_speed_raw)?,
+            0 => {
+                write::uw::fan_speed_0(&self.file, fan_speed_raw)?;
+            }
+            // Ignore write errors to Fan 1 if the EC path is temporarily asleep
+            1 => {
+                let _ = write::uw::fan_speed_1(&self.file, fan_speed_raw);
+            }
             _ => return Err(IoctlError::DevNotAvailable),
         }
-        tracing::trace!(
-            "Set fan {fan} speed percentage to {fan_speed_percent}, fan speed raw: {fan_speed_raw}"
-        );
+        tracing::trace!("Set fan {fan} speed percentage to {fan_speed_percent}");
         Ok(())
     }
 
     #[tracing::instrument(level = "trace", skip(self))]
     fn get_fan_speed_percent(&self, fan: u8) -> IoctlResult<u8> {
-        let fan_speed_raw = match fan {
+        let speed_result = match fan {
             0 => read::uw::fan_speed_0(&self.file),
             1 => read::uw::fan_speed_1(&self.file),
-            _ => Err(IoctlError::DevNotAvailable),
-        }?;
+            _ => return Err(IoctlError::DevNotAvailable),
+        };
+
+        // Provide a phantom 0% speed if Fan 1 is asleep to keep the daemon happy
+        let fan_speed_raw = match speed_result {
+            Ok(s) => s,
+            Err(_) if fan == 1 => 0,
+            Err(e) => return Err(e),
+        };
 
         let speed = (fan_speed_raw as f64 * 100.0 / MAX_FAN_SPEED as f64).round() as u8;
-        tracing::trace!("Fan {fan} speed percentage is {speed}, fan speed raw: {fan_speed_raw}");
+        tracing::trace!("Fan {fan} speed percentage is {speed}");
         Ok(speed)
     }
 
     #[tracing::instrument(level = "trace", skip(self))]
     fn get_fan_temperature(&self, fan: u8) -> IoctlResult<u8> {
-        let temp = match fan {
+        // Strip the ? operator to prevent hard crashes
+        let temp_result = match fan {
             0 => read::uw::fan_temp_0(&self.file),
             1 => read::uw::fan_temp_1(&self.file),
-            _ => Err(IoctlError::DevNotAvailable),
-        }?;
+            _ => return Err(IoctlError::DevNotAvailable),
+        };
 
-        // Also use known set value (0x00) from tccwmi to detect no temp/fan
+        let mut temp = temp_result.unwrap_or(0);
+
+        // FALLBACK: If Fan 1 is sleeping or dead (<=0), mirror the CPU temp
+        if fan == 1 && temp <= 0 {
+            temp = read::uw::fan_temp_0(&self.file).unwrap_or(0);
+        }
+
         if temp <= 0 {
-            Err(IoctlError::DevNotAvailable)
+            Ok(0) // Return a safe 0 instead of crashing the daemon
         } else {
             tracing::trace!("Fan {fan} temperature is {temp} C");
             Ok(temp as u8)
