@@ -33,7 +33,18 @@ impl UniwillHardware {
             if read::uw::fan_speed_0(&this.file).is_ok() {
                 this.num_of_fans += 1;
             }
-            if read::uw::fan_speed_1(&this.file).is_ok() {
+
+            // some devices have two fans on one heatpipe for one compute device (e.g. APU)
+            // there are cases where such gpu fans are not properly reported to be present
+            // but work properly when explicitly discovered here
+            let broken_second_fan_model_ids: &[i32] = &[
+                26, // TUXEDO InfinityBook Pro AMD Gen9 / Gen10
+            ];
+            let device_auto_detect_second_fan_is_broken = read::uw::model_id(&this.file)
+                .map(|id| broken_second_fan_model_ids.contains(&id))
+                .unwrap_or(false);
+            if read::uw::fan_speed_1(&this.file).is_ok() || device_auto_detect_second_fan_is_broken
+            {
                 this.num_of_fans += 1;
             }
 
