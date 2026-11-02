@@ -1,7 +1,7 @@
 [package]
 name = "tuxedo_sysfs"
 description = "Tuxedo sysfs interface (part of tuxedo-rs)"
-version = "0.2.5"
+version = "0.3.0"
 rust-version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -14,7 +14,7 @@ tokio = { version = "1", features = ["time", "fs"] }
 tokio-uring = "0.5"
 tracing = "0.1"
 
-tailor_api = { version = "0.2.5", path = "../tailor_api" }
+tailor_api = { version = "0.2.6", path = "../tailor_api" }
 
 [dev-dependencies]
 sudo = "0.6"

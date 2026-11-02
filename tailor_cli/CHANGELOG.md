@@ -4,6 +4,11 @@
   * dependencies
     * tailor_client bumped from 0.2.5 to 0.2.6
 
+* The following workspace dependencies were updated
+  * dependencies
+    * tailor_api bumped from 0.2.5 to 0.2.6
+    * tailor_client bumped from 0.2.6 to 0.2.7
+
 ## [0.3.0](https://github.com/AaronErhardt/tuxedo-rs/compare/tailor-v0.2.3...tailor-v0.3.0) (2023-11-19)
 
 
